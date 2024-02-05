@@ -1,0 +1,16 @@
+{
+  "author": "",
+  "dependencies": {
+    "@freecodecamp/freecodecamp-os": "^3.1.0"
+  },
+  "description": "",
+  "keywords": [],
+  "license": "MIT",
+  "name": "back-end-development-and-apis",
+  "private": true,
+  "scripts": {
+    "start": "node ./node_modules/@freecodecamp/freecodecamp-os/.freeCodeCamp/tooling/server.js"
+  },
+  "type": "module",
+  "version": "1.0.0"
+}

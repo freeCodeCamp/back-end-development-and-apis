@@ -1,0 +1,43 @@
+{
+  "files.exclude": {
+    ".devcontainer": false,
+    ".logs": false,
+    ".vscode": false,
+    "bash": false,
+    "client": false,
+    "config": false,
+    "curriculum": false,
+    "node_modules": false,
+    "tooling": false,
+    ".gitignore": false,
+    ".gitpod.yml": false,
+    "Dockerfile": false,
+    "freecodecamp.conf.json": false,
+    "package-lock.json": false,
+    "package.json": false,
+    "learn-npm-by-building-an-npm-module": false
+  },
+  "freecodecamp-courses.autoStart": true,
+  "freecodecamp-courses.prepare": "sed -i \"s#WD=.*#WD=$(pwd)#g\" ./bash/.bashrc",
+  "freecodecamp-courses.scripts.develop-course": "NODE_ENV=development npm run start",
+  "freecodecamp-courses.scripts.run-course": "NODE_ENV=production npm run start",
+  "freecodecamp-courses.workspace.previews": [
+    {
+      "open": true,
+      "showLoader": true,
+      "timeout": 4000,
+      "url": "http://localhost:8080"
+    }
+  ],
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "terminal.integrated.profiles.linux": {
+    "bash": {
+      "args": [
+        "--init-file",
+        "./bash/sourcerer.sh"
+      ],
+      "icon": "terminal-bash",
+      "path": "bash"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+[
+  {
+    "id": 0,
+    "dashedName": "learn-npm-by-building-an-npm-module",
+    "isIntegrated": false,
+    "isPublic": true,
+    "currentLesson": 0,
+    "runTestsOnWatch": true,
+    "seedEveryLesson": false,
+    "isResetEnabled": false,
+    "numberOfLessons": 1
+  }
+]
