@@ -8,6 +8,23 @@
     "runTestsOnWatch": true,
     "seedEveryLesson": false,
     "isResetEnabled": false,
+    "numberofLessons": null,
+    "blockingTests": null,
+    "breakOnFailure": null,
+    "numberOfLessons": 32
+  },
+  {
+    "id": 1,
+    "dashedName": "build-a-timestamp-microservice",
+    "isIntegrated": true,
+    "isPublic": true,
+    "currentLesson": 0,
+    "runTestsOnWatch": false,
+    "seedEveryLesson": false,
+    "isResetEnabled": false,
+    "numberofLessons": null,
+    "blockingTests": true,
+    "breakOnFailure": true,
     "numberOfLessons": 1
   }
 ]

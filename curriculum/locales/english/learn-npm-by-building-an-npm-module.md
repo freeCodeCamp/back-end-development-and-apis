@@ -738,4 +738,196 @@ npm install case_converter
 ```
 ````
 
+## 27
+
+### --description--
+
+Within the `Usage` section, add the example code showing how your API works:
+
+````markdown
+```js
+const caseConverter = require("./index");
+const str = "hello free Code Camp!";
+console.log(caseConverter.getUpperCase(str)); // HELLO FREE CODE CAMP!
+console.log(caseConverter.getLowerCase(str)); // hello free code camp!
+console.log(caseConverter.getProperCase(str)); // Hello Free Code Camp!
+console.log(caseConverter.getSentenceCase(str)); //
+```
+````
+
+Also, finish the comment for the `getSentenceCase` function showing the output.
+
+### --tests--
+
+The `README.md` file should contain the given code under the `Usage` section.
+
+```js
+assert.fail();
+```
+
+The example code should have 4 comments. The last being `// Hello free code camp!`.
+
+```js
+assert.fail();
+```
+
+### --seed--
+
+#### --"learn-npm-by-building-an-npm-module/case_converter/README.md"--
+
+````markdown
+# Case Converter
+
+This package is used to convert strings to a specific case.
+
+## Installation
+
+```bash
+npm install case_converter
+```
+
+## Usage
+````
+
+## 28
+
+### --description--
+
+The final section of your `README.md` file can be a section mentioning the license under which your package is released.
+
+Add a level-2 heading, `License`, to the `README.md` file.
+
+### --tests--
+
+The `README.md` file should contain `## License`.
+
+```js
+assert.fail();
+```
+
+### --seed--
+
+#### --"learn-npm-by-building-an-npm-module/case_converter/README.md"--
+
+````markdown
+# Case Converter
+
+This package is used to convert strings to a specific case.
+
+## Installation
+
+```bash
+npm install case_converter
+```
+
+## Usage
+
+```js
+const caseConverter = require("./index");
+const str = "hello free Code Camp!";
+console.log(caseConverter.getUpperCase(str)); // HELLO FREE CODE CAMP!
+console.log(caseConverter.getLowerCase(str)); // hello free code camp!
+console.log(caseConverter.getProperCase(str)); // Hello Free Code Camp!
+console.log(caseConverter.getSentenceCase(str)); // Hello free code camp!
+```
+````
+
+## 29
+
+### --description--
+
+Add some text mentioning the license used in your `package.json` file.
+
+### --tests--
+
+The `README.md` file should contain the word `MIT` under the `License` section.
+
+```js
+assert.fail();
+```
+
+### --seed--
+
+#### --"learn-npm-by-building-an-npm-module/case_converter/README.md"--
+
+````markdown
+# Case Converter
+
+This package is used to convert strings to a specific case.
+
+## Installation
+
+```bash
+npm install case_converter
+```
+
+## Usage
+
+```js
+const caseConverter = require("./index");
+const str = "hello free Code Camp!";
+console.log(caseConverter.getUpperCase(str)); // HELLO FREE CODE CAMP!
+console.log(caseConverter.getLowerCase(str)); // hello free code camp!
+console.log(caseConverter.getProperCase(str)); // Hello Free Code Camp!
+console.log(caseConverter.getSentenceCase(str)); // Hello free code camp!
+```
+
+## License
+````
+
+## 30
+
+### --description--
+
+Create the `index.test.js` file to test your package.
+
+### --tests--
+
+### --seed--
+
+#### --"learn-npm-by-building-an-npm-module/case_converter/README.md"--
+
+````markdown
+# Case Converter
+
+This package is used to convert strings to a specific case.
+
+## Installation
+
+```bash
+npm install case_converter
+```
+
+## Usage
+
+```js
+const caseConverter = require("./index");
+const str = "hello free Code Camp!";
+console.log(caseConverter.getUpperCase(str)); // HELLO FREE CODE CAMP!
+console.log(caseConverter.getLowerCase(str)); // hello free code camp!
+console.log(caseConverter.getProperCase(str)); // Hello Free Code Camp!
+console.log(caseConverter.getSentenceCase(str)); // Hello free code camp!
+```
+
+## License
+
+The MIT License
+````
+
+## 31
+
+### --description--
+
+Nodejs comes with a built-in assertion testing module. You can use it to test your package.
+
+Within `index.test.js`, import `assert` from `node:assert/strict`.
+
+### --tests--
+
+The `index.test.js` file should have `import assert from "node:assert/strict";`.
+
+```js
+assert.fail();
+```
+
 ## --fcc-end--
