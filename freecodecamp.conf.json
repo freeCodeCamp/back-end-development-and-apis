@@ -12,7 +12,7 @@
       }
     },
     "static": {
-      "/scripts/injectable.js": "./client/injectable.js"
+      "/script/injectable.js": "./client/injectable.js"
     }
   },
   "config": {

@@ -6,19 +6,43 @@ In this project, you will learn how to create an NPM module. You will create a s
 
 ### --description--
 
+In this project, you will be creating an npm module that can be used to convert strings to a specific case. For the duration of this project, you will be working in the `learn-npm-by-building-an-npm-module/` directory.
+
+Open a new terminal, and run `cd learn-npm-by-building-an-npm-module` to change to the project directory.
+
+### --tests--
+
+You should be in the `learn-npm-by-building-an-npm-module/` directory.
+
+```js
+
+```
+
+## 1
+
+### --description--
+
 In order to build an npm module, you have to create an empty directory first.
 
 Within the `learn-npm-by-building-an-npm-module/` directory, run `mkdir case_converter` in the terminal.
 
 ### --tests--
 
-Example test.
+You should have a directory named `case_converter` in the `learn-npm-by-building-an-npm-module/` directory.
 
 ```js
 assert.fail();
 ```
 
-## 1
+### --seed--
+
+#### --cmd--
+
+```bash
+cd learn-npm-by-building-an-npm-module && rm -r .
+```
+
+## 2
 
 ### --description--
 
@@ -40,7 +64,7 @@ assert.fail();
 mkdir learn-npm-by-building-an-npm-module/case_converter
 ```
 
-## 2
+## 3
 
 ### --description--
 
@@ -56,7 +80,7 @@ You should run `npm init` in the terminal.
 assert.fail();
 ```
 
-## 3
+## 4
 
 ### --description--
 
@@ -78,7 +102,15 @@ You should press `Enter` to accept the default package name.
 assert.fail();
 ```
 
-## 4
+### --seed--
+
+#### --cmd--
+
+```bash
+npm init -y
+```
+
+## 5
 
 ### --description--
 
@@ -98,7 +130,7 @@ You should press `Enter` to accept the default version.
 assert.fail();
 ```
 
-## 5
+## 6
 
 ### --description--
 
@@ -114,7 +146,7 @@ You should write `This package is used to convert strings to a specific case.` a
 assert.fail();
 ```
 
-## 6
+## 7
 
 ### --description--
 
@@ -130,7 +162,7 @@ You should press `Enter` to accept the default entry point.
 assert.fail();
 ```
 
-## 7
+## 8
 
 ### --description--
 
@@ -146,7 +178,7 @@ You should write `node index.test.js` and press `Enter`.
 assert.fail();
 ```
 
-## 8
+## 9
 
 ### --description--
 
@@ -162,7 +194,7 @@ You should press `Enter` to accept the default Git repository.
 assert.fail();
 ```
 
-## 9
+## 10
 
 ### --description--
 
@@ -178,7 +210,7 @@ You should write `case,converter,uppercase,lowercase` and press `Enter`.
 assert.fail();
 ```
 
-## 10
+## 11
 
 ### --description--
 
@@ -194,7 +226,7 @@ You should write your name and press `Enter`.
 assert.fail();
 ```
 
-## 11
+## 12
 
 ### --description--
 
@@ -216,7 +248,7 @@ You should write `MIT` and press `Enter`.
 assert.fail();
 ```
 
-## 12
+## 13
 
 ### --description--
 
@@ -232,7 +264,7 @@ You should press `Enter` to confirm.
 assert.fail();
 ```
 
-## 13
+## 14
 
 ### --description--
 
@@ -272,7 +304,7 @@ touch learn-npm-by-building-an-npm-module/case_converter/package.json
 }
 ```
 
-## 14
+## 15
 
 ### --description--
 
@@ -306,7 +338,7 @@ assert.fail();
 touch learn-npm-by-building-an-npm-module/case_converter/index.js
 ```
 
-## 15
+## 16
 
 ### --description--
 
@@ -342,7 +374,7 @@ function getUpperCase(str) {
 }
 ```
 
-## 16
+## 17
 
 ### --description--
 
@@ -376,7 +408,7 @@ function getLowerCase(str) {
 }
 ```
 
-## 17
+## 18
 
 ### --description--
 
@@ -418,7 +450,7 @@ function getLowerCase(str) {
 function getSentenceCase(str) {}
 ```
 
-## 18
+## 19
 
 ### --description--
 
@@ -457,7 +489,7 @@ function getSentenceCase(str) {
 }
 ```
 
-## 19
+## 20
 
 ### --description--
 
@@ -504,7 +536,7 @@ function getSentenceCase(str) {
 function getProperCase(str) {}
 ```
 
-## 20
+## 21
 
 ### --description--
 
@@ -551,7 +583,7 @@ function getProperCase(str) {
 }
 ```
 
-## 21
+## 22
 
 ### --description--
 
@@ -596,7 +628,7 @@ module.exports = {
 };
 ```
 
-## 22
+## 23
 
 ### --description--
 
@@ -624,7 +656,7 @@ assert.fail();
 touch learn-npm-by-building-an-npm-module/case_converter/README.md
 ```
 
-## 23
+## 24
 
 ### --description--
 
@@ -646,7 +678,7 @@ assert.fail();
 # Case Converter
 ```
 
-## 24
+## 25
 
 ### --description--
 
@@ -676,7 +708,7 @@ assert.fail();
 This package is used to convert strings to a specific case.
 ```
 
-## 25
+## 26
 
 ### --description--
 
@@ -708,7 +740,7 @@ This package is used to convert strings to a specific case.
 ## Installation
 ```
 
-## 26
+## 27
 
 ### --description--
 
@@ -738,7 +770,7 @@ npm install case_converter
 ```
 ````
 
-## 27
+## 28
 
 ### --description--
 
@@ -789,7 +821,7 @@ npm install case_converter
 ## Usage
 ````
 
-## 28
+## 29
 
 ### --description--
 
@@ -832,7 +864,7 @@ console.log(caseConverter.getSentenceCase(str)); // Hello free code camp!
 ```
 ````
 
-## 29
+## 30
 
 ### --description--
 
@@ -875,7 +907,7 @@ console.log(caseConverter.getSentenceCase(str)); // Hello free code camp!
 ## License
 ````
 
-## 30
+## 31
 
 ### --description--
 
@@ -914,20 +946,362 @@ console.log(caseConverter.getSentenceCase(str)); // Hello free code camp!
 The MIT License
 ````
 
-## 31
+## 32
 
 ### --description--
 
 Nodejs comes with a built-in assertion testing module. You can use it to test your package.
 
-Within `index.test.js`, import `assert` from `node:assert/strict`.
+Within `index.test.js`, import `assert` from `node:assert/strict`:
+
+```js
+const assert = require("node:assert/strict");
+```
 
 ### --tests--
 
-The `index.test.js` file should have `import assert from "node:assert/strict";`.
+The `index.test.js` file should have `const assert = require("node:assert/strict");`.
+
+```js
+assert.fail();
+```
+
+### --seed--
+
+#### --cmd--
+
+```bash
+touch learn-npm-by-building-an-npm-module/case_converter/index.test.js
+```
+
+## 33
+
+### --description--
+
+Create a test for the `getUpperCase` function:
+
+```js
+assert.strictEqual(
+  caseConverter.getUpperCase("hello free Code Camp!"),
+  "HELLO FREE CODE CAMP!"
+);
+```
+
+### --tests--
+
+The `index.test.js` file should contain `assert.strictEqual(caseConverter.getUpperCase("hello free Code Camp!"), "HELLO FREE CODE CAMP!");`.
+
+```js
+assert.fail();
+```
+
+### --seed--
+
+#### --"learn-npm-by-building-an-npm-module/case_converter/index.test.js"--
+
+```js
+const assert = require("node:assert/strict");
+```
+
+## 34
+
+### --description--
+
+In order to use the `caseConverter` module in the `index.test.js` file, you need to import it:
+
+```js
+const caseConverter = require("./index");
+```
+
+### --tests--
+
+The `index.test.js` file should contain `const caseConverter = require("./index");`.
+
+```js
+assert.fail();
+```
+
+The import of `caseConverter` should be above the test.
+
+```js
+assert.fail();
+```
+
+### --seed--
+
+#### --"learn-npm-by-building-an-npm-module/case_converter/index.test.js"--
+
+```js
+const assert = require("node:assert/strict");
+
+assert.strictEqual(
+  caseConverter.getUpperCase("hello free Code Camp!"),
+  "HELLO FREE CODE CAMP!"
+);
+```
+
+## 35
+
+### --description--
+
+Create one test for each of the other functions exported from `caseConverter` function, all using the string `"hello free Code Camp!"`.
+
+### --tests--
+
+The `index.test.js` file should contain `assert.strictEqual(caseConverter.getLowerCase("hello free Code Camp!"), "hello free code camp!");`.
+
+```js
+assert.fail();
+```
+
+The `index.test.js` file should contain `assert.strictEqual(caseConverter.getProperCase("hello free Code Camp!"), "Hello Free Code Camp!");`.
+
+```js
+assert.fail();
+```
+
+The `index.test.js` file should contain `assert.strictEqual(caseConverter.getSentenceCase("hello free Code Camp!"), "Hello free code camp!");`.
+
+```js
+assert.fail();
+```
+
+### --seed--
+
+#### --"learn-npm-by-building-an-npm-module/case_converter/index.test.js"--
+
+```js
+const assert = require("node:assert/strict");
+const caseConverter = require("./index");
+
+assert.strictEqual(
+  caseConverter.getUpperCase("hello free Code Camp!"),
+  "HELLO FREE CODE CAMP!"
+);
+```
+
+## 36
+
+### --description--
+
+Run `npm test` to test your package.
+
+### --tests--
+
+You should run `npm test` in the terminal.
+
+```js
+assert.fail();
+```
+
+### --seed--
+
+#### --"learn-npm-by-building-an-npm-module/case_converter/index.test.js"--
+
+```js
+const assert = require("node:assert/strict");
+const caseConverter = require("./index");
+
+assert.strictEqual(
+  caseConverter.getUpperCase("hello free Code Camp!"),
+  "HELLO FREE CODE CAMP!"
+);
+assert.strictEqual(
+  caseConverter.getLowerCase("hello free Code Camp!"),
+  "hello free code camp!"
+);
+assert.strictEqual(
+  caseConverter.getProperCase("hello free Code Camp!"),
+  "Hello Free Code Camp!"
+);
+assert.strictEqual(
+  caseConverter.getSentenceCase("hello free Code Camp!"),
+  "Hello free code camp!"
+);
+```
+
+## 37
+
+### --description--
+
+Change one of the function assertions such that it fails the tests.
+
+### --tests--
+
+The `index.test.js` file should contain an assertion that fails.
+
+```js
+assert.fail();
+```
+
+## 38
+
+### --description--
+
+Run `npm test` to test your package.
+
+### --tests--
+
+You should run `npm test` in the terminal.
+
+```js
+assert.fail();
+```
+
+### --seed--
+
+#### --"learn-npm-by-building-an-npm-module/case_converter/index.test.js"--
+
+```js
+const assert = require("node:assert/strict");
+const caseConverter = require("./index");
+
+assert.strictEqual(
+  caseConverter.getUpperCase("hello free Code Camp!"),
+  "HELLO FREE CODE CAMp!"
+);
+assert.strictEqual(
+  caseConverter.getLowerCase("hello free Code Camp!"),
+  "hello free code camp!"
+);
+assert.strictEqual(
+  caseConverter.getProperCase("hello free Code Camp!"),
+  "Hello Free Code Camp!"
+);
+assert.strictEqual(
+  caseConverter.getSentenceCase("hello free Code Camp!"),
+  "Hello free code camp!"
+);
+```
+
+## 39
+
+### --description--
+
+Fix the failing test in the `index.test.js` file.
+
+### --tests--
+
+The `index.test.js` file should contain assertions that all pass.
+
+```js
+assert.fail();
+```
+
+## 40
+
+### --description--
+
+At this point, your package should be ready to publish to the npm registry.
+
+Just to make sure, publish your package with a _dry run_:
+
+```bash
+npm publish --dry-run
+```
+
+### --tests--
+
+You should run `npm publish --dry-run` in the terminal.
+
+```js
+assert.fail();
+```
+
+### --seed--
+
+#### --"learn-npm-by-building-an-npm-module/case_converter/index.test.js"--
+
+```js
+const assert = require("node:assert/strict");
+const caseConverter = require("./index");
+
+assert.strictEqual(
+  caseConverter.getUpperCase("hello free Code Camp!"),
+  "HELLO FREE CODE CAMP!"
+);
+assert.strictEqual(
+  caseConverter.getLowerCase("hello free Code Camp!"),
+  "hello free code camp!"
+);
+assert.strictEqual(
+  caseConverter.getProperCase("hello free Code Camp!"),
+  "Hello Free Code Camp!"
+);
+assert.strictEqual(
+  caseConverter.getSentenceCase("hello free Code Camp!"),
+  "Hello free code camp!"
+);
+```
+
+## 41
+
+### --description--
+
+The dry run succeeded, and shows you what will be included in the package when you publish it.
+
+Hang on! There is no need to include the `index.test.js` file in the package. You can exclude it by creating an `.npmignore` file, and adding any file or directory you want to exclude from the package:
+
+```markdown
+index.test.js
+```
+
+### --tests--
+
+You should have a file named `.npmignore` in the `case_converter/` directory.
+
+```js
+assert.fail();
+```
+
+You should have `index.test.js` in the `.npmignore` file.
+
+```js
+assert.fail();
+```
+
+## 42
+
+### --description--
+
+Do another dry run to make sure the `index.test.js` file is excluded from the package.
+
+### --tests--
+
+You should run `npm publish --dry-run` in the terminal.
+
+```js
+assert.fail();
+```
+
+### --seed--
+
+#### --"learn-npm-by-building-an-npm-module/case_converter/.npmignore"--
+
+```markdown
+index.test.js
+```
+
+## 43
+
+### --description--
+
+Ordinarily, this would be the point you would publish your package to the npm registry. However, doing so would require you to create an account on the npm website, and you do not need to do that at this time.
+
+Well done! You have created an NPM module, learned how to test it, and do a dry run publish for the NPM registry.
+
+Type `done` in the terminal, when you are done.
+
+### --tests--
+
+You should type `done` in the terminal.
 
 ```js
 assert.fail();
 ```
 
 ## --fcc-end--
+
+```
+
+```
