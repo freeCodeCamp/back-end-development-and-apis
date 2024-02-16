@@ -15,7 +15,8 @@ Open a new terminal, and run `cd learn-npm-by-building-an-npm-module` to change 
 You should be in the `learn-npm-by-building-an-npm-module/` directory.
 
 ```js
-
+const cwd = await __helpers.getLastCWD();
+assert.include(cwd, "learn-npm-by-building-an-npm-module");
 ```
 
 ## 1
@@ -31,7 +32,8 @@ Within the `learn-npm-by-building-an-npm-module/` directory, run `mkdir case_con
 You should have a directory named `case_converter` in the `learn-npm-by-building-an-npm-module/` directory.
 
 ```js
-assert.fail();
+const dir = await __helpers.getDir("learn-npm-by-building-an-npm-module");
+assert.include(dir, "case_converter");
 ```
 
 ### --seed--
@@ -53,7 +55,8 @@ Run `cd case_converter` to change to the directory you just created.
 You should be in the `case_converter/` directory.
 
 ```js
-assert.fail();
+const cwd = await __helpers.getLastCWD();
+assert.include(cwd, "case_converter");
 ```
 
 ### --seed--
@@ -72,12 +75,15 @@ In order to build an npm module, you should create and configure a `package.json
 
 Run the `npm init` command to create and initialize a `package.json` file.
 
+**NOTE:** `npm init` enters an interactive session that asks you a series of questions about your package. Once you have followed the instructions, you need to manually click the `Run Tests` button.
+
 ### --tests--
 
 You should run `npm init` in the terminal.
 
 ```js
-assert.fail();
+const temp = await __helpers.getTemp();
+assert.include(temp, "npm init");
 ```
 
 ## 4
@@ -99,7 +105,8 @@ Run `npm help json` for definitive documentation on the available fields and wha
 You should press `Enter` to accept the default package name.
 
 ```js
-assert.fail();
+const temp = await __helpers.getTemp();
+assert.include(temp, "1.0.0");
 ```
 
 ### --seed--
@@ -127,7 +134,8 @@ Press `Enter` to accept the default version, `1.0.0`.
 You should press `Enter` to accept the default version.
 
 ```js
-assert.fail();
+const temp = await __helpers.getTemp();
+assert.include(temp, "description:");
 ```
 
 ## 6
@@ -143,7 +151,10 @@ Write `This package is used to convert strings to a specific case.`, then press 
 You should write `This package is used to convert strings to a specific case.` and press `Enter`.
 
 ```js
-assert.fail();
+const temp = await __helpers.getTemp();
+const description = temp.match(/description: (.*)/)[1];
+// Oddly, the typed values are not visible in the temp output
+assert.include(description, "entry point:");
 ```
 
 ## 7
@@ -159,7 +170,8 @@ Press `Enter` to accept the default entry point, `index.js`.
 You should press `Enter` to accept the default entry point.
 
 ```js
-assert.fail();
+const temp = await __helpers.getTemp();
+assert.include(temp, "test command:");
 ```
 
 ## 8
@@ -175,7 +187,8 @@ Write `node index.test.js`, then press `Enter`.
 You should write `node index.test.js` and press `Enter`.
 
 ```js
-assert.fail();
+const temp = await __helpers.getTemp();
+assert.include(temp, "git repository:");
 ```
 
 ## 9
@@ -191,7 +204,7 @@ Press `Enter` to accept the default Git repository.
 You should press `Enter` to accept the default Git repository.
 
 ```js
-assert.fail();
+
 ```
 
 ## 10
