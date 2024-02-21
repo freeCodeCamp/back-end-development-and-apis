@@ -3,6 +3,7 @@ import { join } from "path";
 import { readFile, readdir } from "fs/promises";
 import { constants, access } from "fs/promises";
 export { Babeliser } from "babeliser";
+export { Tower, generate } from "@freecodecamp/curriculum-helpers";
 
 export async function getDir(path) {
   const rootPath = join(ROOT, path);

@@ -1172,7 +1172,14 @@ const file = await __helpers.getFile(
   project.dashedName,
   "case_converter/index.test.js"
 );
-// TODO
+const t = new __helpers.Tower(file);
+const expressionStatement = t.getCallExpression("assert.strictEqual");
+assert.exists(expressionStatement);
+const [callExpression, stringLiteral] =
+  expressionStatement.ast.expression.arguments;
+assert.equal(callExpression.callee.object.name, "caseConverter");
+assert.equal(callExpression.callee.property.name, "getUpperCase");
+assert.equal(stringLiteral.value, "HELLO FREE CODE CAMP!");
 ```
 
 ### --seed--
@@ -1198,13 +1205,30 @@ const caseConverter = require("./index");
 The `index.test.js` file should contain `const caseConverter = require("./index");`.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(
+  project.dashedName,
+  "case_converter/index.test.js"
+);
+const t = new __helpers.Tower(file);
+const variableDeclaration = t.getVariable("caseConverter").compact;
+assert.equal(variableDeclaration, 'const caseConverter=require("./index");');
 ```
 
 The import of `caseConverter` should be above the test.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(
+  project.dashedName,
+  "case_converter/index.test.js"
+);
+const t = new __helpers.Tower(file);
+const variableDeclaration = t.getVariable("caseConverter");
+const expressionStatement = t.getCallExpression("assert.strictEqual");
+assert.isBelow(
+  variableDeclaration.ast.start,
+  expressionStatement.ast.start,
+  "The import of caseConverter should be above the test"
+);
 ```
 
 ### --seed--
@@ -1231,19 +1255,66 @@ Create one test for each of the other functions exported from `caseConverter` fu
 The `index.test.js` file should contain `assert.strictEqual(caseConverter.getLowerCase("hello free Code Camp!"), "hello free code camp!");`.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(
+  project.dashedName,
+  "case_converter/index.test.js"
+);
+const t = new __helpers.Tower(file);
+const expressionStatement = t.getCalls("assert.strictEqual").at(1);
+assert.exists(expressionStatement);
+const [callExpression, stringLiteral] =
+  expressionStatement.ast.expression.arguments;
+assert.equal(callExpression.callee.object.name, "caseConverter");
+assert.equal(callExpression.callee.property.name, "getLowerCase");
+assert.equal(stringLiteral.value, "hello free code camp!");
 ```
 
 The `index.test.js` file should contain `assert.strictEqual(caseConverter.getProperCase("hello free Code Camp!"), "Hello Free Code Camp!");`.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(
+  project.dashedName,
+  "case_converter/index.test.js"
+);
+const t = new __helpers.Tower(file);
+const expressionStatement = t.getCalls("assert.strictEqual").find((t) => {
+  return (
+    t.ast.expression?.arguments?.[0]?.callee?.property?.name === "getProperCase"
+  );
+});
+assert.exists(expressionStatement);
+const [callExpression, stringLiteral] =
+  expressionStatement.ast.expression.arguments;
+assert.equal(
+  __helpers.generate(callExpression, { compact: true }).code,
+  'caseConverter.getProperCase("hello free Code Camp!")'
+);
+assert.equal(stringLiteral.value, "Hello Free Code Camp!");
 ```
 
 The `index.test.js` file should contain `assert.strictEqual(caseConverter.getSentenceCase("hello free Code Camp!"), "Hello free code camp!");`.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(
+  project.dashedName,
+  "case_converter/index.test.js"
+);
+const t = new __helpers.Tower(file);
+const expressionStatement = t
+  .getCalls("assert.strictEqual")
+  .find(
+    (t) =>
+      t.ast.expression?.arguments?.[0]?.callee?.property?.name ===
+      "getSentenceCase"
+  );
+assert.exists(expressionStatement);
+const [callExpression, stringLiteral] =
+  expressionStatement.ast.expression.arguments;
+assert.equal(
+  __helpers.generate(callExpression, { compact: true }).code,
+  'caseConverter.getSentenceCase("hello free Code Camp!")'
+);
+assert.equal(stringLiteral.value, "Hello free code camp!");
 ```
 
 ### --seed--
@@ -1271,7 +1342,8 @@ Run `npm test` to test your package.
 You should run `npm test` in the terminal.
 
 ```js
-assert.fail();
+const lastCommand = await __helpers.getLastCommand();
+assert.equal(lastCommand.trim(), "npm test");
 ```
 
 ### --seed--
@@ -1311,7 +1383,11 @@ Change one of the function assertions such that it fails the tests.
 The `index.test.js` file should contain an assertion that fails.
 
 ```js
-assert.fail();
+const { stdout } = await __helpers.getCommandOutput(
+  "npm test",
+  join(project.dashedName, "case_converter")
+);
+assert.fail("TODO");
 ```
 
 ## 38
@@ -1325,7 +1401,8 @@ Run `npm test` to test your package.
 You should run `npm test` in the terminal.
 
 ```js
-assert.fail();
+const lastCommand = await __helpers.getLastCommand();
+assert.equal(lastCommand.trim(), "npm test");
 ```
 
 ### --seed--
@@ -1365,7 +1442,11 @@ Fix the failing test in the `index.test.js` file.
 The `index.test.js` file should contain assertions that all pass.
 
 ```js
-assert.fail();
+const { stdout } = await __helpers.getCommandOutput(
+  "npm test",
+  join(project.dashedName, "case_converter")
+);
+assert.fail("TODO");
 ```
 
 ## 40
@@ -1385,7 +1466,8 @@ npm publish --dry-run
 You should run `npm publish --dry-run` in the terminal.
 
 ```js
-assert.fail();
+const lastCommand = await __helpers.getLastCommand();
+assert.equal(lastCommand.trim(), "npm publish --dry-run");
 ```
 
 ### --seed--
@@ -1431,13 +1513,21 @@ index.test.js
 You should have a file named `.npmignore` in the `case_converter/` directory.
 
 ```js
-assert.fail();
+const { access, CONSTANTS } = await import("fs/promises");
+await access(
+  join(ROOT, project.dashedName, "case_converter", ".npmignore"),
+  CONSTANTS.OK_FS
+);
 ```
 
 You should have `index.test.js` in the `.npmignore` file.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(
+  project.dashedName,
+  "case_converter/.npmignore"
+);
+assert.include(file, "index.test.js");
 ```
 
 ## 42
@@ -1451,7 +1541,8 @@ Do another dry run to make sure the `index.test.js` file is excluded from the pa
 You should run `npm publish --dry-run` in the terminal.
 
 ```js
-assert.fail();
+const lastCommand = await __helpers.getLastCommand();
+assert.equal(lastCommand.trim(), "npm publish --dry-run");
 ```
 
 ### --seed--
@@ -1477,11 +1568,8 @@ Type `done` in the terminal, when you are done.
 You should type `done` in the terminal.
 
 ```js
-assert.fail();
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, "done");
 ```
 
 ## --fcc-end--
-
-```
-
-```
