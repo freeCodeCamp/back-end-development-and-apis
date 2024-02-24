@@ -1387,7 +1387,7 @@ const { stdout } = await __helpers.getCommandOutput(
   "npm test",
   join(project.dashedName, "case_converter")
 );
-assert.fail("TODO");
+assert.include(stdout, "AssertionError");
 ```
 
 ## 38
@@ -1446,7 +1446,7 @@ const { stdout } = await __helpers.getCommandOutput(
   "npm test",
   join(project.dashedName, "case_converter")
 );
-assert.fail("TODO");
+assert.notInclude(stdout, "AssertionError");
 ```
 
 ## 40
@@ -1513,10 +1513,10 @@ index.test.js
 You should have a file named `.npmignore` in the `case_converter/` directory.
 
 ```js
-const { access, CONSTANTS } = await import("fs/promises");
+const { access, constants } = await import("fs/promises");
 await access(
   join(ROOT, project.dashedName, "case_converter", ".npmignore"),
-  CONSTANTS.OK_FS
+  constants.F_OK
 );
 ```
 
