@@ -180,7 +180,7 @@ assert.include(temp, "test command:");
 
 You are being prompted for the test command. This is the command that is run with the `npm test` command.
 
-Write `node index.test.js`, then press `Enter`.
+Write `node index.test.js`, then press `Enter`. `node` is the command-line interpreter for JavaScript.
 
 ### --tests--
 
@@ -1173,7 +1173,7 @@ const file = await __helpers.getFile(
   "case_converter/index.test.js"
 );
 const t = new __helpers.Tower(file);
-const expressionStatement = t.getCallExpression("assert.strictEqual");
+const expressionStatement = t.getCalls("assert.strictEqual");
 assert.exists(expressionStatement);
 const [callExpression, stringLiteral] =
   expressionStatement.ast.expression.arguments;
@@ -1223,7 +1223,7 @@ const file = await __helpers.getFile(
 );
 const t = new __helpers.Tower(file);
 const variableDeclaration = t.getVariable("caseConverter");
-const expressionStatement = t.getCallExpression("assert.strictEqual");
+const expressionStatement = t.getCalls("assert.strictEqual");
 assert.isBelow(
   variableDeclaration.ast.start,
   expressionStatement.ast.start,
@@ -1335,7 +1335,7 @@ assert.strictEqual(
 
 ### --description--
 
-Run `npm test` to test your package.
+Run `npm test` to test your package. This will run the `test` command that you defined in your `package.json` file.
 
 ### --tests--
 

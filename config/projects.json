@@ -10,8 +10,20 @@
     "isResetEnabled": false,
     "numberofLessons": null,
     "blockingTests": null,
-    "breakOnFailure": null,
-    "numberOfLessons": 32
+    "breakOnFailure": null
+  },
+  {
+    "id": 2,
+    "dashedName": "learn-nodejs-by-building-a-web-server",
+    "isIntegrated": false,
+    "isPublic": true,
+    "currentLesson": 0,
+    "runTestsOnWatch": true,
+    "seedEveryLesson": false,
+    "isResetEnabled": false,
+    "numberofLessons": null,
+    "blockingTests": false,
+    "breakOnFailure": false
   },
   {
     "id": 1,
@@ -24,7 +36,6 @@
     "isResetEnabled": false,
     "numberofLessons": null,
     "blockingTests": true,
-    "breakOnFailure": true,
-    "numberOfLessons": 1
+    "breakOnFailure": true
   }
 ]
