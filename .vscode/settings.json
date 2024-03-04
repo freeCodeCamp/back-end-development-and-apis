@@ -15,7 +15,10 @@
     "freecodecamp.conf.json": false,
     "package-lock.json": false,
     "package.json": false,
-    "learn-npm-by-building-an-npm-module": false
+    "README.md": false,
+    "learn-npm-by-building-an-npm-module": false,
+    "build-a-timestamp-microservice": false,
+    "learn-nodejs-by-building-a-web-server": false
   },
   "freecodecamp-courses.autoStart": true,
   "freecodecamp-courses.prepare": "sed -i \"s#WD=.*#WD=$(pwd)#g\" ./bash/.bashrc",
