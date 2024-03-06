@@ -1,7 +1,7 @@
 [
   {
     "id": 0,
-    "dashedName": "learn-npm-by-building-an-npm-module",
+    "dashedName": "learn-how-to-build-an-npm-module",
     "isIntegrated": false,
     "isPublic": true,
     "currentLesson": 0,
@@ -10,7 +10,8 @@
     "isResetEnabled": false,
     "numberofLessons": null,
     "blockingTests": null,
-    "breakOnFailure": null
+    "breakOnFailure": null,
+    "numberOfLessons": 44
   },
   {
     "id": 2,
@@ -23,7 +24,8 @@
     "isResetEnabled": false,
     "numberofLessons": null,
     "blockingTests": false,
-    "breakOnFailure": false
+    "breakOnFailure": false,
+    "numberOfLessons": 17
   },
   {
     "id": 1,
@@ -36,6 +38,7 @@
     "isResetEnabled": false,
     "numberofLessons": null,
     "blockingTests": true,
-    "breakOnFailure": true
+    "breakOnFailure": true,
+    "numberOfLessons": 1
   }
 ]

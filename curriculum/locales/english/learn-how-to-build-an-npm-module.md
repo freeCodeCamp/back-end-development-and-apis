@@ -1,4 +1,4 @@
-# Learn NPM by Building an NPM Module
+# Learn How to Build an NPM Module
 
 In this project, you will learn how to create an NPM module. You will create a simple module that can be used to convert strings to lowercase or uppercase. You will also learn how to publish your module to the NPM registry so that others can use it.
 
@@ -6,17 +6,17 @@ In this project, you will learn how to create an NPM module. You will create a s
 
 ### --description--
 
-In this project, you will be creating an npm module that can be used to convert strings to a specific case. For the duration of this project, you will be working in the `learn-npm-by-building-an-npm-module/` directory.
+In this project, you will be creating an npm module that can be used to convert strings to a specific case. For the duration of this project, you will be working in the `learn-how-to-build-an-npm-module/` directory.
 
-Open a new terminal, and run `cd learn-npm-by-building-an-npm-module` to change to the project directory.
+Open a new terminal, and run `cd learn-how-to-build-an-npm-module` to change to the project directory.
 
 ### --tests--
 
-You should be in the `learn-npm-by-building-an-npm-module/` directory.
+You should be in the `learn-how-to-build-an-npm-module/` directory.
 
 ```js
 const cwd = await __helpers.getLastCWD();
-assert.include(cwd, "learn-npm-by-building-an-npm-module");
+assert.include(cwd, project.dashedName);
 ```
 
 ## 1
@@ -25,14 +25,14 @@ assert.include(cwd, "learn-npm-by-building-an-npm-module");
 
 In order to build an npm module, you have to create an empty directory first.
 
-Within the `learn-npm-by-building-an-npm-module/` directory, run `mkdir case_converter` in the terminal.
+Within the `learn-how-to-build-an-npm-module/` directory, run `mkdir case_converter` in the terminal.
 
 ### --tests--
 
-You should have a directory named `case_converter` in the `learn-npm-by-building-an-npm-module/` directory.
+You should have a directory named `case_converter` in the `learn-how-to-build-an-npm-module/` directory.
 
 ```js
-const dir = await __helpers.getDir("learn-npm-by-building-an-npm-module");
+const dir = await __helpers.getDir(project.dashedName);
 assert.include(dir, "case_converter");
 ```
 
@@ -41,7 +41,7 @@ assert.include(dir, "case_converter");
 #### --cmd--
 
 ```bash
-cd learn-npm-by-building-an-npm-module && rm -r .
+cd learn-how-to-build-an-npm-module && rm -r .
 ```
 
 ## 2
@@ -64,7 +64,7 @@ assert.include(cwd, "case_converter");
 #### --cmd--
 
 ```bash
-mkdir learn-npm-by-building-an-npm-module/case_converter
+mkdir learn-how-to-build-an-npm-module/case_converter
 ```
 
 ## 3
@@ -279,7 +279,7 @@ You should press `Enter` to confirm.
 
 ```js
 const packageJsonExists = await __helpers.fileExists(
-  "learn-npm-by-building-an-npm-module/case_converter/package.json"
+  join(project.dashedName, "case_converter/package.json")
 );
 assert.isTrue(packageJsonExists, "The package.json file does not exist");
 ```
@@ -296,7 +296,7 @@ You should have a file named `index.js` in the `case_converter/` directory.
 
 ```js
 const fileExists = await __helpers.fileExists(
-  "learn-npm-by-building-an-npm-module/case_converter/index.js"
+  "learn-how-to-build-an-npm-module/case_converter/index.js"
 );
 assert.isTrue(fileExists, "The index.js file does not exist");
 ```
@@ -306,10 +306,10 @@ assert.isTrue(fileExists, "The index.js file does not exist");
 #### --cmd--
 
 ```bash
-touch learn-npm-by-building-an-npm-module/case_converter/package.json
+touch learn-how-to-build-an-npm-module/case_converter/package.json
 ```
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/package.json"--
+#### --"learn-how-to-build-an-npm-module/case_converter/package.json"--
 
 ```json
 {
@@ -363,7 +363,7 @@ const _ = eval(evalCode);
 #### --cmd--
 
 ```bash
-touch learn-npm-by-building-an-npm-module/case_converter/index.js
+touch learn-how-to-build-an-npm-module/case_converter/index.js
 ```
 
 ## 16
@@ -399,7 +399,7 @@ const _ = eval(evalCode);
 
 ### --seed--
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/index.js"--
+#### --"learn-how-to-build-an-npm-module/case_converter/index.js"--
 
 ```js
 function getUpperCase(str) {
@@ -427,7 +427,7 @@ assert.match(file, /function getSentenceCase\(|getSentenceCase\s*=\s*\(/);
 
 ### --seed--
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/index.js"--
+#### --"learn-how-to-build-an-npm-module/case_converter/index.js"--
 
 ```js
 function getUpperCase(str) {
@@ -488,7 +488,7 @@ const _ = eval(evalCode);
 
 ### --seed--
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/index.js"--
+#### --"learn-how-to-build-an-npm-module/case_converter/index.js"--
 
 ```js
 function getUpperCase(str) {
@@ -522,7 +522,7 @@ assert.match(file, /function getProperCase\(|getProperCase\s*=\s*\(/);
 
 ### --seed--
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/index.js"--
+#### --"learn-how-to-build-an-npm-module/case_converter/index.js"--
 
 ```js
 function getUpperCase(str) {
@@ -588,7 +588,7 @@ const _ = eval(evalCode);
 
 ### --seed--
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/index.js"--
+#### --"learn-how-to-build-an-npm-module/case_converter/index.js"--
 
 ```js
 function getUpperCase(str) {
@@ -662,7 +662,7 @@ assert.include(
 
 ### --seed--
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/index.js"--
+#### --"learn-how-to-build-an-npm-module/case_converter/index.js"--
 
 ```js
 function getUpperCase(str) {
@@ -696,14 +696,14 @@ You should have a file named `README.md` in the `case_converter/` directory.
 
 ```js
 const fileExists = await __helpers.fileExists(
-  "learn-npm-by-building-an-npm-module/case_converter/README.md"
+  "learn-how-to-build-an-npm-module/case_converter/README.md"
 );
 assert.isTrue(fileExists, "The README.md file does not exist");
 ```
 
 ### --seed--
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/index.js"--
+#### --"learn-how-to-build-an-npm-module/case_converter/index.js"--
 
 ```js
 function getUpperCase(str) {
@@ -761,7 +761,7 @@ assert.match(file, /# Case Converter/);
 #### --cmd--
 
 ```bash
-touch learn-npm-by-building-an-npm-module/case_converter/README.md
+touch learn-how-to-build-an-npm-module/case_converter/README.md
 ```
 
 ## 24
@@ -787,7 +787,7 @@ assert.include(
 
 ### --seed--
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/README.md"--
+#### --"learn-how-to-build-an-npm-module/case_converter/README.md"--
 
 ```markdown
 # Case Converter
@@ -819,7 +819,7 @@ assert.include(file, "## Installation");
 
 ### --seed--
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/README.md"--
+#### --"learn-how-to-build-an-npm-module/case_converter/README.md"--
 
 ```markdown
 # Case Converter
@@ -853,7 +853,7 @@ assert.include(file, "```bash\nnpm install case_converter\n```");
 
 ### --seed--
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/README.md"--
+#### --"learn-how-to-build-an-npm-module/case_converter/README.md"--
 
 ```markdown
 # Case Converter
@@ -883,7 +883,7 @@ assert.include(file, "## Usage");
 
 ### --seed--
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/README.md"--
+#### --"learn-how-to-build-an-npm-module/case_converter/README.md"--
 
 ````markdown
 # Case Converter
@@ -957,7 +957,7 @@ assert.include(
 
 ### --seed--
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/README.md"--
+#### --"learn-how-to-build-an-npm-module/case_converter/README.md"--
 
 ````markdown
 # Case Converter
@@ -995,7 +995,7 @@ assert.include(file, "## License");
 
 ### --seed--
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/README.md"--
+#### --"learn-how-to-build-an-npm-module/case_converter/README.md"--
 
 ````markdown
 # Case Converter
@@ -1040,7 +1040,7 @@ assert.include(file, "MIT");
 
 ### --seed--
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/README.md"--
+#### --"learn-how-to-build-an-npm-module/case_converter/README.md"--
 
 ````markdown
 # Case Converter
@@ -1079,14 +1079,14 @@ You should have a file named `index.test.js` in the `case_converter/` directory.
 
 ```js
 const fileExists = await __helpers.fileExists(
-  "learn-npm-by-building-an-npm-module/case_converter/index.test.js"
+  "learn-how-to-build-an-npm-module/case_converter/index.test.js"
 );
 assert.isTrue(fileExists, "The index.test.js file does not exist");
 ```
 
 ### --seed--
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/README.md"--
+#### --"learn-how-to-build-an-npm-module/case_converter/README.md"--
 
 ````markdown
 # Case Converter
@@ -1147,7 +1147,7 @@ assert.match(
 #### --cmd--
 
 ```bash
-touch learn-npm-by-building-an-npm-module/case_converter/index.test.js
+touch learn-how-to-build-an-npm-module/case_converter/index.test.js
 ```
 
 ## 33
@@ -1184,7 +1184,7 @@ assert.equal(stringLiteral.value, "HELLO FREE CODE CAMP!");
 
 ### --seed--
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/index.test.js"--
+#### --"learn-how-to-build-an-npm-module/case_converter/index.test.js"--
 
 ```js
 const assert = require("node:assert/strict");
@@ -1233,7 +1233,7 @@ assert.isBelow(
 
 ### --seed--
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/index.test.js"--
+#### --"learn-how-to-build-an-npm-module/case_converter/index.test.js"--
 
 ```js
 const assert = require("node:assert/strict");
@@ -1319,7 +1319,7 @@ assert.equal(stringLiteral.value, "Hello free code camp!");
 
 ### --seed--
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/index.test.js"--
+#### --"learn-how-to-build-an-npm-module/case_converter/index.test.js"--
 
 ```js
 const assert = require("node:assert/strict");
@@ -1348,7 +1348,7 @@ assert.equal(lastCommand.trim(), "npm test");
 
 ### --seed--
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/index.test.js"--
+#### --"learn-how-to-build-an-npm-module/case_converter/index.test.js"--
 
 ```js
 const assert = require("node:assert/strict");
@@ -1407,7 +1407,7 @@ assert.equal(lastCommand.trim(), "npm test");
 
 ### --seed--
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/index.test.js"--
+#### --"learn-how-to-build-an-npm-module/case_converter/index.test.js"--
 
 ```js
 const assert = require("node:assert/strict");
@@ -1472,7 +1472,7 @@ assert.equal(lastCommand.trim(), "npm publish --dry-run");
 
 ### --seed--
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/index.test.js"--
+#### --"learn-how-to-build-an-npm-module/case_converter/index.test.js"--
 
 ```js
 const assert = require("node:assert/strict");
@@ -1547,7 +1547,7 @@ assert.equal(lastCommand.trim(), "npm publish --dry-run");
 
 ### --seed--
 
-#### --"learn-npm-by-building-an-npm-module/case_converter/.npmignore"--
+#### --"learn-how-to-build-an-npm-module/case_converter/.npmignore"--
 
 ```markdown
 index.test.js
