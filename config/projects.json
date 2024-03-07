@@ -20,12 +20,12 @@
     "isPublic": true,
     "currentLesson": 0,
     "runTestsOnWatch": true,
-    "seedEveryLesson": false,
+    "seedEveryLesson": true,
     "isResetEnabled": false,
     "numberofLessons": null,
     "blockingTests": false,
     "breakOnFailure": false,
-    "numberOfLessons": 17
+    "numberOfLessons": 56
   },
   {
     "id": 1,
