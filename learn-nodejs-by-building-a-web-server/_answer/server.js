@@ -1,22 +1,18 @@
 import http from "http";
 import fs from "fs";
-import path, { join } from "path";
+import { join, extname } from "path";
 
 const server = http.createServer((request, response) => {
-  console.log("request ", request.headers);
+  console.log(request.headers);
   console.log();
 
-  const url = new URL(request.url, `http://${request.headers.host}`);
+  const url = request.url === "/" ? "/index.html" : request.url;
 
-  let filePath = join("public", url.pathname);
-
-  if (filePath === "public/") {
-    filePath = "public/index.html";
-  }
+  const filePath = join("public", url);
 
   console.log(filePath);
 
-  const extname = String(path.extname(filePath)).toLowerCase();
+  const ext = String(extname(filePath)).toLowerCase();
   const mimeTypes = {
     ".html": "text/html",
     ".js": "text/javascript",
@@ -24,12 +20,14 @@ const server = http.createServer((request, response) => {
     ".png": "image/png",
   };
 
-  const contentType = mimeTypes[extname] || "application/octet-stream";
+  const contentType = mimeTypes[ext] || "application/octet-stream";
 
   fs.readFile(filePath, (error, content) => {
     if (error) {
       fs.readFile("./public/404.html", (_error, content) => {
-        response.writeHead(404, { "Content-Type": contentType });
+        response.writeHead(404, {
+          "Content-Type": { "Content-Type": "text/html" },
+        });
         response.end(content, "utf-8");
       });
     } else {
