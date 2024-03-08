@@ -1829,9 +1829,125 @@ assert.fail();
 
 ### --description--
 
+## TODO: Discuss if this topic fits here
+
+Currently, you still have two `console.log` calls in your code. These are useful for debugging, but they are not useful for production. They can slow down your server, because logging to the console is a synchronous operation.
+
+To see their impact, you can perform a load test on your server using `wrk`. First install it with:
+
+```bash
+sudo apt install -y wrk
+```
+
+### --tests--
+
+You should install `wrk` with `sudo apt install -y wrk`.
+
+```js
+assert.fail();
+```
+
+## 56
+
+### --description--
+
+Ensure your server is running, then run the following command in its own terminal:
+
+```bash
+wrk -t2 -c5 -d5s http://localhost:3001
+```
+
+That uses two threads with 5 concurrent connections for 5 seconds.
+
+### --tests--
+
+You should run `wrk -t2 -c5 -d5s http://localhost:3001`.
+
+```js
+assert.fail();
+```
+
+Your server should be running..
+
+```js
+assert.fail();
+```
+
+## 57
+
+### --description--
+
+Now, remove the two `console.log` calls in your server code, and re-run the same `wrk` command.
+
+### --tests--
+
+You should not have any `console.log` calls within `server.js`.
+
+```js
+assert.fail();
+```
+
+You should run `wrk -t2 -c5 -d5s http://localhost:3001`.
+
+```js
+assert.fail();
+```
+
+## 58
+
+### --description--
+
+You should see a significant increase in the number of requests per second. This is because the `console.log` calls are no longer slowing down your server.
+
+## TODO
+
+- Maybe discuss security implications of "getting" `mime` from extension
+  - Not a factor when all files are controlled by server
+
+---
+
 You have completed the project! You have built a web server from scratch, and learned about the HTTP protocol, the `http` module, the `fs` module, the `path` module, and the `mimetype` of files.
 
 When you are done, submit your project by entering `done` in the terminal.
+
+### --seed--
+
+#### --"learn-nodejs-by-building-a-web-server/server.js"--
+
+```js
+import http from "http";
+import { join, extname } from "path";
+import { readFile } from "fs";
+
+const server = http.createServer((request, response) => {
+  const url = request.url === "/" ? "/index.html" : request.url;
+  const filePath = join("public", url);
+
+  const mimeTypes = {
+    ".html": "text/html",
+    ".css": "text/css",
+    ".png": "image/png",
+    ".js": "text/javascript",
+  };
+
+  const ext = extname(filePath).toLowerCase();
+  const contentType = mimeTypes[ext] || "application/octet-stream";
+
+  readFile(filePath, (error, file) => {
+    if (error) {
+      readFile("public/404.html", (error, file) => {
+        response.writeHead(404, { "Content-Type": "text/html" });
+        response.end(file, "utf-8");
+      });
+      return;
+    }
+    response.writeHead(200, { "Content-Type": contentType });
+    response.end(file, "utf-8");
+  });
+});
+
+server.listen(3001, () => console.log("Server is listening on port 3001"));
+```
 
 ### --tests--
 
@@ -1840,11 +1956,5 @@ You should type `done` in the terminal.
 ```js
 assert.fail();
 ```
-
-## TODO
-
-- Maybe add bit at end about leaving `console.log`s in code, and how it impacts performance
-- Maybe discuss security implications of "getting" `mime` from extension
-  - Not a factor when all files are controlled by server
 
 ## --fcc-end--
