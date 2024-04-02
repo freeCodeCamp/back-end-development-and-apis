@@ -33,7 +33,8 @@
       ".git",
       "/target/",
       ".vscode",
-      "freecodecamp.conf.json"
+      "freecodecamp.conf.json",
+      "__test"
     ]
   },
   "tooling": {

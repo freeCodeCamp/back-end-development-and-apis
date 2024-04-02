@@ -17,7 +17,8 @@ Open a new terminal, and change into the `learn-nodejs-by-building-a-web-server/
 You should be within the `learn-nodejs-by-building-a-web-server/` directory.
 
 ```js
-assert.fail();
+const cwd = await __helpers.getLastCWD();
+assert.include(cwd, project.dashedName);
 ```
 
 ## 1
@@ -33,7 +34,10 @@ Create a `server.js` file to house the server code.
 You should create a `learn-nodejs-by-building-a-web-server/server.js` file.
 
 ```js
-assert.fail();
+const fileExists = await __helpers.fileExists(
+  join(project.dashedName, "server.js")
+);
+assert.isTrue(fileExists, "The server.js file does not exist");
 ```
 
 ## 2
@@ -59,7 +63,10 @@ Within the `server.js` file, import the `http` module, and store it in a variabl
 You should have `const http = require("http")` within `server.js`.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const http = t.getVariable("http");
+assert.equal(http.compact, 'const http=require("http");');
 ```
 
 ### --seed--
@@ -81,7 +88,10 @@ To create a server, use the `createServer` method of the `http` module. Store th
 You should have `const server = http.createServer()` within `server.js`.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+assert.equal(server.compact, "const server=http.createServer();");
 ```
 
 ### --seed--
@@ -105,7 +115,15 @@ Pass a callback function to the `createServer` method. The callback function sho
 You should have `http.createServer((request, response) => {})` within `server.js`.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer_calls = server.getCalls("http.createServer");
+const http_createServer = http_createServer_calls.at(0);
+const arg1 = http_createServer.ast?.init?.arguments.at(0);
+const [request, response] = arg1?.params;
+assert.equal(request.name, "request");
+assert.equal(response.name, "response");
 ```
 
 ### --seed--
@@ -129,7 +147,10 @@ To get the server to listen for <dfn title="Transmission Control Protocol">TCP</
 You should have `server.listen()` at the bottom of `server.js`.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server_listen = t.getCalls("server.listen");
+assert.equal(server_listen.length, 1);
 ```
 
 ### --seed--
@@ -153,7 +174,11 @@ The `listen` method takes a port number as its first argument. Pass `3001` as th
 You should have `server.listen(3001)` at the bottom of `server.js`.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server_listen = t.getCalls("server.listen");
+const arg = server_listen.at(0).ast.expression.arguments.at(0);
+assert.equal(arg.value, 3001);
 ```
 
 ### --seed--
@@ -174,12 +199,15 @@ server.listen();
 
 Within your terminal, start the server by running `node server.js`.
 
+**NOTE:** Once your server is running, click the _Run Tests_ button.
+
 ### --tests--
 
 You should start the server by running `node server.js`.
 
 ```js
-assert.fail();
+const isListening = await __helpers.isServerListening(3001);
+assert.isTrue(isListening, "The server is not listening on port 3001");
 ```
 
 ### --seed--
@@ -206,12 +234,17 @@ Within a new terminal, use the `curl` command to make a request to `http://local
 curl http://localhost:3001
 ```
 
+<!-- TODO: Once per-lesson watching feature is used, remove: -->
+
+When you have made the request, click the _Run Tests_ button.
+
 ### --tests--
 
 You should make a request to `http://localhost:3001` using the `curl` command.
 
 ```js
-assert.fail();
+const temp = await __helpers.getTemp();
+assert.include(temp, "curl http://localhost:3001");
 ```
 
 ## 9
@@ -231,7 +264,16 @@ curl --verbose --max-time 2 http://localhost:3001
 You should run `curl --verbose --max-time 2 http://localhost:3001` in the terminal.
 
 ```js
-assert.fail();
+await new Promise((resolve) => {
+  setTimeout(() => {
+    resolve();
+  }, 2100);
+});
+const lastCommand = await __helpers.getLastCommand();
+assert.include(
+  lastCommand,
+  "curl --verbose --max-time 2 http://localhost:3001"
+);
 ```
 
 ## 10
@@ -247,7 +289,8 @@ In order to use changes made to your server, you need to restart the server once
 You should stop the server.
 
 ```js
-assert.fail();
+const isListening = await __helpers.isServerListening(3001);
+assert.isFalse(isListening, "The server is still listening on port 3001");
 ```
 
 ## 11
@@ -261,7 +304,37 @@ To find out more about what is happening when a request is made to the server, l
 You should log the `request` object to the console within the `createServer` callback function.
 
 ```js
-assert.fail();
+const { mkdir, writeFile, cp } = await import("fs/promises");
+await mkdir(join(ROOT, "__test"), { recursive: true });
+
+await cp(join(ROOT, project.dashedName), join(ROOT, "__test"), {
+  recursive: true,
+});
+
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server_listen = t.getCalls("server.listen");
+const arg = server_listen.at(0).ast.expression.arguments.at(0);
+arg.value = 3002;
+
+const testServerPath = join(ROOT, "__test", "server.js");
+
+await writeFile(testServerPath, t.generate);
+
+const expectedData = "IncomingMessage {";
+const { stdout } = await __helpers.awaitExecution(
+  ["node", testServerPath],
+  "http://localhost:3002",
+  { expectedData }
+);
+assert.include(stdout, expectedData);
+```
+
+### --after-all--
+
+```js
+const { rm } = await import("fs/promises");
+await rm(join(ROOT, "__test"), { recursive: true, force: true });
 ```
 
 ## 12
@@ -281,8 +354,10 @@ When you log the `request` object to the console, you will see a lot of informat
 You should run `curl --max-time 2 http://localhost:3001` in the terminal.
 
 ```js
-// --verbose and --max-time are optional
-assert.fail();
+const lastCommand = await __helpers.getLastCommand();
+const [command, ...args] = __helpers.parseCli(lastCommand);
+assert.equal(command, "curl");
+assert.include(args, "http://localhost:3001");
 ```
 
 ### --seed--
@@ -312,7 +387,37 @@ Request headers are a set of key-value pairs that contain information about the 
 You should log `request.headers` to the console within the `createServer` callback function.
 
 ```js
-assert.fail();
+const { mkdir, writeFile, cp } = await import("fs/promises");
+await mkdir(join(ROOT, "__test"), { recursive: true });
+
+await cp(join(ROOT, project.dashedName), join(ROOT, "__test"), {
+  recursive: true,
+});
+
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server_listen = t.getCalls("server.listen");
+const arg = server_listen.at(0).ast.expression.arguments.at(0);
+arg.value = 3002;
+
+const testServerPath = join(ROOT, "__test", "server.js");
+
+await writeFile(testServerPath, t.generate);
+
+const expectedData = "TODO:";
+const { stdout } = await __helpers.awaitExecution(
+  ["node", testServerPath],
+  "http://localhost:3002",
+  { expectedData }
+);
+assert.notInclude(stdout, "IncomingMessage {");
+```
+
+### --after-all--
+
+```js
+const { rm } = await import("fs/promises");
+await rm(join(ROOT, "__test"), { recursive: true, force: true });
 ```
 
 ## 14
@@ -326,8 +431,17 @@ Restart your server by stopping it with `Ctrl + C` and then running `node server
 You should restart the server.
 
 ```js
-// CURL the server, and check the output is the new headers
-assert.fail();
+try {
+  fetch("http://localhost:3001");
+  // Server does not respond, so catch the error
+} catch (_e) {}
+await new Promise((resolve) => {
+  setTimeout(() => {
+    resolve();
+  }, 50);
+});
+const temp = await __helpers.getTemp();
+assert.include(temp, "IncomingMessage {");
 ```
 
 ## 15
@@ -341,8 +455,10 @@ Within the other terminal, use `curl` again to make an empty request again.
 You should run `curl --max-time 2 http://localhost:3001` in the terminal.
 
 ```js
-// flags are optional
-assert.fail();
+const lastCommand = await __helpers.getLastCommand();
+const [command, ...args] = __helpers.parseCli(lastCommand);
+assert.equal(command, "curl");
+assert.include(args, "http://localhost:3001");
 ```
 
 ### --seed--
@@ -374,7 +490,7 @@ Log the `url` property of the `request` object to the console.
 You should log `request.url` to the console within the `createServer` callback function.
 
 ```js
-assert.fail();
+assert.fail("TODO");
 ```
 
 ## 17
@@ -487,6 +603,12 @@ Create a variable called `url` and set it equal to `"/index.html"` if `request.u
 You should have `const url = request.url === "/" ? "/index.html" : request.url` within the `createServer` callback function.
 
 ```js
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer_calls = server.getCalls("http.createServer");
+const http_createServer = http_createServer_calls.at(0);
+console.log(http_createServer);
 assert.fail();
 ```
 
