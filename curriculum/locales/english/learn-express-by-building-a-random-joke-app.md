@@ -1,4 +1,4 @@
-# Learn Express by Building a Random Jokes App
+# Learn Express by Building a Random Joke App
 
 In this course, you will learn basic Express by building a random joke app.
 
