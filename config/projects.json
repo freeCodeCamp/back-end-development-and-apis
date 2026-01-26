@@ -14,6 +14,20 @@
     "numberOfLessons": 44
   },
   {
+    "id": 3,
+    "dashedName": "learn-express-by-building-a-random-joke-app",
+    "isIntegrated": false,
+    "isPublic": true,
+    "currentLesson": 1,
+    "runTestsOnWatch": true,
+    "seedEveryLesson": false,
+    "isResetEnabled": false,
+    "numberofLessons": null,
+    "blockingTests": null,
+    "breakOnFailure": null,
+    "numberOfLessons": 2
+  },
+  {
     "id": 2,
     "dashedName": "learn-nodejs-by-building-a-web-server",
     "isIntegrated": false,
