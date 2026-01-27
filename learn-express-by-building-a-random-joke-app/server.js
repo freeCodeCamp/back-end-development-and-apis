@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const port = 3000;
 
 const jokes = [
   'Why do programmers prefer dark mode? Because light attracts bugs!',
@@ -8,3 +9,6 @@ const jokes = [
   'Why do Java developers wear glasses? Because they don’t see sharp.'
 ]
 
+app.get('/', (req, res) => {
+  res.send('Welcome to the Random Joke Server! Visit /joke to get a random joke.')
+})
