@@ -18,6 +18,10 @@ app.get('/joke', (req, res) => {
   res.send(randomJoke)
 })
 
+app.get('/about', (req, res) => {
+  res.send('This Random Joke Server was built with Express.js')
+})
+
 app.listen(port, () => {
   console.log(`Joke Server running at http://localhost:${port}`)
 })
