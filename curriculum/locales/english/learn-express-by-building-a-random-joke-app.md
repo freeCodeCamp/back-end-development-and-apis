@@ -282,4 +282,84 @@ app.listen(port, () => {
 })
 ```
 
+## 4
+
+### --description--
+
+Finally, create a `GET` route called `/about` to display a short information about the random joke server. It should log the message `This Random Joke Server was built with Express.js`.
+
+### --tests--
+
+You should create a `GET` route for `/about` by using `app.get()`.
+
+```js
+const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
+const code = new __helpers.Tower(file);
+const getCalls = code.getCalls("app.get");
+
+const rootGetCall = getCalls.find(call => 
+  call.compact.includes("app.get('/about',") || 
+  call.compact.includes('app.get("/about",')
+);
+assert.exists(rootGetCall);
+```
+
+Your route handler should have `req` and `res` as parameters.
+
+```js
+const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
+const code = new __helpers.Tower(file);
+const getCalls = code.getCalls("app.get");
+
+const rootGetCall = getCalls.find(call => 
+  call.compact.includes("app.get('/about',") || 
+  call.compact.includes('app.get("/about",')
+);
+
+assert.match(rootGetCall.compact, /app\.get\(["']\/about["'],(\(req,res\)=>|function\(req,res\))/);
+```
+
+You should use `res.send` to send the message `This Random Joke Server was built with Express.js`.
+
+```js
+const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
+const code = new __helpers.Tower(file);
+const getCalls = code.getCalls("app.get");
+const rootGetCall = getCalls.find(call => 
+  call.compact.includes("app.get('/about',") || 
+  call.compact.includes('app.get("/about",')
+);
+assert.match(rootGetCall.compact, /res\.send\(["'`]This Random Joke Server was built with Express\.js["'`]\)/);
+```
+
+### --seed--
+
+#### --"server.js"--
+
+```javascript
+const express = require('express');
+const app = express();
+const port = 3000;
+
+const jokes = [
+  'Why do programmers prefer dark mode? Because light attracts bugs!',
+  'There are only 10 kinds of people in the world: those who understand binary and those who don’t.',
+  'I told my computer I needed a break, and it said "No problem, I’ll go to sleep."',
+  'Why do Java developers wear glasses? Because they don’t see sharp.'
+]
+
+app.get('/', (req, res) => {
+  res.send('Welcome to the Random Joke Server! Visit /joke to get a random joke.')
+})
+
+app.get('/joke', (req, res) => {
+  const randomJoke = jokes[Math.floor(Math.random() * jokes.length)]
+  res.send(randomJoke)
+})
+
+app.listen(port, () => {
+  console.log(`Joke Server running at http://localhost:${port}`)
+})
+```
+
 ## --fcc-end--
