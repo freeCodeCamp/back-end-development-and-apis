@@ -60,6 +60,59 @@ assert.match(portVar.compact, /const\s+port\s*=\s*3000;?/);
 
 ### --description--
 
+Now, you should listen for server connections on the `port`. To do this, use `app.listen()` to start the server and log a message to the console when it’s running.
+
+Here's an example usage of `app.listen()`:
+
+```js
+app.listen(3000, () => {
+  console.log('Server is running on port 3000')
+})
+```
+
+### --tests--
+
+You should call the `listen` method on your `app` variable.
+
+```js
+const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
+const codeStructure = new __helpers.Tower(file);
+const listenCalls = codeStructure.getCalls("app.listen");
+console.log(listenCalls)
+
+assert.isAtLeast(listenCalls.length, 1);
+
+const listenCall = listenCalls[0];
+assert.include(listenCall.compact, "app.listen(port,");
+```
+
+You should log `Joke Server running at http://localhost:${port}` to the console when the server starts.
+
+```js
+const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
+const codeStructure = new __helpers.Tower(file);
+const listenCall = codeStructure.getCalls("app.listen")[0];
+
+const callbackNode = listenCall.ast.expression.arguments[1];
+const callbackTower = new __helpers.Tower(callbackNode);
+
+assert.match(callbackTower.compact, /console\.log\((`Joke Server running at http:\/\/localhost:\$\{port\}`|["']Joke Server running at http:\/\/localhost:["']\+port)\);?/);
+```
+
+### --seed--
+
+#### --"server.js"--
+
+```javascript
+const express = require('express');
+const app = express();
+const port = 3000;
+```
+
+## 2
+
+### --description--
+
 The jokes that will be returned randomly are provided in a `jokes` array. Before creating the route that serves those jokes, you first need to define a home route.
 
 Here's an example route in Express:
@@ -134,9 +187,13 @@ const jokes = [
   'I told my computer I needed a break, and it said "No problem, I’ll go to sleep."',
   'Why do Java developers wear glasses? Because they don’t see sharp.'
 ]
+
+app.listen(port, () => {
+  console.log(`Joke Server running at http://localhost:${port}`)
+})
 ```
 
-## 2
+## 3
 
 ### --description--
 
@@ -171,19 +228,6 @@ const rootGetCall = getCalls.find(call =>
 );
 
 assert.match(rootGetCall.compact, /app\.get\(["']\/joke["'],(\(req,res\)=>|function\(req,res\))/);
-```
-
-You should use `res.send` to send the message `Welcome to the Random Joke Server! Visit /joke to get a random joke.`.
-
-```js
-const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
-const code = new __helpers.Tower(file);
-const getCalls = code.getCalls("app.get");
-const rootGetCall = getCalls.find(call => 
-  call.compact.includes("app.get('/',") || 
-  call.compact.includes('app.get("/",')
-);
-assert.match(rootGetCall.compact, /res\.send\(["'`]Welcome to the Random Joke Server! Visit \/joke to get a random joke\.["'`]\)/);
 ```
 
 You should define a variable named `randomJoke` that picks a joke randomly from the `jokes` array inside the handler.
@@ -231,6 +275,10 @@ const jokes = [
 
 app.get('/', (req, res) => {
   res.send('Welcome to the Random Joke Server! Visit /joke to get a random joke.')
+})
+
+app.listen(port, () => {
+  console.log(`Joke Server running at http://localhost:${port}`)
 })
 ```
 
