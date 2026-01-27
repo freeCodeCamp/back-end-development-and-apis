@@ -25,7 +25,8 @@
     "numberofLessons": null,
     "blockingTests": null,
     "breakOnFailure": null,
-    "numberOfLessons": 2
+    "numberOfLessons": 2,
+    "completedDate": 1769509671959
   },
   {
     "id": 2,
