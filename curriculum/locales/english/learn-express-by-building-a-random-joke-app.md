@@ -6,7 +6,31 @@ In this course, you will learn basic Express by building a random joke app.
 
 ### --description--
 
-To get started, you need to import Express by using `require()`, then create an Express app by calling the Express function and saving it in an `app` variable.
+To get started with the project, you need to install the Express npm package first by running `npm install express` in the terminal. 
+
+### --tests--
+
+You should run `npm install` in the terminal.
+
+```js
+await new Promise(res => setTimeout(res, 1000));
+const lastCommand = await __helpers.getLastCommand();
+assert.equal(lastCommand.replace(/\s+/g, ' ').trim(), 'npm install express');
+```
+
+### --seed--
+
+#### --"server.js"--
+
+```js
+
+```
+
+## 1
+
+### --description--
+
+Next, import Express by using `require()`, with the import assigned to an `express` variable. After that, create an Express app by calling the Express function and saving it in an `app` variable.
 
 Also, create a `port` variable and set it to `3000`. This is the port the app will run on.
 
@@ -82,7 +106,7 @@ assert.equal(value, 3000);
 
 ```
 
-## 1
+## 2
 
 ### --description--
 
@@ -145,7 +169,7 @@ const app = express();
 const port = 3000;
 ```
 
-## 2
+## 3
 
 ### --description--
 
@@ -233,7 +257,7 @@ app.listen(port, () => {
 })
 ```
 
-## 3
+## 4
 
 ### --description--
 
@@ -321,7 +345,7 @@ app.listen(port, () => {
 })
 ```
 
-## 4
+## 5
 
 ### --description--
 
