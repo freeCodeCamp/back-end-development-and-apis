@@ -18,6 +18,15 @@ const lastCommand = await __helpers.getLastCommand();
 assert.equal(lastCommand.replace(/\s+/g, ' ').trim(), 'npm install express');
 ```
 
+You should be in the learn-express-by-building-a-random-joke-app folder in your terminal when you run it
+
+```js
+await new Promise(res => setTimeout(res, 1000));
+const cwdFile = await __helpers.getCWD();
+const cwd = cwdFile.split('\n').filter(Boolean).pop();
+assert.include(cwd, 'learn-express-by-building-a-random-joke-app');
+```
+
 ### --seed--
 
 #### --"server.js"--
