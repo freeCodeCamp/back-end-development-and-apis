@@ -18,15 +18,15 @@
     "dashedName": "learn-express-by-building-a-random-joke-app",
     "isIntegrated": false,
     "isPublic": true,
-    "currentLesson": 3,
+    "currentLesson": 4,
     "runTestsOnWatch": true,
     "seedEveryLesson": false,
     "isResetEnabled": false,
     "numberofLessons": null,
     "blockingTests": null,
     "breakOnFailure": null,
-    "numberOfLessons": 5,
-    "completedDate": 1769599979449
+    "numberOfLessons": 6,
+    "completedDate": 1769601007422
   },
   {
     "id": 2,
