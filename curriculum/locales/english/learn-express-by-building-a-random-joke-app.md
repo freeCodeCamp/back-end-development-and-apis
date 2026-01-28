@@ -27,7 +27,16 @@ Your `express` variable should be set to `require('express')`.
 const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
 const code = new __helpers.Tower(file);
 const expressVar = code.getVariable("express");
-assert.match(expressVar.compact, /const\s+express\s*=\s*require\(["']express["']\);?/);
+
+const { kind } = expressVar.ast;
+const declaration = expressVar.ast.declarations[0];
+const { name } = declaration.id;
+const { callee, arguments: args } = declaration.init;
+
+assert.include(["const", "let", "var"], kind);
+assert.equal(name, "express");
+assert.equal(callee.name, "require");
+assert.equal(args[0].value, "express");
 ```
 
 You should create an `app` variable and set it to `express()`.
@@ -36,7 +45,16 @@ You should create an `app` variable and set it to `express()`.
 const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
 const code = new __helpers.Tower(file);
 const appVar = code.getVariable("app");
-assert.match(appVar.compact, /const\s+app\s*=\s*express\(\);?/);
+
+const { kind } = appVar.ast;
+const declaration = appVar.ast.declarations[0];
+const { name } = declaration.id;
+const { callee, arguments: args } = declaration.init;
+
+assert.include(["const", "let", "var"], kind);
+assert.equal(name, "app");
+assert.equal(callee.name, "express");
+assert.equal(args.length, 0);
 ```
 
 You should create a `port` variable and set it to `3000`.
@@ -45,7 +63,15 @@ You should create a `port` variable and set it to `3000`.
 const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
 const code = new __helpers.Tower(file);
 const portVar = code.getVariable("port");
-assert.match(portVar.compact, /const\s+port\s*=\s*3000;?/);
+
+const { kind } = portVar.ast;
+const declaration = portVar.ast.declarations[0];
+const { name } = declaration.id;
+const { value } = declaration.init;
+
+assert.include(["const", "let", "var"], kind);
+assert.equal(name, "port");
+assert.equal(value, 3000);
 ```
 
 ### --seed--
@@ -76,14 +102,13 @@ You should call the `listen` method on your `app` variable.
 
 ```js
 const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
-const codeStructure = new __helpers.Tower(file);
-const listenCalls = codeStructure.getCalls("app.listen");
-console.log(listenCalls)
-
+const code = new __helpers.Tower(file);
+const listenCalls = code.getCalls("app.listen");
 assert.isAtLeast(listenCalls.length, 1);
 
 const listenCall = listenCalls[0];
-assert.include(listenCall.compact, "app.listen(port,");
+const portArg = listenCall.ast.expression.arguments[0];
+assert.strictEqual(portArg.name, 'port');
 ```
 
 You should log `Joke Server running at http://localhost:${port}` to the console when the server starts.
@@ -95,8 +120,19 @@ const listenCall = codeStructure.getCalls("app.listen")[0];
 
 const callbackNode = listenCall.ast.expression.arguments[1];
 const callbackTower = new __helpers.Tower(callbackNode);
+const logCall = callbackTower.getCalls("console.log")[0];
+const arg = logCall.ast.expression.arguments[0];
+console.log("Arg: ", arg)
 
-assert.match(callbackTower.compact, /console\.log\((`Joke Server running at http:\/\/localhost:\$\{port\}`|["']Joke Server running at http:\/\/localhost:["']\+port)\);?/);
+if (arg.type === 'TemplateLiteral') {
+  assert.strictEqual(arg.quasis[0].value.raw, 'Joke Server running at http://localhost:');
+  assert.strictEqual(arg.expressions[0].name, 'port');
+} else if (arg.type === 'BinaryExpression') {
+  assert.strictEqual(arg.left.value, 'Joke Server running at http://localhost:');
+  assert.strictEqual(arg.right.name, 'port');
+} else {
+  assert.fail("You should use a template literal or string concatenation to log the message to the console.");
+}
 ```
 
 ### --seed--
@@ -156,7 +192,9 @@ const rootGetCall = getCalls.find(call =>
   call.compact.includes('app.get("/",')
 );
 
-assert.match(rootGetCall.compact, /app\.get\(["']\/["'],(\(req,res\)=>|function\(req,res\))/);
+const handlerNode = rootGetCall.ast.expression.arguments[1];
+assert.equal(handlerNode.params[0].name, 'req');
+assert.equal(handlerNode.params[1].name, 'res');
 ```
 
 You should use `res.send` to send the message `Welcome to the Random Joke Server! Visit /joke to get a random joke.`.
@@ -164,12 +202,14 @@ You should use `res.send` to send the message `Welcome to the Random Joke Server
 ```js
 const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
 const code = new __helpers.Tower(file);
-const getCalls = code.getCalls("app.get");
-const rootGetCall = getCalls.find(call => 
+const rootGetCall = code.getCalls("app.get").find(call => 
   call.compact.includes("app.get('/',") || 
   call.compact.includes('app.get("/",')
 );
-assert.match(rootGetCall.compact, /res\.send\(["'`]Welcome to the Random Joke Server! Visit \/joke to get a random joke\.["'`]\)/);
+
+const handlerTower = new __helpers.Tower(rootGetCall.ast.expression.arguments[1]);
+const sendCall = handlerTower.getCalls("res.send")[0];
+assert.equal(sendCall.ast.expression.arguments[0].value, 'Welcome to the Random Joke Server! Visit /joke to get a random joke.');
 ```
 
 ### --seed--
@@ -206,13 +246,10 @@ You should create a `GET` route for `/joke` by using `app.get()`.
 ```js
 const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
 const code = new __helpers.Tower(file);
-const getCalls = code.getCalls("app.get");
-
-const rootGetCall = getCalls.find(call => 
-  call.compact.includes("app.get('/joke',") || 
-  call.compact.includes('app.get("/joke",')
+const jokeCall = code.getCalls("app.get").find(call => 
+  call.compact.match(/app\.get\(["']\/joke["'],/)
 );
-assert.exists(rootGetCall);
+assert.exists(jokeCall);
 ```
 
 Your `/joke` route handler should have `req` and `res` as parameters.
@@ -220,14 +257,13 @@ Your `/joke` route handler should have `req` and `res` as parameters.
 ```js
 const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
 const code = new __helpers.Tower(file);
-const getCalls = code.getCalls("app.get");
-
-const rootGetCall = getCalls.find(call => 
-  call.compact.includes("app.get('/joke',") || 
-  call.compact.includes('app.get("/joke",')
+const jokeCall = code.getCalls("app.get").find(call => 
+  call.compact.match(/app\.get\(["']\/joke["'],/)
 );
 
-assert.match(rootGetCall.compact, /app\.get\(["']\/joke["'],(\(req,res\)=>|function\(req,res\))/);
+const handlerNode = jokeCall.ast.expression.arguments[1];
+assert.strictEqual(handlerNode.params[0].name, 'req');
+assert.strictEqual(handlerNode.params[1].name, 'res');
 ```
 
 You should define a variable named `randomJoke` that picks a joke randomly from the `jokes` array inside the handler.
@@ -235,15 +271,15 @@ You should define a variable named `randomJoke` that picks a joke randomly from 
 ```js
 const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
 const code = new __helpers.Tower(file);
-const jokeRoute = code.getCalls("app.get").find(c => c.compact.includes("'/joke'"));
+const jokeCall = code.getCalls("app.get").find(call => 
+  call.compact.match(/app\.get\(["']\/joke["'],/)
+);
 
-const handlerNode = jokeRoute.ast.expression.arguments[1];
-const handlerTower = new __helpers.Tower(handlerNode);
-
+const handlerTower = new __helpers.Tower(jokeCall.ast.expression.arguments[1]);
 const randomJokeVar = handlerTower.getVariable("randomJoke");
 assert.exists(randomJokeVar);
 
-assert.match(randomJokeVar.compact, /const\s+randomJoke\s*=\s*jokes\[Math\.floor\(Math\.random\(\)\*jokes\.length\)\];?/);
+assert.match(randomJokeVar.compact, /(const|let|var)\s+randomJoke\s*=\s*jokes\[Math\.floor\(Math\.random\(\)\*jokes\.length\)\];?/);
 ```
 
 You should send the `randomJoke` to the client with `res.send()`.
@@ -251,10 +287,13 @@ You should send the `randomJoke` to the client with `res.send()`.
 ```js
 const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
 const code = new __helpers.Tower(file);
-const jokeRoute = code.getCalls("app.get").find(c => c.compact.includes("'/joke'"));
-const handlerTower = new __helpers.Tower(jokeRoute.ast.expression.arguments[1]);
+const jokeCall = code.getCalls("app.get").find(call => 
+  call.compact.match(/app\.get\(["']\/joke["'],/)
+);
 
-assert.match(handlerTower.compact, /res\.send\(randomJoke\);?/);
+const handlerTower = new __helpers.Tower(jokeCall.ast.expression.arguments[1]);
+const sendCall = handlerTower.getCalls("res.send")[0];
+assert.strictEqual(sendCall.ast.expression.arguments[0].name, 'randomJoke');
 ```
 
 ### --seed--
@@ -295,13 +334,10 @@ You should create a `GET` route for `/about` by using `app.get()`.
 ```js
 const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
 const code = new __helpers.Tower(file);
-const getCalls = code.getCalls("app.get");
-
-const rootGetCall = getCalls.find(call => 
-  call.compact.includes("app.get('/about',") || 
-  call.compact.includes('app.get("/about",')
+const aboutCall = code.getCalls("app.get").find(call => 
+  call.compact.match(/app\.get\(["']\/about["'],/)
 );
-assert.exists(rootGetCall);
+assert.exists(aboutCall);
 ```
 
 Your route handler should have `req` and `res` as parameters.
@@ -309,14 +345,13 @@ Your route handler should have `req` and `res` as parameters.
 ```js
 const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
 const code = new __helpers.Tower(file);
-const getCalls = code.getCalls("app.get");
-
-const rootGetCall = getCalls.find(call => 
-  call.compact.includes("app.get('/about',") || 
-  call.compact.includes('app.get("/about",')
+const aboutCall = code.getCalls("app.get").find(call => 
+  call.compact.match(/app\.get\(["']\/about["'],/)
 );
 
-assert.match(rootGetCall.compact, /app\.get\(["']\/about["'],(\(req,res\)=>|function\(req,res\))/);
+const handlerNode = aboutCall.ast.expression.arguments[1];
+assert.strictEqual(handlerNode.params[0].name, 'req');
+assert.strictEqual(handlerNode.params[1].name, 'res');
 ```
 
 You should use `res.send` to send the message `This Random Joke Server was built with Express.js`.
@@ -324,12 +359,13 @@ You should use `res.send` to send the message `This Random Joke Server was built
 ```js
 const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
 const code = new __helpers.Tower(file);
-const getCalls = code.getCalls("app.get");
-const rootGetCall = getCalls.find(call => 
-  call.compact.includes("app.get('/about',") || 
-  call.compact.includes('app.get("/about",')
+const aboutCall = code.getCalls("app.get").find(call => 
+  call.compact.match(/app\.get\(["']\/about["'],/)
 );
-assert.match(rootGetCall.compact, /res\.send\(["'`]This Random Joke Server was built with Express\.js["'`]\)/);
+
+const handlerTower = new __helpers.Tower(aboutCall.ast.expression.arguments[1]);
+const sendCall = handlerTower.getCalls("res.send")[0];
+assert.strictEqual(sendCall.ast.expression.arguments[0].value, 'This Random Joke Server was built with Express.js');
 ```
 
 ### --seed--

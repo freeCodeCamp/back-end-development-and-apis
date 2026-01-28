@@ -1,6 +1,9 @@
 {
-  "currentProject": null,
+  "currentProject": "learn-express-by-building-a-random-joke-app",
   "locale": "english",
-  "lastSeed": null,
-  "lastWatchChange": 4
+  "lastSeed": {
+    "projectDashedName": "learn-nodejs-by-building-a-web-server",
+    "lessonNumber": 0
+  },
+  "lastWatchChange": 3
 }
