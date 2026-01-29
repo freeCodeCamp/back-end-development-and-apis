@@ -27,7 +27,7 @@ assert.include(cwd, project.dashedName);
 
 ### --seed--
 
-#### --"server.js"--
+#### --"learn-express-by-building-a-random-joke-app/server.js"--
 
 ```js
 
@@ -107,7 +107,7 @@ assert.equal(value, 3000);
 
 ### --seed--
 
-#### --"server.js"--
+#### --"learn-express-by-building-a-random-joke-app/server.js"--
 
 ```js
 
@@ -158,7 +158,7 @@ assert.exists(logCall.ast.expression.arguments[0]);
 
 ### --seed--
 
-#### --"server.js"--
+#### --"learn-express-by-building-a-random-joke-app/server.js"--
 
 ```javascript
 const express = require('express');
@@ -235,7 +235,7 @@ assert.equal(sendCall.ast.expression.arguments[0].value, 'Welcome to the Random 
 
 ### --seed--
 
-#### --"server.js"--
+#### --"learn-express-by-building-a-random-joke-app/server.js"--
 
 ```javascript
 const express = require('express');
@@ -324,7 +324,7 @@ assert.strictEqual(sendCall.ast.expression.arguments[0].name, 'randomJoke');
 
 ### --seed--
 
-#### --"server.js"--
+#### --"learn-express-by-building-a-random-joke-app/server.js"--
 
 ```javascript
 const express = require('express');
@@ -396,7 +396,7 @@ assert.strictEqual(sendCall.ast.expression.arguments[0].value, 'This Random Joke
 
 ### --seed--
 
-#### --"server.js"--
+#### --"learn-express-by-building-a-random-joke-app/server.js"--
 
 ```javascript
 const express = require('express');
