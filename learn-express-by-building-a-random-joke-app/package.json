@@ -9,8 +9,5 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
-  "dependencies": {
-    "@freecodecamp/freecodecamp-os": "^3.5.1"
-  }
+  "type": "commonjs"
 }
