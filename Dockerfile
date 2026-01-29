@@ -1,4 +1,4 @@
-FROM gitpod/workspace-node-lts:2024-02-14-13-04-03
+FROM gitpod/workspace-node-lts:2026-01-21-13-55-44
 
 WORKDIR /workspace/back-end-development-and-apis
 
