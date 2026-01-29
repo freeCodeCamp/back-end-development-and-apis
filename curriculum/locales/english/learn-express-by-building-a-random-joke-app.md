@@ -10,21 +10,19 @@ To get started with the project, you need to install the Express npm package fir
 
 ### --tests--
 
-You should run `npm install` in the terminal.
+You should run `npm install express` in the terminal.
 
 ```js
-await new Promise(res => setTimeout(res, 1000));
 const lastCommand = await __helpers.getLastCommand();
-assert.equal(lastCommand.replace(/\s+/g, ' ').trim(), 'npm install express');
+assert.equal(lastCommand.trim(), 'npm install express');
 ```
 
-You should be in the learn-express-by-building-a-random-joke-app folder in your terminal when you run it
+You should be in the `learn-express-by-building-a-random-joke-app` folder in your terminal.
 
 ```js
-await new Promise(res => setTimeout(res, 1000));
 const cwdFile = await __helpers.getCWD();
 const cwd = cwdFile.split('\n').filter(Boolean).pop();
-assert.include(cwd, 'learn-express-by-building-a-random-joke-app');
+assert.include(cwd, project.dashedName);
 ```
 
 ### --seed--
@@ -48,7 +46,7 @@ Also, create a `port` variable and set it to `3000`. This is the port the app wi
 You should create a variable named `express`.
 
 ```js
-const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
+const file = await __helpers.getFile(project.dashedName, "server.js");
 const code = new __helpers.Tower(file);
 const expressVar = code.getVariable("express");
 assert.exists(expressVar);
@@ -57,7 +55,7 @@ assert.exists(expressVar);
 Your `express` variable should be set to `require('express')`.
 
 ```js
-const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
+const file = await __helpers.getFile(project.dashedName, "server.js");
 const code = new __helpers.Tower(file);
 const expressVar = code.getVariable("express");
 
@@ -75,7 +73,7 @@ assert.equal(args[0].value, "express");
 You should create an `app` variable and set it to `express()`.
 
 ```js
-const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
+const file = await __helpers.getFile(project.dashedName, "server.js");
 const code = new __helpers.Tower(file);
 const appVar = code.getVariable("app");
 
@@ -93,7 +91,7 @@ assert.equal(args.length, 0);
 You should create a `port` variable and set it to `3000`.
 
 ```js
-const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
+const file = await __helpers.getFile(project.dashedName, "server.js");
 const code = new __helpers.Tower(file);
 const portVar = code.getVariable("port");
 
@@ -119,7 +117,7 @@ assert.equal(value, 3000);
 
 ### --description--
 
-Now, you should listen for server connections on the `port`. To do this, use `app.listen()` to start the server and log a message to the console when it’s running.
+Now, listen for connections on your `port` variable by calling the `app.listen()` method with `port` as the first argument. Inside the callback function, log a message to the console to verify the server is running.
 
 Here's an example usage of `app.listen()`:
 
@@ -134,7 +132,7 @@ app.listen(3000, () => {
 You should call the `listen` method on your `app` variable.
 
 ```js
-const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
+const file = await __helpers.getFile(project.dashedName, "server.js");
 const code = new __helpers.Tower(file);
 const listenCalls = code.getCalls("app.listen");
 assert.isAtLeast(listenCalls.length, 1);
@@ -144,28 +142,18 @@ const portArg = listenCall.ast.expression.arguments[0];
 assert.strictEqual(portArg.name, 'port');
 ```
 
-You should log `Joke Server running at http://localhost:${port}` to the console when the server starts.
+You should log a message to the console when the server starts.
 
 ```js
-const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
-const codeStructure = new __helpers.Tower(file);
-const listenCall = codeStructure.getCalls("app.listen")[0];
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const code = new __helpers.Tower(file);
+const listenCall = code.getCalls("app.listen")[0];
 
 const callbackNode = listenCall.ast.expression.arguments[1];
 const callbackTower = new __helpers.Tower(callbackNode);
 const logCall = callbackTower.getCalls("console.log")[0];
-const arg = logCall.ast.expression.arguments[0];
-console.log("Arg: ", arg)
-
-if (arg.type === 'TemplateLiteral') {
-  assert.strictEqual(arg.quasis[0].value.raw, 'Joke Server running at http://localhost:');
-  assert.strictEqual(arg.expressions[0].name, 'port');
-} else if (arg.type === 'BinaryExpression') {
-  assert.strictEqual(arg.left.value, 'Joke Server running at http://localhost:');
-  assert.strictEqual(arg.right.name, 'port');
-} else {
-  assert.fail("You should use a template literal or string concatenation to log the message to the console.");
-}
+assert.exists(logCall);
+assert.exists(logCall.ast.expression.arguments[0]);
 ```
 
 ### --seed--
@@ -202,7 +190,7 @@ Create a `GET` route for the root path. Inside the route handler, use `res.send(
 You should create a `GET` route for the root path by using `app.get()`.
 
 ```js
-const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
+const file = await __helpers.getFile(project.dashedName, "server.js");
 const code = new __helpers.Tower(file);
 const getCalls = code.getCalls("app.get");
 
@@ -216,7 +204,7 @@ assert.exists(rootGetCall);
 Your route handler should have `req` and `res` as parameters.
 
 ```js
-const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
+const file = await __helpers.getFile(project.dashedName, "server.js");
 const code = new __helpers.Tower(file);
 const getCalls = code.getCalls("app.get");
 
@@ -233,7 +221,7 @@ assert.equal(handlerNode.params[1].name, 'res');
 You should use `res.send` to send the message `Welcome to the Random Joke Server! Visit /joke to get a random joke.`.
 
 ```js
-const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
+const file = await __helpers.getFile(project.dashedName, "server.js");
 const code = new __helpers.Tower(file);
 const rootGetCall = code.getCalls("app.get").find(call => 
   call.compact.includes("app.get('/',") || 
@@ -277,7 +265,7 @@ To start serving the jokes randomly, create a `/joke` `GET` route. Inside the ro
 You should create a `GET` route for `/joke` by using `app.get()`.
 
 ```js
-const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
+const file = await __helpers.getFile(project.dashedName, "server.js");
 const code = new __helpers.Tower(file);
 const jokeCall = code.getCalls("app.get").find(call => 
   call.compact.match(/app\.get\(["']\/joke["'],/)
@@ -288,7 +276,7 @@ assert.exists(jokeCall);
 Your `/joke` route handler should have `req` and `res` as parameters.
 
 ```js
-const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
+const file = await __helpers.getFile(project.dashedName, "server.js");
 const code = new __helpers.Tower(file);
 const jokeCall = code.getCalls("app.get").find(call => 
   call.compact.match(/app\.get\(["']\/joke["'],/)
@@ -302,7 +290,7 @@ assert.strictEqual(handlerNode.params[1].name, 'res');
 You should define a variable named `randomJoke` that picks a joke randomly from the `jokes` array inside the handler.
 
 ```js
-const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
+const file = await __helpers.getFile(project.dashedName, "server.js");
 const code = new __helpers.Tower(file);
 const jokeCall = code.getCalls("app.get").find(call => 
   call.compact.match(/app\.get\(["']\/joke["'],/)
@@ -312,13 +300,18 @@ const handlerTower = new __helpers.Tower(jokeCall.ast.expression.arguments[1]);
 const randomJokeVar = handlerTower.getVariable("randomJoke");
 assert.exists(randomJokeVar);
 
-assert.match(randomJokeVar.compact, /(const|let|var)\s+randomJoke\s*=\s*jokes\[Math\.floor\(Math\.random\(\)\*jokes\.length\)\];?/);
+const init = randomJokeVar.ast.declarations[0].init;
+assert.equal(init.type, "MemberExpression");
+assert.equal(init.object.name, "jokes");
+assert.isTrue(randomJokeVar.compact.includes("Math.floor"));
+assert.isTrue(randomJokeVar.compact.includes("Math.random"));
+assert.isTrue(randomJokeVar.compact.includes("jokes.length"));
 ```
 
 You should send the `randomJoke` to the client with `res.send()`.
 
 ```js
-const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
+const file = await __helpers.getFile(project.dashedName, "server.js");
 const code = new __helpers.Tower(file);
 const jokeCall = code.getCalls("app.get").find(call => 
   call.compact.match(/app\.get\(["']\/joke["'],/)
@@ -365,7 +358,7 @@ Finally, create a `GET` route called `/about` to display a short information abo
 You should create a `GET` route for `/about` by using `app.get()`.
 
 ```js
-const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
+const file = await __helpers.getFile(project.dashedName, "server.js");
 const code = new __helpers.Tower(file);
 const aboutCall = code.getCalls("app.get").find(call => 
   call.compact.match(/app\.get\(["']\/about["'],/)
@@ -376,7 +369,7 @@ assert.exists(aboutCall);
 Your route handler should have `req` and `res` as parameters.
 
 ```js
-const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
+const file = await __helpers.getFile(project.dashedName, "server.js");
 const code = new __helpers.Tower(file);
 const aboutCall = code.getCalls("app.get").find(call => 
   call.compact.match(/app\.get\(["']\/about["'],/)
@@ -390,7 +383,7 @@ assert.strictEqual(handlerNode.params[1].name, 'res');
 You should use `res.send` to send the message `This Random Joke Server was built with Express.js`.
 
 ```js
-const file = await __helpers.getFile("learn-express-by-building-a-random-joke-app", "server.js");
+const file = await __helpers.getFile(project.dashedName, "server.js");
 const code = new __helpers.Tower(file);
 const aboutCall = code.getCalls("app.get").find(call => 
   call.compact.match(/app\.get\(["']\/about["'],/)
@@ -430,5 +423,8 @@ app.listen(port, () => {
   console.log(`Joke Server running at http://localhost:${port}`)
 })
 ```
+
+### --before-all--
+
 
 ## --fcc-end--
