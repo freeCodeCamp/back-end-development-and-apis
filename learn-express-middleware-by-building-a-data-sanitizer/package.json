@@ -1,0 +1,14 @@
+{
+  "name": "learn-express-middleware-by-building-a-data-sanitizer",
+  "version": "1.0.0",
+  "description": "Course description here",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "develop": "NODE_ENV=development npm run start"
+  },
+  "license": "BSD-3-Clause",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
