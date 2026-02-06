@@ -75,6 +75,7 @@
     "isResetEnabled": false,
     "blockingTests": false,
     "breakOnFailure": true,
-    "numberOfLessons": 1
+    "numberOfLessons": 1,
+    "completedDate": 1770278919527
   }
 ]
