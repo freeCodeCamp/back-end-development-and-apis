@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "config": {
+    "projects.json": "projects.json",
+    "state.json": "state.json"
+  },
+  "curriculum": {
+    "locales": {
+      "english": "curriculum/locales/english"
+    }
+  }
+}
