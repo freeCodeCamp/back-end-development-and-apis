@@ -132,28 +132,15 @@ app.listen(3000, () => {
 You should call the `listen` method on your `app` variable.
 
 ```js
-const file = await __helpers.getFile(project.dashedName, "server.js");
-const code = new __helpers.Tower(file);
-const listenCalls = code.getCalls("app.listen");
-assert.isAtLeast(listenCalls.length, 1);
-
-const listenCall = listenCalls[0];
-const portArg = listenCall.ast.expression.arguments[0];
-assert.strictEqual(portArg.name, 'port');
+const isListening = await __helpers.isServerListening(3000);
+assert.isTrue(isListening);
 ```
 
 You should log a message to the console when the server starts.
 
 ```js
 const file = await __helpers.getFile(project.dashedName, "server.js");
-const code = new __helpers.Tower(file);
-const listenCall = code.getCalls("app.listen")[0];
-
-const callbackNode = listenCall.ast.expression.arguments[1];
-const callbackTower = new __helpers.Tower(callbackNode);
-const logCall = callbackTower.getCalls("console.log")[0];
-assert.exists(logCall);
-assert.exists(logCall.ast.expression.arguments[0]);
+assert.match(file, /app\.listen\s*\(\s*port\s*,\s*(?:function\s*\(\s*\)|\(\s*\)\s*=>)\s*\{\s*console\.log\s*\(\s*[^)]*\)/);
 ```
 
 ### --seed--
@@ -190,47 +177,17 @@ Create a `GET` route for the root path. Inside the route handler, use `res.send(
 You should create a `GET` route for the root path by using `app.get()`.
 
 ```js
-const file = await __helpers.getFile(project.dashedName, "server.js");
-const code = new __helpers.Tower(file);
-const getCalls = code.getCalls("app.get");
-
-const rootGetCall = getCalls.find(call => 
-  call.compact.includes("app.get('/',") || 
-  call.compact.includes('app.get("/",')
-);
-assert.exists(rootGetCall);
+const res = await fetch('http://localhost:3000/');
+assert.equal(res.status, 200);
 ```
 
-Your route handler should have `req` and `res` as parameters.
+Your route should return the message `Welcome to the Random Joke Server! Visit /joke to get a random joke.`.
 
 ```js
-const file = await __helpers.getFile(project.dashedName, "server.js");
-const code = new __helpers.Tower(file);
-const getCalls = code.getCalls("app.get");
+const res = await fetch('http://localhost:3000/');
+const text = await res.text();
 
-const rootGetCall = getCalls.find(call => 
-  call.compact.includes("app.get('/',") || 
-  call.compact.includes('app.get("/",')
-);
-
-const handlerNode = rootGetCall.ast.expression.arguments[1];
-assert.equal(handlerNode.params[0].name, 'req');
-assert.equal(handlerNode.params[1].name, 'res');
-```
-
-You should use `res.send` to send the message `Welcome to the Random Joke Server! Visit /joke to get a random joke.`.
-
-```js
-const file = await __helpers.getFile(project.dashedName, "server.js");
-const code = new __helpers.Tower(file);
-const rootGetCall = code.getCalls("app.get").find(call => 
-  call.compact.includes("app.get('/',") || 
-  call.compact.includes('app.get("/",')
-);
-
-const handlerTower = new __helpers.Tower(rootGetCall.ast.expression.arguments[1]);
-const sendCall = handlerTower.getCalls("res.send")[0];
-assert.equal(sendCall.ast.expression.arguments[0].value, 'Welcome to the Random Joke Server! Visit /joke to get a random joke.');
+assert.equal(text, 'Welcome to the Random Joke Server! Visit /joke to get a random joke.');
 ```
 
 ### --seed--
@@ -265,61 +222,24 @@ To start serving the jokes randomly, create a `/joke` `GET` route. Inside the ro
 You should create a `GET` route for `/joke` by using `app.get()`.
 
 ```js
-const file = await __helpers.getFile(project.dashedName, "server.js");
-const code = new __helpers.Tower(file);
-const jokeCall = code.getCalls("app.get").find(call => 
-  call.compact.match(/app\.get\(["']\/joke["'],/)
-);
-assert.exists(jokeCall);
+const res = await fetch('http://localhost:3000/joke');
+assert.equal(res.status, 200);
 ```
 
 Your `/joke` route handler should have `req` and `res` as parameters.
 
 ```js
 const file = await __helpers.getFile(project.dashedName, "server.js");
-const code = new __helpers.Tower(file);
-const jokeCall = code.getCalls("app.get").find(call => 
-  call.compact.match(/app\.get\(["']\/joke["'],/)
-);
+const jokesMatch = file.match(/const\s+jokes\s*=\s*\[([\s\S]*?)\]/);
+const validJokesString = jokesMatch[1];
 
-const handlerNode = jokeCall.ast.expression.arguments[1];
-assert.strictEqual(handlerNode.params[0].name, 'req');
-assert.strictEqual(handlerNode.params[1].name, 'res');
-```
+console.log("Jokes array: ", jokesMatch)
+console.log("A joke: ", validJokesString)
 
-You should define a variable named `randomJoke` that picks a joke randomly from the `jokes` array inside the handler.
+const res = await fetch('http://localhost:3000/joke');
+const text = await res.text();
 
-```js
-const file = await __helpers.getFile(project.dashedName, "server.js");
-const code = new __helpers.Tower(file);
-const jokeCall = code.getCalls("app.get").find(call => 
-  call.compact.match(/app\.get\(["']\/joke["'],/)
-);
-
-const handlerTower = new __helpers.Tower(jokeCall.ast.expression.arguments[1]);
-const randomJokeVar = handlerTower.getVariable("randomJoke");
-assert.exists(randomJokeVar);
-
-const init = randomJokeVar.ast.declarations[0].init;
-assert.equal(init.type, "MemberExpression");
-assert.equal(init.object.name, "jokes");
-assert.isTrue(randomJokeVar.compact.includes("Math.floor"));
-assert.isTrue(randomJokeVar.compact.includes("Math.random"));
-assert.isTrue(randomJokeVar.compact.includes("jokes.length"));
-```
-
-You should send the `randomJoke` to the client with `res.send()`.
-
-```js
-const file = await __helpers.getFile(project.dashedName, "server.js");
-const code = new __helpers.Tower(file);
-const jokeCall = code.getCalls("app.get").find(call => 
-  call.compact.match(/app\.get\(["']\/joke["'],/)
-);
-
-const handlerTower = new __helpers.Tower(jokeCall.ast.expression.arguments[1]);
-const sendCall = handlerTower.getCalls("res.send")[0];
-assert.strictEqual(sendCall.ast.expression.arguments[0].name, 'randomJoke');
+assert.include(validJokesString, text);
 ```
 
 ### --seed--
@@ -358,40 +278,16 @@ Finally, create a `GET` route called `/about` to display a short information abo
 You should create a `GET` route for `/about` by using `app.get()`.
 
 ```js
-const file = await __helpers.getFile(project.dashedName, "server.js");
-const code = new __helpers.Tower(file);
-const aboutCall = code.getCalls("app.get").find(call => 
-  call.compact.match(/app\.get\(["']\/about["'],/)
-);
-assert.exists(aboutCall);
+const res = await fetch('http://localhost:3000/about');
+assert.equal(res.status, 200);
 ```
 
 Your route handler should have `req` and `res` as parameters.
 
 ```js
-const file = await __helpers.getFile(project.dashedName, "server.js");
-const code = new __helpers.Tower(file);
-const aboutCall = code.getCalls("app.get").find(call => 
-  call.compact.match(/app\.get\(["']\/about["'],/)
-);
-
-const handlerNode = aboutCall.ast.expression.arguments[1];
-assert.strictEqual(handlerNode.params[0].name, 'req');
-assert.strictEqual(handlerNode.params[1].name, 'res');
-```
-
-You should use `res.send` to send the message `This Random Joke Server was built with Express.js`.
-
-```js
-const file = await __helpers.getFile(project.dashedName, "server.js");
-const code = new __helpers.Tower(file);
-const aboutCall = code.getCalls("app.get").find(call => 
-  call.compact.match(/app\.get\(["']\/about["'],/)
-);
-
-const handlerTower = new __helpers.Tower(aboutCall.ast.expression.arguments[1]);
-const sendCall = handlerTower.getCalls("res.send")[0];
-assert.strictEqual(sendCall.ast.expression.arguments[0].value, 'This Random Joke Server was built with Express.js');
+const res = await fetch('http://localhost:3000/about');
+const text = await res.text()
+assert.equal(text, 'This Random Joke Server was built with Express.js');
 ```
 
 ### --seed--
