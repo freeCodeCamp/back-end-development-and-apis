@@ -226,7 +226,7 @@ const res = await fetch('http://localhost:3000/joke');
 assert.equal(res.status, 200);
 ```
 
-Your `/joke` route handler should have `req` and `res` as parameters.
+Your `/joke` route should return a random joke from the jokes array.
 
 ```js
 const file = await __helpers.getFile(project.dashedName, "server.js");
@@ -279,7 +279,7 @@ const res = await fetch('http://localhost:3000/about');
 assert.equal(res.status, 200);
 ```
 
-Your route handler should have `req` and `res` as parameters.
+Your `/about` route should return the message `This Random Joke Server was built with Express.js`.
 
 ```js
 const res = await fetch('http://localhost:3000/about');
