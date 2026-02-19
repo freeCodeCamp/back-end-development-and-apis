@@ -230,11 +230,8 @@ Your `/joke` route handler should have `req` and `res` as parameters.
 
 ```js
 const file = await __helpers.getFile(project.dashedName, "server.js");
-const jokesMatch = file.match(/const\s+jokes\s*=\s*\[([\s\S]*?)\]/);
-const validJokesString = jokesMatch[1];
-
-console.log("Jokes array: ", jokesMatch)
-console.log("A joke: ", validJokesString)
+const jokes = file.match(/const\s+jokes\s*=\s*\[([\s\S]*?)\]/);
+const jokesString = jokes[1];
 
 const res = await fetch('http://localhost:3000/joke');
 const text = await res.text();
@@ -319,8 +316,5 @@ app.listen(port, () => {
   console.log(`Joke Server running at http://localhost:${port}`)
 })
 ```
-
-### --before-all--
-
 
 ## --fcc-end--
