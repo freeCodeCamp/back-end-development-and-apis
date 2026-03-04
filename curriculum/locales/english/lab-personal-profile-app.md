@@ -1,12 +1,12 @@
 # Build CamperBot's Personal Profile App
 
-You will build a personal profile for CamperBot using express.
+You will build a personal profile for CamperBot using Express.
 
 ## 0
 
 ### --description--
 
-Build an API that satisfies the user stirues.
+Build an API that satisfies the below user stories:
 
 Install your project dependencies by entering `npm i` from the `build-a-timestamp-microservice/` folder in the terminal.
 
@@ -14,39 +14,35 @@ Work within the `server.js` file.
 
 After that, start your server by running `npm start`. Do not forget to restart your server in order for your code changes to take place.
 
-Pass all the user stories below to complete the project.
+**Objective:** Fulfill the user stories below and get all the tests to pass to complete the lab.
+
+**User Stories:**
+
+1. You should import the `express` module.
+
+2. You should create an Express application instance and assign it to a variable named `app`.
+
+3. You should define a `port` variable and assign it the value `3000`.
+
+4. You should have a GET route for the root path `/` that sends the response `Welcome to Camper Bot's homepage!`.
+
+5. You should have a GET route for the `/hobbies` path that sends the response `I love cycling, boating, and playing guitar.`.
+
+6. You should have a GET route for the `/skills` path that sends the response `JavaScript, Node.js, and Express.js!`.
+
+7. You should have a GET route for the `/api/profile` path that sends a JSON response.
+
+8. The `/api/profile` route should return a JSON object with a `name` property set to `Camper Bot`.
+
+9. The `/api/profile` route should return a JSON object with a `hobbies` property containing an array of strings for the hobbies `['cycling', 'boating', 'guitar']`.
+
+10. The `/api/profile` route should return a JSON object with a `skills` property containing an array of strings for the skills `['JavaScript', 'Node.js', 'Express.js']`.
+
+11. Your application should listen on the port specified in the `port` variable.
+
+12. When the server starts listening, you should log the message `Personal Profile App running at http://localhost:3000` to the console.
 
 ### --tests--
-
-You should import the `express` module.
-
-```js
-const file = await __helpers.getFile(
-  project.dashedName,
-  "server.js"
-);
-assert.match(file, /\bimport\s+express\s+from\s+('|")express\1\s*;?/);
-```
-
-You should create an Express application instance and assign it to a variable named `app`.
-
-```js
-const file = await __helpers.getFile(
-  project.dashedName,
-  "server.js"
-);
-assert.match(file, /\bconst +app *= *express\s*\(\s*\)\s*;?/);
-```
-
-You should define a `port` variable and assign it the value `3000`.
-
-```js
-const file = await __helpers.getFile(
-  project.dashedName,
-  "server.js"
-);
-assert.match(file, /\b(const|let)\s+port\s*=\s*3000\s*;?/);
-```
 
 You should have a GET route for the root path `/` that sends the response `Welcome to Camper Bot's homepage!`.
 
@@ -149,6 +145,5 @@ When the server starts listening, you should log the message `Personal Profile A
 ```js
 const __url = "http://localhost:3000/";
 ```
-
 
 ## --fcc-end--
