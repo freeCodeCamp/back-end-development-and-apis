@@ -131,7 +131,13 @@ try {
 When the server starts listening, you should log the message `Personal Profile App running at http://localhost:3000` to the console.
 
 ```js
-//how to test?
+const expectedData = "Personal Profile App running at http://localhost:3000";
+const { stdout } = await __helpers.awaitExecution(
+  ["node", "lab-personal-profile-app/server.js"],
+  "http://localhost:3000",
+  { expectedData }
+);
+assert.include(stdout, expectedData);
 ```
 
 ### --before-each--
