@@ -128,12 +128,6 @@ try {
 }
 ```
 
-Your application should listen on the port specified in the `port` variable.
-
-```js
-// how to test?
-```
-
 When the server starts listening, you should log the message `Personal Profile App running at http://localhost:3000` to the console.
 
 ```js
