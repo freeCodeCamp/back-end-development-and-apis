@@ -40,5 +40,18 @@
     "blockingTests": true,
     "breakOnFailure": true,
     "numberOfLessons": 1
+  },
+  {
+    "id": 2,
+    "dashedName": "lab-personal-profile-app",
+    "isIntegrated": true,
+    "isPublic": true,
+    "currentLesson": 0,
+    "runTestsOnWatch": true,
+    "seedEveryLesson": false,
+    "isResetEnabled": true,
+    "numberofLessons": null,
+    "blockingTests": false,
+    "breakOnFailure": false
   }
 ]
