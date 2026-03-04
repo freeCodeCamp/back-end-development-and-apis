@@ -8,7 +8,7 @@ You will build a personal profile for CamperBot using Express.
 
 Build an API that satisfies the below user stories:
 
-Install your project dependencies by entering `npm i` from the `build-a-timestamp-microservice/` folder in the terminal.
+Install your project dependencies by entering `npm i` from the `lab-personal-profile-app/` folder in the terminal.
 
 Work within the `server.js` file.
 
