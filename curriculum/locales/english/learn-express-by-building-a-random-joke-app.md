@@ -63,7 +63,9 @@ assert.property(
 
 ### --description--
 
-Next, in the `server.js` file, import Express by using `require()`, with the import assigned to an `express` variable. After that, create an Express app by calling the Express function and saving it in an `app` variable.
+A `server.js` file has been provided for you to write the project code in.
+
+Import Express by using `require()`, with the import assigned to an `express` variable. After that, create an Express app by calling the Express function and saving it in an `app` variable.
 
 Also, create a `port` variable and set it to `3000`. This is the port the app will run on.
 
