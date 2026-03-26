@@ -122,7 +122,7 @@ for i in $(ls -A $HOME/.bashrc.d/); do source $HOME/.bashrc.d/$i; done
 
 
 # freeCodeCamp - Needed for most tests to work
-WD=/workspace/back-end-development-and-apis
+WD=/home/shauh/back-end-development-and-apis
 
 # Ensure `$WD/.logs/` directory and files exist
 mkdir -p $WD/.logs/

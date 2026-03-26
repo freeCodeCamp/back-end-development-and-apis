@@ -490,22 +490,31 @@ Log the `url` property of the `request` object to the console.
 You should log `request.url` to the console within the `createServer` callback function.
 
 ```js
-assert.fail("TODO");
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const logs = cbTower.getCalls("console.log");
+assert.isTrue(logs.some(l => l.generate.includes("request.url")));
 ```
 
 ## 17
 
 ### --description--
 
-Restart your server, and make a request to it.
+Restart your server by stopping it with `Ctrl + C` and then running `node server.js` again. Within a new terminal, use `curl` to make a request to `http://localhost:3001/test-url`.
+
+**NOTE:** Once you have made the request, click the _Run Tests_ button.
 
 ### --tests--
 
 You should restart the server, and make a request to it.
 
 ```js
-// CURL the server, and check the output is the new URL
-assert.fail();
+const temp = await __helpers.getTemp();
+assert.include(temp, "curl http://localhost:3001/test-url");
 ```
 
 ### --seed--
@@ -540,22 +549,29 @@ response.end("Data to send back to the client");
 You should have `response.end(request.url)` within the `createServer` callback function.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const ends = cbTower.getCalls("response.end");
+assert.equal(ends.at(0).compact, 'response.end(request.url);');
 ```
 
 ## 19
 
 ### --description--
 
-Restart your server, and make a request to it. You no longer need to add a timeout to your `curl` command, because your sever is responding with something.
+Restart your server, and make a request to `http://localhost:3001/hello`. You no longer need to add a timeout to your `curl` command, because your sever is responding with something.
 
 ### --tests--
 
 You should restart the server, and make a request to it.
 
 ```js
-// CURL the server, and check the output is the new URL
-assert.fail();
+const temp = await __helpers.getTemp();
+assert.include(temp, "curl http://localhost:3001/hello");
 ```
 
 ### --seed--
@@ -606,10 +622,11 @@ You should have `const url = request.url === "/" ? "/index.html" : request.url` 
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
-const http_createServer_calls = server.getCalls("http.createServer");
-const http_createServer = http_createServer_calls.at(0);
-console.log(http_createServer);
-assert.fail();
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const urlVar = cbTower.getVariable("url");
+assert.include(urlVar.compact, 'const url=request.url==="/"?"/index.html":request.url');
 ```
 
 ## 21
@@ -625,7 +642,14 @@ Send the value of the `url` variable, and set the encoding to `"utf-8"`.
 You should have `response.end(url, "utf-8")` within the `createServer` callback function.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const ends = cbTower.getCalls("response.end");
+assert.equal(ends.at(0).compact, 'response.end(url,"utf-8");');
 ```
 
 ### --seed--
@@ -649,15 +673,15 @@ server.listen(3001);
 
 ### --description--
 
-Restart your server, and make a request to it.
+Restart your server by stopping it with `Ctrl + C` and then running `node server.js` again. Within a new terminal, use `curl` to make a request to `http://localhost:3001/`.
 
 ### --tests--
 
 You should restart the server, and make a request to it.
 
 ```js
-// CURL the server, and check the output is the new URL
-assert.fail();
+const temp = await __helpers.getTemp();
+assert.include(temp, "curl http://localhost:3001/");
 ```
 
 ## 23
@@ -698,7 +722,14 @@ Create a `filePath` variable, and assign it the value of joining `"public"` with
 You should have `const filePath = join("public", url)` within the `createServer` callback function.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const filePathVar = cbTower.getVariable("filePath");
+assert.equal(filePathVar.compact, 'const filePath=join("public",url);');
 ```
 
 ### --seed--
@@ -729,7 +760,10 @@ Import the `join` function from the `path` module.
 You should have `const { join } = require("path")` at the top of `server.js`.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const joinVar = t.getVariable("join");
+assert.include(joinVar.compact, 'const{join}=require("path")');
 ```
 
 ### --seed--
@@ -762,13 +796,28 @@ Change your `response.end` function to send the `filePath` variable.
 You should have `response.end(filePath, "utf-8")` within the `createServer` callback function.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const ends = cbTower.getCalls("response.end");
+assert.equal(ends.at(0).compact, 'response.end(filePath,"utf-8");');
 ```
 
 You should define `filePath` before calling `response.end`.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const filePathVar = cbTower.getVariable("filePath");
+const ends = cbTower.getCalls("response.end");
+assert.isBelow(filePathVar.ast.start, ends.at(0).ast.start);
 ```
 
 ### --seed--
@@ -794,15 +843,15 @@ server.listen(3001);
 
 ### --description--
 
-Restart your server, and make a request to it.
+Restart your server, and make a request to `http://localhost:3001/index.html`.
 
 ### --tests--
 
 You should restart the server, and make a request to it.
 
 ```js
-// CURL the server, and check the output is the new URL
-assert.fail();
+const temp = await __helpers.getTemp();
+assert.include(temp, "curl http://localhost:3001/index.html");
 ```
 
 ### --seed--
@@ -841,8 +890,14 @@ fs.readFile("relative/path/to/file");
 You should have `readFile(filePath)` within the `createServer` callback function.
 
 ```js
-// TODO: Consider allowing both `fs.readFile` and `readFile`
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const readFiles = cbTower.getCalls("readFile");
+assert.equal(readFiles.at(0).compact, 'readFile(filePath);');
 ```
 
 ## 28
@@ -856,7 +911,10 @@ Import the `readFile` function from the `fs` module.
 You should have `const { readFile } = require("fs")` at the top of `server.js`.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const readFileVar = t.getVariable("readFile");
+assert.include(readFileVar.compact, 'const{readFile}=require("fs")');
 ```
 
 ### --seed--
@@ -903,7 +961,16 @@ Pass a callback function to the `readFile` function. The callback function shoul
 You should have `readFile(filePath, (error, file) => {})` within the `createServer` callback function.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const readFiles = cbTower.getCalls("readFile");
+const arg2 = readFiles.at(0).ast.expression.arguments[1];
+assert.equal(arg2.params[0].name, "error");
+assert.equal(arg2.params[1].name, "file");
 ```
 
 ### --seed--
@@ -939,7 +1006,18 @@ If there is an error reading the file, the first callback argument will be an `E
 You should have `if (error) { console.error(error); return; }` within the `readFile` callback function.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const readFiles = cbTower.getCalls("readFile");
+const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
+const rfcbTower = new __helpers.Tower(readFileCallback);
+const errorIf = rfcbTower.getIfStatements().find(i => i.test.name === "error");
+assert.isDefined(errorIf, "You should have an if statement checking for 'error'");
+assert.include(rfcbTower.compact, 'if(error){console.error(error);return;}');
 ```
 
 ### --seed--
@@ -975,7 +1053,17 @@ If there is no error reading the file, the first callback argument will be `null
 You should have `response.end(file, "utf-8")` within the `readFile` callback function.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const readFiles = cbTower.getCalls("readFile");
+const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
+const rfcbTower = new __helpers.Tower(readFileCallback);
+const ends = rfcbTower.getCalls("response.end");
+assert.isTrue(ends.some(e => e.compact === 'response.end(file,"utf-8");'), "You should have response.end(file, \"utf-8\") within the readFile callback function.");
 ```
 
 ### --seed--
@@ -1016,8 +1104,8 @@ Restart your server, and make a request to it.
 You should restart the server, and make a request to it.
 
 ```js
-// CURL the server, and check the output is the new URL
-assert.fail();
+const temp = await __helpers.getTemp();
+assert.include(temp, "curl http://localhost:3001/");
 ```
 
 ### --seed--
@@ -1058,7 +1146,12 @@ Make a request to a path that does not exist.
 You should make a request to a path that does not exist.
 
 ```js
-assert.fail();
+const lastCommand = await __helpers.getLastCommand();
+const [command, ...args] = __helpers.parseCli(lastCommand);
+assert.equal(command, "curl");
+const urlArg = args.find(a => a.startsWith("http"));
+assert.notEqual(urlArg, "http://localhost:3001/");
+assert.notEqual(urlArg, "http://localhost:3001/index.html");
 ```
 
 ## 34
@@ -1074,7 +1167,19 @@ Instead of returning from the function when there is an error reading the file, 
 You should have `response.end(error, "utf-8")` within the `readFile` callback function.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const readFiles = cbTower.getCalls("readFile");
+const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
+const rfcbTower = new __helpers.Tower(readFileCallback);
+const errorIf = rfcbTower.getIfStatements().find(i => i.test.name === "error");
+const ifTower = new __helpers.Tower(errorIf.consequent);
+const ends = ifTower.getCalls("response.end");
+assert.isTrue(ends.some(e => e.compact === 'response.end(error,"utf-8");'), "You should have response.end(error, \"utf-8\") within the if block.");
 ```
 
 ## 35
@@ -1088,8 +1193,8 @@ Restart your server, and make a request to an invalid path.
 You should restart the server, and make a request to it.
 
 ```js
-// CURL the server, and check the output is the new URL
-assert.fail();
+const temp = await __helpers.getTemp();
+assert.include(temp, "curl http://localhost:3001/");
 ```
 
 ### --seed--
@@ -1136,7 +1241,19 @@ Instead of trying ot send the whole `Error` object, send the `error.message` val
 You should have `response.end(error.message, "utf-8")` within the `readFile` callback function.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const readFiles = cbTower.getCalls("readFile");
+const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
+const rfcbTower = new __helpers.Tower(readFileCallback);
+const errorIf = rfcbTower.getIfStatements().find(i => i.test.name === "error");
+const ifTower = new __helpers.Tower(errorIf.consequent);
+const ends = ifTower.getCalls("response.end");
+assert.isTrue(ends.some(e => e.compact === 'response.end(error.message,"utf-8");'), "You should have response.end(error.message, \"utf-8\") within the if block.");
 ```
 
 ## 37
@@ -1150,8 +1267,13 @@ Restart your server, and make a request to an invalid path.
 You should restart the server, and make a request to it.
 
 ```js
-// CURL the server, and check the output is the new URL
-assert.fail();
+const lastCommand = await __helpers.getLastCommand();
+const [command, ...args] = __helpers.parseCli(lastCommand);
+assert.equal(command, "curl");
+const urlArg = args.find(a => a.startsWith("http"));
+assert.isTrue(urlArg.includes("localhost:3001/"), "You should curl the server at port 3001");
+assert.notEqual(urlArg, "http://localhost:3001/", "You should curl an invalid path");
+assert.notEqual(urlArg, "http://localhost:3001/index.html", "You should curl an invalid path");
 ```
 
 ### --seed--
@@ -1194,7 +1316,19 @@ Return from the function after calling `response.end` within the `if` statement.
 You should return from the function after calling `response.end` within the `if` statement.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const readFiles = cbTower.getCalls("readFile");
+const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
+const rfcbTower = new __helpers.Tower(readFileCallback);
+const errorIf = rfcbTower.getIfStatements().find(i => i.test.name === "error");
+const body = errorIf.consequent.body;
+const lastStatement = body[body.length - 1];
+assert.equal(lastStatement.type, "ReturnStatement", "You should return from the function after calling response.end within the if statement.");
 ```
 
 ## 39
@@ -1208,8 +1342,13 @@ Restart your server, and make a request to an invalid path to make sure everythi
 You should restart the server, and make a request to it.
 
 ```js
-// CURL the server, and check the output is the new URL
-assert.fail();
+const lastCommand = await __helpers.getLastCommand();
+const [command, ...args] = __helpers.parseCli(lastCommand);
+assert.equal(command, "curl");
+const urlArg = args.find(a => a.startsWith("http"));
+assert.isTrue(urlArg.includes("localhost:3001/"), "You should curl the server at port 3001");
+assert.notEqual(urlArg, "http://localhost:3001/", "You should curl an invalid path");
+assert.notEqual(urlArg, "http://localhost:3001/index.html", "You should curl an invalid path");
 ```
 
 ### --seed--
@@ -1269,7 +1408,22 @@ You should still return from the first callback function after reading the `404.
 You should have `readFile("public/404.html", (error, file) => {response.end(file, "utf-8")})` within the `if` statement.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const readFiles = cbTower.getCalls("readFile");
+const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
+const rfcbTower = new __helpers.Tower(readFileCallback);
+const errorIf = rfcbTower.getIfStatements().find(i => i.test.name === "error");
+const ifTower = new __helpers.Tower(errorIf.consequent);
+const nestedReadFiles = ifTower.getCalls("readFile");
+assert.isTrue(nestedReadFiles.some(r => r.compact.includes('"public/404.html"')), "You should have readFile(\"public/404.html\", ...) within the if statement.");
+const nestedCallback = nestedReadFiles.at(0).ast.expression.arguments[1];
+const ncbTower = new __helpers.Tower(nestedCallback);
+assert.isTrue(ncbTower.getCalls("response.end").some(e => e.compact === 'response.end(file,"utf-8");'), "You should have response.end(file, \"utf-8\") within the nested readFile callback.");
 ```
 
 ## 41
@@ -1283,8 +1437,13 @@ Restart your server, and make a request to an invalid path to make sure everythi
 You should restart the server, and make a request to it.
 
 ```js
-// CURL the server, and check the output is the new URL
-assert.fail();
+const lastCommand = await __helpers.getLastCommand();
+const [command, ...args] = __helpers.parseCli(lastCommand);
+assert.equal(command, "curl");
+const urlArg = args.find(a => a.startsWith("http"));
+assert.isTrue(urlArg.includes("localhost:3001/"), "You should curl the server at port 3001");
+assert.notEqual(urlArg, "http://localhost:3001/", "You should curl an invalid path");
+assert.notEqual(urlArg, "http://localhost:3001/index.html", "You should curl an invalid path");
 ```
 
 ### --seed--
@@ -1335,13 +1494,37 @@ For now, just send a `200` status code when the request file exists, and a `404`
 You should have `response.writeHead(404)` within the `if` statement.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const readFiles = cbTower.getCalls("readFile");
+const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
+const rfcbTower = new __helpers.Tower(readFileCallback);
+const errorIf = rfcbTower.getIfStatements().find(i => i.test.name === "error");
+const ifTower = new __helpers.Tower(errorIf.consequent);
+const nestedReadFiles = ifTower.getCalls("readFile");
+const nestedCallback = nestedReadFiles.at(0).ast.expression.arguments[1];
+const ncbTower = new __helpers.Tower(nestedCallback);
+assert.isTrue(ncbTower.getCalls("response.writeHead").some(w => w.compact.includes("404")), "You should have response.writeHead(404) within the nested readFile callback.");
 ```
 
 You should have `response.writeHead(200)` after the `if` statement.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const readFiles = cbTower.getCalls("readFile");
+const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
+const rfcbTower = new __helpers.Tower(readFileCallback);
+const successWrites = rfcbTower.getCalls("response.writeHead");
+assert.isTrue(successWrites.some(w => w.compact.includes("200")), "You should have response.writeHead(200) after the if statement.");
 ```
 
 ## 43

@@ -23,3 +23,13 @@
 | Learn X                                              | ❌      | ❌    |
 | Learn X                                              | ❌      | ❌    |
 | Build an Exercise Tracker                            | ❌      | ❌    |
+
+---
+
+Trim down `AGENTS.md` file. No code examples.
+
+Split skills up to be more focussed - do not combine "create description" + "create tests".
+
+Use references for solid source of examples.
+
+Add tests for feedback loop. E.g. a skill to write test, seed, then test test.
