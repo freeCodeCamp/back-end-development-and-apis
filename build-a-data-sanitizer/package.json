@@ -1,5 +1,5 @@
 {
-  "name": "learn-express-middleware-by-building-a-data-sanitizer",
+  "name": "build-a-data-sanitizer",
   "version": "1.0.0",
   "description": "Course description here",
   "main": "server.js",

@@ -66,15 +66,15 @@
   },
   {
     "id": 5,
-    "dashedName": "learn-express-middleware-by-building-a-data-sanitizer",
-    "isIntegrated": false,
+    "dashedName": "build-a-data-sanitizer",
+    "isIntegrated": true,
     "isPublic": true,
     "currentLesson": 0,
     "runTestsOnWatch": false,
     "seedEveryLesson": false,
     "isResetEnabled": false,
-    "blockingTests": false,
-    "breakOnFailure": false,
+    "blockingTests": true,
+    "breakOnFailure": true,
     "numberOfLessons": 1
   }
 ]

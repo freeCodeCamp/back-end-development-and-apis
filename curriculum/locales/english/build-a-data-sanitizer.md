@@ -1,4 +1,4 @@
-# Learn Express Middleware by Building a Data Sanitizer
+# Build a Data Sanitizer
 
 You will be building a data sanitizer middleware for an Express application.
 
@@ -6,21 +6,21 @@ You will be building a data sanitizer middleware for an Express application.
 
 ### --description--
 
-You will be building a data sanitizer middleware for an Express application.
+Build a data sanitizer middleware for an Express application.
 
 **User Stories:**
 
 1. You should import the `express` module.
 
-1. You should create an Express application instance and assign it to a variable `app`.
+2. You should create an Express application instance and assign it to a variable `app`.
 
-1. You should define a constant `PORT` and assign it the value `3000`.
+3. You should define a constant `PORT` and assign it the value `3000`.
 
-1. You should use the built-in `express.urlencoded()` middleware with `{ extended: true }` to parse form data.
+4. You should use the built-in `express.urlencoded()` middleware with `{ extended: true }` to parse form data.
 
-1. You should create a custom middleware function called `inputCleaner` that takes three parameters `req`, `res` and `next` for request, response, and next middleware function respectively.
+5. You should create a custom middleware function called `inputCleaner` that takes three parameters `req`, `res` and `next` for request, response, and next middleware function respectively.
 
-1. The `inputCleaner` middleware should:
+6. The `inputCleaner` middleware should:
 
 - Logs the message `[Middleware 1] Cleaning/Modifying data...` to the console.
 
@@ -59,6 +59,7 @@ You will be building a data sanitizer middleware for an Express application.
 1. Your application should listen on port `3000`.
 
 1. When the server starts listening, you should log two messages to the console:
+
 - `Server running on http://localhost:3000`
 - `Open in browser: http://localhost:3000/form`
 
@@ -68,11 +69,11 @@ You will be building a data sanitizer middleware for an Express application.
 
 <!-- test examples -->
 
-| Input Value | Expected req.body.username in Final Handler | Action Taken by Middleware |
-|-------------|---------------------------------------------|----------------------------|
-| `"  Admin "` | `"admin"` | Cleaned and Validated. |
-| `"AB"` | N/A (cycle halted) | Fails Validation, Redirected. |
-| `"Test"`, Comment: `"<b>Bold</b>"` | `"test"`, Comment: `"Bold"` | Cleaned (lowercase and tag stripping). |
+| Input Value                        | Expected req.body.username in Final Handler | Action Taken by Middleware             |
+| ---------------------------------- | ------------------------------------------- | -------------------------------------- |
+| `"  Admin "`                       | `"admin"`                                   | Cleaned and Validated.                 |
+| `"AB"`                             | N/A (cycle halted)                          | Fails Validation, Redirected.          |
+| `"Test"`, Comment: `"<b>Bold</b>"` | `"test"`, Comment: `"Bold"`                 | Cleaned (lowercase and tag stripping). |
 
 ### --tests--
 
@@ -80,13 +81,11 @@ You should import the `express` module.
 
 ```js
 
-
 ```
 
 You should have an `app` variable that holds the Express application instance.
 
 ```js
-
 
 ```
 
@@ -94,13 +93,11 @@ You should have a `PORT` variable that holds the port number `3000`.
 
 ```js
 
-
 ```
 
 You should use `app.use(express.urlencoded({ extended: true }));` to parse form data.
 
 ```js
-
 
 ```
 
@@ -108,13 +105,11 @@ You should have a function called `inputCleaner`.
 
 ```js
 
-
 ```
 
 The `inputCleaner` should take three parameters: `req`, `res`, and `next`.
 
 ```js
-
 
 ```
 
@@ -122,13 +117,11 @@ The `inputCleaner` middleware should convert `req.body.username` to lowercase.
 
 ```js
 
-
 ```
 
 The `inputCleaner` middleware should remove HTML tags from `req.body.comment`.
 
 ```js
-
 
 ```
 
@@ -136,13 +129,11 @@ The `inputCleaner` middleware should call `next()` at the end of its logic.
 
 ```js
 
-
 ```
 
 You should have a function called `inputValidator`.
 
 ```js
-
 
 ```
 
@@ -162,13 +153,11 @@ The `inputValidator` should redirect to `/form` with an error message `Username 
 
 ```js
 
-
 ```
 
 The `inputValidator` should call `next()` only if the validation criteria are met.
 
 ```js
-
 
 ```
 
@@ -176,13 +165,11 @@ You should use `express.static()` to serve the `public` directory at the `/form`
 
 ```js
 
-
 ```
 
 Your GET route for `/` should redirect to `/form`.
 
 ```js
-
 
 ```
 
@@ -190,13 +177,11 @@ Your POST route for `/submit` should use `inputCleaner` as its first middleware.
 
 ```js
 
-
 ```
 
 Your POST route for `/submit` should use `inputValidator` as its second middleware.
 
 ```js
-
 
 ```
 
@@ -204,19 +189,12 @@ The final handler for the `/submit` route should return a success message and di
 
 ```js
 
-
 ```
 
 Your application should call `app.listen` using the `PORT` variable.
 
 ```js
 
-
 ```
-
-
-### --before-all--
-
-### --after-all--
 
 ## --fcc-end--
