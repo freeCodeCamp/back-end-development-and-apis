@@ -8,7 +8,7 @@
 | Project                                              | Content | Tests |
 | ---------------------------------------------------- | ------- | ----- |
 | Learn How to Build an NPM Module                     | ✅      | ✅    |
-| Learn Nodejs by Building a Web Server                | ✅      | ❌    |
+| Learn Nodejs by Building a Web Server                | ✅      | ✅    |
 | Learn Expressjs by Building a Stock Trading Platform | ❌      | ❌    |
 | Build a Timestamp Microservice                       | ✅      | ✅    |
 | Learn X                                              | ❌      | ❌    |
