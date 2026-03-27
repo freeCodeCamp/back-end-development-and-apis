@@ -1,4 +1,4 @@
-# Build CamperBot's Personal Profile App
+# Build a Personal Profile App
 
 You will build a personal profile for CamperBot using Express.
 
@@ -35,8 +35,11 @@ After that, start your server by running `npm start`. Do not forget to restart y
 Your server should use Express.
 
 ```js
-const file = await __helpers.getFile('lab-personal-profile-app', 'server.js');
-assert.match(file, /require\s*\(\s*['"]express['"]\s*\)|import\s+\w+.*from\s+['"]express['"]/);
+const file = await __helpers.getFile("lab-personal-profile-app", "server.js");
+assert.match(
+  file,
+  /require\s*\(\s*['"]express['"]\s*\)|import\s+\w+.*from\s+['"]express['"]/,
+);
 ```
 
 Running `node lab-personal-profile-app/server.js` should start an HTTP server listening on port `3000`.
@@ -45,7 +48,7 @@ Running `node lab-personal-profile-app/server.js` should start an HTTP server li
 const { stdout } = await __helpers.awaitExecution(
   ["node", "lab-personal-profile-app/server.js"],
   "http://localhost:3000",
-  {}
+  {},
 );
 const isListening = await __helpers.isServerListening(3000);
 assert.isTrue(isListening, "Your server should be listening on port 3000");
@@ -105,7 +108,7 @@ The `/api/profile` route should return a JSON object with a `hobbies` property c
 try {
   const response = await fetch(`${__url}api/profile`);
   const data = await response.json();
-  assert.deepEqual(data.hobbies, ['cycling', 'boating', 'guitar']);
+  assert.deepEqual(data.hobbies, ["cycling", "boating", "guitar"]);
 } catch (e) {
   assert.fail(e);
 }
@@ -117,7 +120,7 @@ The `/api/profile` route should return a JSON object with a `skills` property co
 try {
   const response = await fetch(`${__url}api/profile`);
   const data = await response.json();
-  assert.deepEqual(data.skills, ['JavaScript', 'Node.js', 'Express.js']);
+  assert.deepEqual(data.skills, ["JavaScript", "Node.js", "Express.js"]);
 } catch (e) {
   assert.fail(e);
 }
@@ -130,7 +133,7 @@ const expectedData = "Personal Profile App running at http://localhost:3000";
 const { stdout } = await __helpers.awaitExecution(
   ["node", "lab-personal-profile-app/server.js"],
   "http://localhost:3000",
-  { expectedData }
+  { expectedData },
 );
 assert.include(stdout, expectedData);
 ```

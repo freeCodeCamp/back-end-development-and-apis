@@ -63,5 +63,18 @@
     "numberOfLessons": null,
     "blockingTests": false,
     "breakOnFailure": false
+  },
+  {
+    "id": 5,
+    "dashedName": "build-a-data-sanitizer",
+    "isIntegrated": true,
+    "isPublic": true,
+    "currentLesson": 0,
+    "runTestsOnWatch": false,
+    "seedEveryLesson": false,
+    "isResetEnabled": false,
+    "blockingTests": true,
+    "breakOnFailure": true,
+    "numberOfLessons": 1
   }
 ]

@@ -1,5 +1,9 @@
 {
-  "currentProject": null,
+  "currentProject": "learn-express-middleware-by-building-a-data-sanitizer",
   "locale": "english",
-  "lastSeed": null
+  "lastSeed": {
+    "projectDashedName": null,
+    "lessonNumber": -1
+  },
+  "lastWatchChange": 0
 }
