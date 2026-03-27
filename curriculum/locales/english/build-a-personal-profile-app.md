@@ -6,8 +6,6 @@ You will build a personal profile for CamperBot using Express.
 
 ### --description--
 
-Build an API that satisfies the below user stories:
-
 Install your project dependencies by entering `npm i` from the `lab-personal-profile-app/` folder in the terminal.
 
 Work within the `server.js` file.

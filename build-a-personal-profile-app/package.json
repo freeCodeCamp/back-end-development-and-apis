@@ -1,5 +1,5 @@
 {
-  "name": "build-a-timestamp-microservice",
+  "name": "build-a-personal-profile-app",
   "version": "0.0.1",
   "description": "freeCodeCamp Certification Project",
   "main": "server.js",
