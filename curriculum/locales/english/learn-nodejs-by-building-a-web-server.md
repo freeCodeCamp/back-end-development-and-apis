@@ -234,8 +234,6 @@ Within a new terminal, use the `curl` command to make a request to `http://local
 curl http://localhost:3001
 ```
 
-<!-- TODO: Once per-lesson watching feature is used, remove: -->
-
 When you have made the request, click the _Run Tests_ button.
 
 ### --tests--
@@ -404,7 +402,7 @@ const testServerPath = join(ROOT, "__test", "server.js");
 
 await writeFile(testServerPath, t.generate);
 
-const expectedData = "TODO:";
+const expectedData = "host:";
 const { stdout } = await __helpers.awaitExecution(
   ["node", testServerPath],
   "http://localhost:3002",
@@ -2151,7 +2149,8 @@ Try to restart your server. You will see an error.
 You should restart the server, and see an error.
 
 ```js
-assert.fail();
+const __isListening = await __helpers.isServerListening(3001);
+assert.isFalse(__isListening, "The server should fail to start — it is still listening when it should not be");
 ```
 
 ### --seed--
@@ -2213,7 +2212,10 @@ To avoid having to change many file names, most projects use the `package.json` 
 You should have `"type": "module"` in your `package.json` file.
 
 ```js
-assert.fail();
+const __packageJson = JSON.parse(
+  await __helpers.getFile(project.dashedName, "package.json")
+);
+assert.equal(__packageJson.type, "module", 'package.json should have "type": "module"');
 ```
 
 ## 54
@@ -2224,11 +2226,20 @@ Restart your server, and make a request to it to see if everything still works a
 
 ### --tests--
 
-You should restart the server, and make a request to it.
+Your server should be running.
 
 ```js
-// CURL the server, and check the output is the new URL
-assert.fail();
+const __isListening = await __helpers.isServerListening(3001);
+assert.isTrue(__isListening, "The server is not listening on port 3001");
+```
+
+You should make a `curl` request to `http://localhost:3001`.
+
+```js
+const __lastCommand = await __helpers.getLastCommand();
+const [__cmd, ...__args] = __helpers.parseCli(__lastCommand);
+assert.equal(__cmd, "curl");
+assert.include(__args, "http://localhost:3001");
 ```
 
 ### --seed--
@@ -2245,8 +2256,6 @@ assert.fail();
 
 ### --description--
 
-## TODO: Discuss if this topic fits here
-
 Currently, you still have two `console.log` calls in your code. These are useful for debugging, but they are not useful for production. They can slow down your server, because logging to the console is a synchronous operation.
 
 To see their impact, you can perform a load test on your server using `wrk`. First install it with:
@@ -2260,7 +2269,8 @@ sudo apt install -y wrk
 You should install `wrk` with `sudo apt install -y wrk`.
 
 ```js
-assert.fail();
+const __lastCommand = await __helpers.getLastCommand();
+assert.include(__lastCommand, "sudo apt install -y wrk", "You should install wrk using sudo apt install -y wrk");
 ```
 
 ## 56
@@ -2277,16 +2287,18 @@ That uses two threads with 5 concurrent connections for 5 seconds.
 
 ### --tests--
 
+Your server should be running.
+
+```js
+const __isListening = await __helpers.isServerListening(3001);
+assert.isTrue(__isListening, "The server is not listening on port 3001");
+```
+
 You should run `wrk -t2 -c5 -d5s http://localhost:3001`.
 
 ```js
-assert.fail();
-```
-
-Your server should be running..
-
-```js
-assert.fail();
+const __lastCommand = await __helpers.getLastCommand();
+assert.include(__lastCommand, "wrk -t2 -c5 -d5s http://localhost:3001", "You should run the wrk load test command");
 ```
 
 ## 57
@@ -2300,13 +2312,21 @@ Now, remove the two `console.log` calls in your server code, and re-run the same
 You should not have any `console.log` calls within `server.js`.
 
 ```js
-assert.fail();
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+const __t = new __helpers.Tower(__file);
+const __server = __t.getVariable("server");
+const __createServer = __server.getCalls("http.createServer").at(0);
+const __callback = __createServer.ast.init.arguments[0];
+const __cbTower = new __helpers.Tower(__callback);
+const __logs = __cbTower.getCalls("console.log");
+assert.equal(__logs.length, 0, "You should not have any console.log calls within the createServer callback");
 ```
 
 You should run `wrk -t2 -c5 -d5s http://localhost:3001`.
 
 ```js
-assert.fail();
+const __lastCommand = await __helpers.getLastCommand();
+assert.include(__lastCommand, "wrk -t2 -c5 -d5s http://localhost:3001", "You should re-run the wrk load test command");
 ```
 
 ## 58
@@ -2314,13 +2334,6 @@ assert.fail();
 ### --description--
 
 You should see a significant increase in the number of requests per second. This is because the `console.log` calls are no longer slowing down your server.
-
-## TODO
-
-- Maybe discuss security implications of "getting" `mime` from extension
-  - Not a factor when all files are controlled by server
-
----
 
 You have completed the project! You have built a web server from scratch, and learned about the HTTP protocol, the `http` module, the `fs` module, the `path` module, and the `mimetype` of files.
 
@@ -2370,7 +2383,8 @@ server.listen(3001, () => console.log("Server is listening on port 3001"));
 You should type `done` in the terminal.
 
 ```js
-assert.fail();
+const __temp = await __helpers.getTemp();
+assert.include(__temp, "done", "You should type 'done' in the terminal to submit your project");
 ```
 
 ## --fcc-end--
