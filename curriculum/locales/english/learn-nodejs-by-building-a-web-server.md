@@ -1542,8 +1542,14 @@ Restart your server, and use `curl` with the verbose flag to make a request to a
 You should restart the server, and make a request to it.
 
 ```js
-// CURL the server, and check the output is the new URL
-assert.fail();
+const lastCommand = await __helpers.getLastCommand();
+const [command, ...args] = __helpers.parseCli(lastCommand);
+assert.equal(command, "curl");
+assert.isTrue(args.includes("-v") || args.includes("--verbose"), "You should use the verbose flag");
+const urlArg = args.find(a => a.startsWith("http"));
+assert.isTrue(urlArg.includes("localhost:3001/"), "You should curl the server at port 3001");
+assert.notEqual(urlArg, "http://localhost:3001/", "You should curl an invalid path");
+assert.notEqual(urlArg, "http://localhost:3001/index.html", "You should curl an invalid path");
 ```
 
 ### --seed--
@@ -1598,34 +1604,73 @@ The word `MIME` comes from _Multipurpose Internet Mail Extensions_.
 
 ### --tests--
 
-You should have `const mimeTypes = { ... }` at the top of your file.
+You should have `const mimeTypes = { ... }` within the `createServer` callback function.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const mimeTypes = cbTower.getVariable("mimeTypes");
+assert.isDefined(mimeTypes, "You should have a mimeTypes variable within the createServer callback");
 ```
 
 `mimeTypes` should have a key of `".html"` with a value of `"text/html"`.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const mimeTypes = cbTower.getVariable("mimeTypes");
+const html = mimeTypes.getProperty(".html");
+assert.equal(html.compact, '".html":"text/html"');
 ```
 
 `mimeTypes` should have a key of `".css"` with a value of `"text/css"`.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const mimeTypes = cbTower.getVariable("mimeTypes");
+const css = mimeTypes.getProperty(".css");
+assert.equal(css.compact, '".css":"text/css"');
 ```
 
 `mimeTypes` should have a key of `".png"` with a value of `"image/png"`.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const mimeTypes = cbTower.getVariable("mimeTypes");
+const png = mimeTypes.getProperty(".png");
+assert.equal(png.compact, '".png":"image/png"');
 ```
 
 `mimeTypes` should have a key of `".js"` with a value of `"text/javascript"`.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const mimeTypes = cbTower.getVariable("mimeTypes");
+const js = mimeTypes.getProperty(".js");
+assert.equal(js.compact, '".js":"text/javascript"');
 ```
 
 ## 45
@@ -1645,13 +1690,23 @@ Import the `extname` function from the `path` module, and use it to get the file
 You should have `const { extname } = require("path")` at the top of your file.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const pathImport = t.getVariable("{join,extname}") || t.getVariable("{extname,join}") || t.getVariable("{extname}");
+assert.isTrue(pathImport.compact.includes('require("path")'), 'You should import extname from "path"');
 ```
 
 You should have `const ext = extname(filePath)` within the `createServer` callback function.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const ext = cbTower.getVariable("ext");
+assert.equal(ext.compact, "const ext=extname(filePath);");
 ```
 
 ### --seed--
@@ -1705,7 +1760,14 @@ Declare a `contentType` variable before the first `readFile`, and set it to the 
 You should have `const contentType = mimeTypes[ext] || "application/octet-stream"` within the `createServer` callback function.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const contentType = cbTower.getVariable("contentType");
+assert.equal(contentType.compact, 'const contentType=mimeTypes[ext]||"application/octet-stream";');
 ```
 
 ### --seed--
@@ -1760,13 +1822,38 @@ Now, for the 404 `writeHead` call, hard-code a second argument of `{ "Content-Ty
 You should have `response.writeHead(404, { "Content-Type": "text/html" })` within the `if` statement.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const readFiles = cbTower.getCalls("readFile");
+const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
+const rfcbTower = new __helpers.Tower(readFileCallback);
+const errorIf = rfcbTower.getIfStatements().find(i => i.test.name === "error");
+const ifTower = new __helpers.Tower(errorIf.consequent);
+const nestedReadFiles = ifTower.getCalls("readFile");
+const nestedCallback = nestedReadFiles.at(0).ast.expression.arguments[1];
+const ncbTower = new __helpers.Tower(nestedCallback);
+const head = ncbTower.getCalls("response.writeHead").at(0);
+assert.equal(head.compact, 'response.writeHead(404,{"Content-Type":"text/html"});');
 ```
 
 You should have `response.writeHead(200, { "Content-Type": contentType })` after the `if` statement.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const readFiles = cbTower.getCalls("readFile");
+const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
+const rfcbTower = new __helpers.Tower(readFileCallback);
+const successWrites = rfcbTower.getCalls("response.writeHead");
+assert.isTrue(successWrites.some(w => w.compact === 'response.writeHead(200,{"Content-Type":contentType});'), "You should have response.writeHead(200, {\"Content-Type\": contentType}) after the if statement.");
 ```
 
 ### --seed--
@@ -1822,8 +1909,11 @@ Restart your server, and make a request to it to see the `Content-Type` header i
 You should restart the server, and make a request to it.
 
 ```js
-// CURL the server, and check the output is the new URL
-assert.fail();
+const lastCommand = await __helpers.getLastCommand();
+const [command, ...args] = __helpers.parseCli(lastCommand);
+assert.equal(command, "curl");
+const urlArg = args.find(a => a.startsWith("http"));
+assert.isTrue(urlArg.includes("localhost:3001/"), "You should curl the server at port 3001");
 ```
 
 ### --seed--
@@ -1888,7 +1978,14 @@ Start by converting the file extension to lowercase.
 You should have `const ext = extname(filePath).toLowerCase()` within the `createServer` callback function.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const server = t.getVariable("server");
+const http_createServer = server.getCalls("http.createServer").at(0);
+const callback = http_createServer.ast.init.arguments[0];
+const cbTower = new __helpers.Tower(callback);
+const ext = cbTower.getVariable("ext");
+assert.equal(ext.compact, "const ext=extname(filePath).toLowerCase();");
 ```
 
 ## 50
@@ -1908,7 +2005,10 @@ Server is listening on port 3001
 You should have `server.listen(3001, () => console.log("Server is listening on port 3001"))` at the end of your file.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const listen = t.getCalls("server.listen").at(0);
+assert.isTrue(listen.compact.includes('()=>console.log("Server is listening on port 3001")'), 'You should log "Server is listening on port 3001" in the listen callback');
 ```
 
 ### --seed--
@@ -1966,25 +2066,36 @@ Convert all your `require` statements to `import` statements.
 You should have `import http from "http"`.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const httpImport = t.getVariable("http");
+assert.equal(httpImport.compact, 'import http from"http";');
 ```
 
 You should have `import { join, extname } from "path"`.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const pathImport = t.getVariable("{join,extname}") || t.getVariable("{extname,join}");
+assert.equal(pathImport.compact, 'import{join,extname}from"path";');
 ```
 
 You should have `import { readFile } from "fs"`.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+const fsImport = t.getVariable("{readFile}");
+assert.equal(fsImport.compact, 'import{readFile}from"fs";');
 ```
 
 You should not have any `require` statements in your file.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const t = new __helpers.Tower(file);
+assert.isFalse(file.includes("require("), "You should not have any require statements");
 ```
 
 ### --seed--
