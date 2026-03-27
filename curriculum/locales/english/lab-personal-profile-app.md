@@ -12,37 +12,44 @@ Install your project dependencies by entering `npm i` from the `lab-personal-pro
 
 Work within the `server.js` file.
 
-After that, start your server by running `npm start`. Do not forget to restart your server in order for your code changes to take place.
+After that, start your server by running `npm start`. Do not forget to restart your server for your code changes to take effect.
 
 **Objective:** Fulfill the user stories below and get all the tests to pass to complete the lab.
 
 **User Stories:**
 
-1. You should import the `express` module.
+1. You should use Express to create an HTTP server that listens on port `3000`.
 
-2. You should create an Express application instance and assign it to a variable named `app`.
+2. You should have a GET route for the root path `/` that sends the response `Welcome to Camper Bot's homepage!`.
 
-3. You should define a `port` variable and assign it the value `3000`.
+3. You should have a GET route for the `/hobbies` path that sends the response `I love cycling, boating, and playing guitar.`.
 
-4. You should have a GET route for the root path `/` that sends the response `Welcome to Camper Bot's homepage!`.
+4. You should have a GET route for the `/skills` path that sends the response `JavaScript, Node.js, and Express.js!`.
 
-5. You should have a GET route for the `/hobbies` path that sends the response `I love cycling, boating, and playing guitar.`.
+5. You should have a GET route for the `/api/profile` path that sends a JSON response with a `name` property set to `Camper Bot`, a `hobbies` property containing an array of strings `['cycling', 'boating', 'guitar']`, and a `skills` property containing an array of strings `['JavaScript', 'Node.js', 'Express.js']`.
 
-6. You should have a GET route for the `/skills` path that sends the response `JavaScript, Node.js, and Express.js!`.
-
-7. You should have a GET route for the `/api/profile` path that sends a JSON response.
-
-8. The `/api/profile` route should return a JSON object with a `name` property set to `Camper Bot`.
-
-9. The `/api/profile` route should return a JSON object with a `hobbies` property containing an array of strings for the hobbies `['cycling', 'boating', 'guitar']`.
-
-10. The `/api/profile` route should return a JSON object with a `skills` property containing an array of strings for the skills `['JavaScript', 'Node.js', 'Express.js']`.
-
-11. Your application should listen on the port specified in the `port` variable.
-
-12. When the server starts listening, you should log the message `Personal Profile App running at http://localhost:3000` to the console.
+6. When the server starts listening, you should log the message `Personal Profile App running at http://localhost:3000` to the console.
 
 ### --tests--
+
+Your server should use Express.
+
+```js
+const file = await __helpers.getFile('lab-personal-profile-app', 'server.js');
+assert.match(file, /require\s*\(\s*['"]express['"]\s*\)|import\s+\w+.*from\s+['"]express['"]/);
+```
+
+Running `node lab-personal-profile-app/server.js` should start an HTTP server listening on port `3000`.
+
+```js
+const { stdout } = await __helpers.awaitExecution(
+  ["node", "lab-personal-profile-app/server.js"],
+  "http://localhost:3000",
+  {}
+);
+const isListening = await __helpers.isServerListening(3000);
+assert.isTrue(isListening, "Your server should be listening on port 3000");
+```
 
 You should have a GET route for the root path `/` that sends the response `Welcome to Camper Bot's homepage!`.
 
@@ -52,7 +59,7 @@ try {
   const data = await response.json();
   assert.strictEqual(data, "Welcome to Camper Bot's homepage!");
 } catch (e) {
-  assert.fail();
+  assert.fail(e);
 }
 ```
 
@@ -64,7 +71,7 @@ try {
   const data = await response.json();
   assert.strictEqual(data, "I love cycling, boating, and playing guitar.");
 } catch (e) {
-  assert.fail();
+  assert.fail(e);
 }
 ```
 
@@ -76,19 +83,7 @@ try {
   const data = await response.json();
   assert.strictEqual(data, "JavaScript, Node.js, and Express.js!");
 } catch (e) {
-  assert.fail();
-}
-```
-
-You should have a GET route for the `/api/profile` path that sends a JSON response.
-
-```js
-try {
-  const response = await fetch(`${__url}api/profile`);
-  const data = await response.json();
-  assert.isOk(data);
-} catch (e) {
-  assert.fail();
+  assert.fail(e);
 }
 ```
 
@@ -100,7 +95,7 @@ try {
   const data = await response.json();
   assert.strictEqual(data.name, "Camper Bot");
 } catch (e) {
-  assert.fail();
+  assert.fail(e);
 }
 ```
 
@@ -112,7 +107,7 @@ try {
   const data = await response.json();
   assert.deepEqual(data.hobbies, ['cycling', 'boating', 'guitar']);
 } catch (e) {
-  assert.fail();
+  assert.fail(e);
 }
 ```
 
@@ -122,9 +117,9 @@ The `/api/profile` route should return a JSON object with a `skills` property co
 try {
   const response = await fetch(`${__url}api/profile`);
   const data = await response.json();
-  assert.deepEqual(data.skills, ['JavaScript', 'Node.js', 'Express.js']");
+  assert.deepEqual(data.skills, ['JavaScript', 'Node.js', 'Express.js']);
 } catch (e) {
-  assert.fail();
+  assert.fail(e);
 }
 ```
 

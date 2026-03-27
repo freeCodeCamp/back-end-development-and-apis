@@ -8,7 +8,6 @@
     "runTestsOnWatch": true,
     "seedEveryLesson": false,
     "isResetEnabled": false,
-    "numberofLessons": null,
     "blockingTests": null,
     "breakOnFailure": null,
     "numberOfLessons": 44
@@ -22,7 +21,6 @@
     "runTestsOnWatch": true,
     "seedEveryLesson": false,
     "isResetEnabled": false,
-    "numberofLessons": null,
     "blockingTests": null,
     "breakOnFailure": null,
     "numberOfLessons": 6
@@ -36,7 +34,6 @@
     "runTestsOnWatch": true,
     "seedEveryLesson": true,
     "isResetEnabled": false,
-    "numberofLessons": null,
     "blockingTests": false,
     "breakOnFailure": false,
     "numberOfLessons": 59
@@ -50,13 +47,12 @@
     "runTestsOnWatch": false,
     "seedEveryLesson": false,
     "isResetEnabled": false,
-    "numberofLessons": null,
     "blockingTests": true,
     "breakOnFailure": true,
     "numberOfLessons": 1
   },
   {
-    "id": 2,
+    "id": 4,
     "dashedName": "lab-personal-profile-app",
     "isIntegrated": true,
     "isPublic": true,
@@ -64,7 +60,7 @@
     "runTestsOnWatch": true,
     "seedEveryLesson": false,
     "isResetEnabled": true,
-    "numberofLessons": null,
+    "numberOfLessons": null,
     "blockingTests": false,
     "breakOnFailure": false
   }
