@@ -74,8 +74,7 @@
     "seedEveryLesson": false,
     "isResetEnabled": false,
     "blockingTests": false,
-    "breakOnFailure": true,
-    "numberOfLessons": 1,
-    "completedDate": 1770278919527
+    "breakOnFailure": false,
+    "numberOfLessons": 1
   }
 ]
