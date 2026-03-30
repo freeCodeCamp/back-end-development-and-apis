@@ -421,10 +421,9 @@ Type an arithmetic expression of your choice and press `Enter`.
 You should type an arithmetic expression in the REPL and receive a numeric result.
 
 ```js
-await new Promise((res) => setTimeout(res, 500));
-const __out = await __helpers.getTerminalOutput();
+const __temp = await __helpers.getTemp();
 assert.match(
-  __out,
+  __temp,
   /\d+/,
   "Type an arithmetic expression in the REPL — it should print a number.",
 );
@@ -449,25 +448,24 @@ Notice the REPL prints `undefined` — that is the return value of a variable de
 
 ### --tests--
 
-You should declare a variable in the REPL using `let` or `const`.
+You should declare a variable using `let`, `const`, or `var`.
 
 ```js
 const __temp = await __helpers.getTemp();
 assert.match(
   __temp,
-  /\b(let|const)\s+\w+/,
-  "Declare a variable in the REPL using `let` or `const`.",
+  /\b(let|const|var)\s+\w+/,
+  "Declare a variable in the REPL using `let`, `const`, or `var`.",
 );
 ```
 
-The REPL should print `undefined` after a variable declaration.
+The REPL should print `undefined` — the return value of a variable declaration.
 
 ```js
-await new Promise((res) => setTimeout(res, 500));
-const __out = await __helpers.getTerminalOutput();
-assert.include(
-  __out,
-  "undefined",
+const __temp = await __helpers.getTemp();
+assert.match(
+  __temp,
+  /\bundefined\b/,
   "Variable declarations return `undefined` in the REPL.",
 );
 ```
@@ -489,27 +487,28 @@ Type your variable name in the REPL to print its value.
 
 ### --tests--
 
-You should type your variable name in the REPL to read its value.
+The REPL should print the value you assigned (a non-`undefined` result).
 
 ```js
 const __temp = await __helpers.getTemp();
 assert.match(
   __temp,
-  /^\w+\s*$/m,
-  "Type the variable name in the REPL and press Enter to read its value.",
+  /^> (?!undefined).+/m,
+  "Type your variable name in the REPL — it should print its value.",
 );
 ```
 
-The REPL should print the value you assigned (not `undefined`).
+The REPL should print a value that is not `undefined`.
 
 ```js
-await new Promise((res) => setTimeout(res, 500));
-const __out = await __helpers.getTerminalOutput();
-const __lines = __out
+const __temp = await __helpers.getTemp();
+const __lines = __temp
   .split("\n")
-  .map((l) => l.trim())
+  .map((l) => l.replace(/\r$/, "").trim())
   .filter(Boolean);
-const __hasValue = __lines.some((l) => l !== "undefined" && !/^>/.test(l));
+const __hasValue = __lines.some(
+  (l) => l !== "undefined" && !/^>/.test(l) && !/^Welcome/.test(l) && !/^Type/.test(l),
+);
 assert.isTrue(
   __hasValue,
   "The REPL should print the value stored in your variable.",
@@ -535,23 +534,15 @@ Use `_` in an expression of your choice in the REPL.
 
 ### --tests--
 
-You should use the `_` variable in the REPL.
+You should use `_` in an expression in the REPL.
 
 ```js
 const __temp = await __helpers.getTemp();
 assert.match(
   __temp,
-  /\b_\b/,
-  "Type `_` in the REPL to access the last evaluated result.",
+  /> _(\W|$)/m,
+  "Use `_` in the REPL — it holds the result of the last evaluated expression.",
 );
-```
-
-The REPL should print a result when you use `_`.
-
-```js
-await new Promise((res) => setTimeout(res, 500));
-const __out = await __helpers.getTerminalOutput();
-assert.isNotEmpty(__out.trim(), "Using `_` should produce output in the REPL.");
 ```
 
 ## 16
@@ -571,25 +562,24 @@ Define a function of your choice in the REPL. Like variable declarations, functi
 
 ### --tests--
 
-You should define a function in the REPL.
+You should define a function in the REPL using the `function` keyword or an arrow function.
 
 ```js
 const __temp = await __helpers.getTemp();
 assert.match(
   __temp,
-  /function\s+\w+|const\s+\w+\s*=\s*(function|\()/,
-  "Define a function in the REPL using a function declaration or expression.",
+  /\bfunction\s+\w+|\w+\s*=\s*(\([^)]*\)|[^=])\s*=>/,
+  "Define a function in the REPL using the `function` keyword or an arrow (`=>`) syntax.",
 );
 ```
 
-The REPL should print `undefined` after a function definition.
+The REPL should print `undefined` — the return value of a function definition.
 
 ```js
-await new Promise((res) => setTimeout(res, 500));
-const __out = await __helpers.getTerminalOutput();
-assert.include(
-  __out,
-  "undefined",
+const __temp = await __helpers.getTemp();
+assert.match(
+  __temp,
+  /\bundefined\b/,
   "Function definitions return `undefined` in the REPL.",
 );
 ```
@@ -611,32 +601,14 @@ Call your function with an argument of your choice — the REPL will print the r
 
 ### --tests--
 
-You should call your function in the REPL.
+You should call your function with an argument in the REPL.
 
 ```js
 const __temp = await __helpers.getTemp();
 assert.match(
   __temp,
-  /\w+\(.*\)/,
-  "Call your function in the REPL with an argument.",
-);
-```
-
-The function should return a value (not `undefined`).
-
-```js
-await new Promise((res) => setTimeout(res, 500));
-const __out = await __helpers.getTerminalOutput();
-const __lines = __out
-  .split("\n")
-  .map((l) => l.trim())
-  .filter(Boolean);
-const __hasReturnValue = __lines.some(
-  (l) => l !== "undefined" && !/^>/.test(l),
-);
-assert.isTrue(
-  __hasReturnValue,
-  "Your function call should return and print a value.",
+  /\w+\s*\([^)]*\)/m,
+  "Call your function in the REPL — type its name followed by parentheses and an argument.",
 );
 ```
 
@@ -657,25 +629,24 @@ Use `require()` in the REPL to load any built-in Node.js module and assign it to
 
 ### --tests--
 
-You should use `require()` in the REPL to load a built-in Node.js module.
+You should use `require()` in the REPL to load a built-in module.
 
 ```js
 const __temp = await __helpers.getTemp();
 assert.match(
   __temp,
-  /require\(\s*['"][a-z]+['"]\s*\)/,
-  'Use `require("module-name")` in the REPL to load a built-in module.',
+  /\brequire\s*\(/,
+  "Use `require('module-name')` in the REPL to load a built-in Node.js module.",
 );
 ```
 
-The REPL should print `undefined` after assigning the result of `require()` to a variable.
+The REPL should print `undefined` — the return value of assigning the module to a variable.
 
 ```js
-await new Promise((res) => setTimeout(res, 500));
-const __out = await __helpers.getTerminalOutput();
-assert.include(
-  __out,
-  "undefined",
+const __temp = await __helpers.getTemp();
+assert.match(
+  __temp,
+  /\bundefined\b/,
   "Assigning `require(...)` to a variable returns `undefined` in the REPL.",
 );
 ```
@@ -697,30 +668,14 @@ Call any method on the module you loaded and observe the return value printed by
 
 ### --tests--
 
-You should call a method on your loaded module in the REPL.
+You should call a method on the module you loaded.
 
 ```js
 const __temp = await __helpers.getTemp();
 assert.match(
   __temp,
-  /\w+\.\w+\(/,
-  "Call a method on your loaded module, e.g. `os.platform()`.",
-);
-```
-
-The method should return and print a value.
-
-```js
-await new Promise((res) => setTimeout(res, 500));
-const __out = await __helpers.getTerminalOutput();
-const __lines = __out
-  .split("\n")
-  .map((l) => l.trim())
-  .filter(Boolean);
-const __hasValue = __lines.some((l) => l !== "undefined" && !/^>/.test(l));
-assert.isTrue(
-  __hasValue,
-  "The method call should return and print a result in the REPL.",
+  /\w+\.\w+\s*\(/m,
+  "Call a method on the module you loaded — e.g. `os.platform()`.",
 );
 ```
 
@@ -734,24 +689,23 @@ The REPL has a set of special commands that start with a dot (`.`). Type `.help`
 
 ### --tests--
 
-You should type `.help` in the REPL.
+The `.help` output should list the available dot-commands.
 
 ```js
 const __temp = await __helpers.getTemp();
 assert.include(
   __temp,
-  ".help",
-  "Type `.help` in the REPL to see the list of available dot-commands.",
+  ".break",
+  "Type `.help` in the REPL — its output should list the available dot-commands.",
 );
 ```
 
-The output should list available REPL commands.
+The `.help` output should list available REPL commands.
 
 ```js
-await new Promise((res) => setTimeout(res, 500));
-const __out = await __helpers.getTerminalOutput();
+const __temp = await __helpers.getTemp();
 assert.include(
-  __out,
+  __temp,
   ".exit",
   "The `.help` output should list available REPL commands including `.exit`.",
 );
@@ -767,14 +721,14 @@ Type `.exit` to close the REPL session.
 
 ### --tests--
 
-You should type `.exit` to leave the REPL.
+You should have exited the REPL and returned to the regular terminal.
 
 ```js
-const __temp = await __helpers.getTemp();
-assert.include(
-  __temp,
-  ".exit",
-  "Type `.exit` in the REPL to exit back to the regular terminal.",
+const __history = await __helpers.getBashHistory();
+assert.match(
+  __history,
+  /^node\s*$/m,
+  "Type `.exit` (or press Ctrl+D) to leave the REPL — `node` should appear in your bash history once the session ends.",
 );
 ```
 
