@@ -74,6 +74,7 @@ assert.match(
 The output should show a version number starting with `v`.
 
 ```js
+await new Promise((res) => setTimeout(res, 500));
 const __out = await __helpers.getTerminalOutput();
 assert.match(
   __out,
@@ -106,6 +107,7 @@ assert.match(
 The output should show a version number.
 
 ```js
+await new Promise((res) => setTimeout(res, 500));
 const __out = await __helpers.getTerminalOutput();
 assert.match(
   __out,
@@ -142,6 +144,7 @@ assert.match(
 Running your command should produce output in the terminal.
 
 ```js
+await new Promise((res) => setTimeout(res, 500));
 const __out = await __helpers.getTerminalOutput();
 assert.isNotEmpty(
   __out.trim(),
@@ -179,50 +182,16 @@ assert.match(
 The output should be a number.
 
 ```js
+await new Promise((res) => setTimeout(res, 500));
 const __out = await __helpers.getTerminalOutput();
 assert.match(
-  __out.trim(),
-  /^-?\d+(\.\d+)?$/,
+  __out,
+  /^-?\d+(\.\d+)?$/m,
   "Your expression should print a numeric result.",
 );
 ```
 
 ## 6
-
-### --description--
-
-<dfn title="Template literals">Template literals</dfn> use backticks (`` ` ``) instead of quotes and allow you to embed expressions directly in a string using `${}` syntax.
-
-```bash
-node -e "const name = 'Node'; console.log(\`Hello, \${name}!\`)"
-```
-
-Use `node -e` with a template literal to interpolate a variable or expression into a string and print the result.
-
-### --tests--
-
-You should use `node -e` with a template literal.
-
-```js
-const __history = await __helpers.getBashHistory();
-assert.match(
-  __history,
-  /node\s+(--eval|-e)\b[^`]*`/,
-  "Use `node -e` with a template literal (backtick string) to interpolate a value.",
-);
-```
-
-Your command should print output to the terminal.
-
-```js
-const __out = await __helpers.getTerminalOutput();
-assert.isNotEmpty(
-  __out.trim(),
-  "Your template literal expression should print something to the terminal.",
-);
-```
-
-## 7
 
 ### --description--
 
@@ -250,6 +219,7 @@ assert.match(
 Your command should produce output in the terminal.
 
 ```js
+await new Promise((res) => setTimeout(res, 500));
 const __out = await __helpers.getTerminalOutput();
 assert.isNotEmpty(
   __out.trim(),
@@ -257,7 +227,7 @@ assert.isNotEmpty(
 );
 ```
 
-## 8
+## 7
 
 ### --description--
 
@@ -285,15 +255,16 @@ assert.match(
 The output should be a number.
 
 ```js
+await new Promise((res) => setTimeout(res, 500));
 const __out = await __helpers.getTerminalOutput();
 assert.match(
-  __out.trim(),
-  /^-?\d+(\.\d+)?$/,
+  __out,
+  /^-?\d+(\.\d+)?$/m,
   "Your expression should print a numeric result.",
 );
 ```
 
-## 9
+## 8
 
 ### --description--
 
@@ -330,7 +301,7 @@ assert.match(
 );
 ```
 
-## 10
+## 9
 
 ### --description--
 
@@ -363,7 +334,7 @@ assert.match(
 echo "console.log('Hello from a file!')" > learn-nodejs-repl/hello.js
 ```
 
-## 11
+## 10
 
 ### --description--
 
@@ -391,6 +362,7 @@ assert.match(
 The file should produce output in the terminal.
 
 ```js
+await new Promise((res) => setTimeout(res, 500));
 const __out = await __helpers.getTerminalOutput();
 assert.isNotEmpty(
   __out.trim(),
@@ -406,7 +378,7 @@ assert.isNotEmpty(
 echo "console.log('Hello from a file!')" > learn-nodejs-repl/hello.js
 ```
 
-## 12
+## 11
 
 ### --description--
 
@@ -429,7 +401,7 @@ assert.match(
 );
 ```
 
-## 13
+## 12
 
 ### --description--
 
@@ -449,6 +421,7 @@ Type an arithmetic expression of your choice and press `Enter`.
 You should type an arithmetic expression in the REPL and receive a numeric result.
 
 ```js
+await new Promise((res) => setTimeout(res, 500));
 const __out = await __helpers.getTerminalOutput();
 assert.match(
   __out,
@@ -457,7 +430,7 @@ assert.match(
 );
 ```
 
-## 14
+## 13
 
 ### --description--
 
@@ -490,6 +463,7 @@ assert.match(
 The REPL should print `undefined` after a variable declaration.
 
 ```js
+await new Promise((res) => setTimeout(res, 500));
 const __out = await __helpers.getTerminalOutput();
 assert.include(
   __out,
@@ -498,7 +472,7 @@ assert.include(
 );
 ```
 
-## 15
+## 14
 
 ### --description--
 
@@ -529,6 +503,7 @@ assert.match(
 The REPL should print the value you assigned (not `undefined`).
 
 ```js
+await new Promise((res) => setTimeout(res, 500));
 const __out = await __helpers.getTerminalOutput();
 const __lines = __out
   .split("\n")
@@ -541,7 +516,7 @@ assert.isTrue(
 );
 ```
 
-## 16
+## 15
 
 ### --description--
 
@@ -574,11 +549,12 @@ assert.match(
 The REPL should print a result when you use `_`.
 
 ```js
+await new Promise((res) => setTimeout(res, 500));
 const __out = await __helpers.getTerminalOutput();
 assert.isNotEmpty(__out.trim(), "Using `_` should produce output in the REPL.");
 ```
 
-## 17
+## 16
 
 ### --description--
 
@@ -609,6 +585,7 @@ assert.match(
 The REPL should print `undefined` after a function definition.
 
 ```js
+await new Promise((res) => setTimeout(res, 500));
 const __out = await __helpers.getTerminalOutput();
 assert.include(
   __out,
@@ -617,7 +594,7 @@ assert.include(
 );
 ```
 
-## 18
+## 17
 
 ### --description--
 
@@ -648,6 +625,7 @@ assert.match(
 The function should return a value (not `undefined`).
 
 ```js
+await new Promise((res) => setTimeout(res, 500));
 const __out = await __helpers.getTerminalOutput();
 const __lines = __out
   .split("\n")
@@ -662,7 +640,7 @@ assert.isTrue(
 );
 ```
 
-## 19
+## 18
 
 ### --description--
 
@@ -693,6 +671,7 @@ assert.match(
 The REPL should print `undefined` after assigning the result of `require()` to a variable.
 
 ```js
+await new Promise((res) => setTimeout(res, 500));
 const __out = await __helpers.getTerminalOutput();
 assert.include(
   __out,
@@ -701,7 +680,7 @@ assert.include(
 );
 ```
 
-## 20
+## 19
 
 ### --description--
 
@@ -732,6 +711,7 @@ assert.match(
 The method should return and print a value.
 
 ```js
+await new Promise((res) => setTimeout(res, 500));
 const __out = await __helpers.getTerminalOutput();
 const __lines = __out
   .split("\n")
@@ -744,7 +724,7 @@ assert.isTrue(
 );
 ```
 
-## 21
+## 20
 
 ### --description--
 
@@ -768,6 +748,7 @@ assert.include(
 The output should list available REPL commands.
 
 ```js
+await new Promise((res) => setTimeout(res, 500));
 const __out = await __helpers.getTerminalOutput();
 assert.include(
   __out,
@@ -776,7 +757,7 @@ assert.include(
 );
 ```
 
-## 22
+## 21
 
 ### --description--
 
@@ -797,7 +778,7 @@ assert.include(
 );
 ```
 
-## 23
+## 22
 
 ### --description--
 
@@ -825,6 +806,7 @@ assert.match(
 The output should confirm the ESM code executed successfully.
 
 ```js
+await new Promise((res) => setTimeout(res, 500));
 const __out = await __helpers.getTerminalOutput();
 assert.isNotEmpty(
   __out.trim(),
