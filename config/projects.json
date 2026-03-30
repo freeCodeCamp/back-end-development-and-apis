@@ -1,6 +1,19 @@
 [
   {
     "id": 0,
+    "dashedName": "learn-nodejs-repl",
+    "isIntegrated": false,
+    "isPublic": true,
+    "currentLesson": 0,
+    "runTestsOnWatch": true,
+    "seedEveryLesson": false,
+    "isResetEnabled": false,
+    "blockingTests": null,
+    "breakOnFailure": null,
+    "numberOfLessons": 24
+  },
+  {
+    "id": 1,
     "dashedName": "learn-how-to-build-an-npm-module",
     "isIntegrated": false,
     "isPublic": true,
@@ -13,7 +26,7 @@
     "numberOfLessons": 44
   },
   {
-    "id": 1,
+    "id": 2,
     "dashedName": "build-a-timestamp-microservice",
     "isIntegrated": true,
     "isPublic": true,
@@ -26,7 +39,7 @@
     "numberOfLessons": 1
   },
   {
-    "id": 2,
+    "id": 3,
     "dashedName": "learn-nodejs-by-building-a-web-server",
     "isIntegrated": false,
     "isPublic": true,
@@ -39,7 +52,7 @@
     "numberOfLessons": 59
   },
   {
-    "id": 3,
+    "id": 4,
     "dashedName": "learn-express-by-building-a-random-joke-app",
     "isIntegrated": false,
     "isPublic": true,
@@ -52,7 +65,7 @@
     "numberOfLessons": 6
   },
   {
-    "id": 4,
+    "id": 5,
     "dashedName": "build-a-personal-profile-app",
     "isIntegrated": true,
     "isPublic": true,
@@ -65,7 +78,7 @@
     "breakOnFailure": false
   },
   {
-    "id": 5,
+    "id": 6,
     "dashedName": "build-a-data-sanitizer",
     "isIntegrated": true,
     "isPublic": true,
