@@ -13,17 +13,17 @@
     "numberOfLessons": 44
   },
   {
-    "id": 3,
-    "dashedName": "learn-express-by-building-a-random-joke-app",
-    "isIntegrated": false,
+    "id": 1,
+    "dashedName": "build-a-timestamp-microservice",
+    "isIntegrated": true,
     "isPublic": true,
     "currentLesson": 0,
-    "runTestsOnWatch": true,
+    "runTestsOnWatch": false,
     "seedEveryLesson": false,
     "isResetEnabled": false,
-    "blockingTests": null,
-    "breakOnFailure": null,
-    "numberOfLessons": 6
+    "blockingTests": true,
+    "breakOnFailure": true,
+    "numberOfLessons": 1
   },
   {
     "id": 2,
@@ -39,17 +39,17 @@
     "numberOfLessons": 59
   },
   {
-    "id": 1,
-    "dashedName": "build-a-timestamp-microservice",
-    "isIntegrated": true,
+    "id": 3,
+    "dashedName": "learn-express-by-building-a-random-joke-app",
+    "isIntegrated": false,
     "isPublic": true,
     "currentLesson": 0,
-    "runTestsOnWatch": false,
+    "runTestsOnWatch": true,
     "seedEveryLesson": false,
     "isResetEnabled": false,
-    "blockingTests": true,
-    "breakOnFailure": true,
-    "numberOfLessons": 1
+    "blockingTests": null,
+    "breakOnFailure": null,
+    "numberOfLessons": 6
   },
   {
     "id": 4,

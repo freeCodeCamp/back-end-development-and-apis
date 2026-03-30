@@ -6,195 +6,145 @@ You will be building a data sanitizer middleware for an Express application.
 
 ### --description--
 
-Build a data sanitizer middleware for an Express application.
+Install your project dependencies by entering `npm i` from the `build-a-data-sanitizer/` folder in the terminal.
+
+Work within the `server.js` and `middleware.js` files.
+
+After that, start your server by running `node server.js`. Do not forget to restart your server for your code changes to take effect.
+
+**Objective:** Fulfill the user stories below and get all the tests to pass to complete the lab.
 
 **User Stories:**
 
-1. You should import the `express` module.
+1. You should create a `middleware.js` file that exports an `inputCleaner` function and an `inputValidator` function using `module.exports`.
 
-2. You should create an Express application instance and assign it to a variable `app`.
+2. `inputCleaner` should convert `req.body.username` to lowercase if it exists, strip HTML tags from `req.body.comment` if it exists, then call `next()`.
 
-3. You should define a constant `PORT` and assign it the value `3000`.
+3. `inputValidator` should call `next()` if `req.body.username` is at least 3 characters long. Otherwise, it should redirect to `/form?error=Username must be at least 3 characters.` without calling `next()`.
 
-4. You should use the built-in `express.urlencoded()` middleware with `{ extended: true }` to parse form data.
+4. In `server.js`, you should import `inputCleaner` and `inputValidator` from `./middleware`.
 
-5. You should create a custom middleware function called `inputCleaner` that takes three parameters `req`, `res` and `next` for request, response, and next middleware function respectively.
+5. Your server should listen on port `3000`.
 
-6. The `inputCleaner` middleware should:
+6. A `GET` request to `/` should redirect to `/form`.
 
-- Logs the message `[Middleware 1] Cleaning/Modifying data...` to the console.
+7. A `GET` request to `/form` should serve the static HTML form from the `public` directory.
 
-- Converts `req.body.username` to lowercase if it exists.
-
-- Removes HTML tags from `req.body.comment` if it exists using the regex pattern `/<[^>]*>/g`.
-
-- Calls `next()` to continue to the next middleware.
-
-1. You should create a custom middleware function called `inputValidator` that takes three parameters `req`, `res` and `next`.
-
-1. The `inputValidator` should:
-
-- Logs the message `[Middleware 2] Validating data...` to the console.
-
-- Checks if `username` exists and has a length of at least 3 characters.
-
-- If validation fails, logs `[Middleware 2] Validation FAILED: Username too short.` and redirects to `/form?error=Username must be at least 3 characters.` without calling `next()`.
-
-- If validation passes, logs `[Middleware 2] Validation PASSED.` and calls `next()`.
-
-1. You should use `express.static()` middleware to serve static files from the `public` directory at the `/form` route.
-
-1. You should have a GET route for the root path `/` that redirects to `/form`.
-
-1. You should have a POST route for the `/submit` path that:
-
-- Uses `inputCleaner` as the first route-specific middleware.
-
-- Uses `inputValidator` as the second route-specific middleware.
-
-- Has a final handler that sends an HTML response with the cleaned and validated `username` and `comment`.
-
-- The HTML response should include a success heading, display the submitted data, and provide a link back to `/form`.
-
-1. Your application should listen on port `3000`.
-
-1. When the server starts listening, you should log two messages to the console:
-
-- `Server running on http://localhost:3000`
-- `Open in browser: http://localhost:3000/form`
-
-1. When a user submits a form to `/submit`, the data should pass through `inputCleaner` first, then `inputValidator`, and finally reach the route handler if validation passes.
-
-1. The middleware chain should demonstrate the request-response cycle: if validation fails, the response is sent immediately without reaching the final handler.
-
-<!-- test examples -->
-
-| Input Value                        | Expected req.body.username in Final Handler | Action Taken by Middleware             |
-| ---------------------------------- | ------------------------------------------- | -------------------------------------- |
-| `"  Admin "`                       | `"admin"`                                   | Cleaned and Validated.                 |
-| `"AB"`                             | N/A (cycle halted)                          | Fails Validation, Redirected.          |
-| `"Test"`, Comment: `"<b>Bold</b>"` | `"test"`, Comment: `"Bold"`                 | Cleaned (lowercase and tag stripping). |
+8. A `POST` request to `/submit` should apply `inputCleaner` then `inputValidator` as route-level middleware, before a final handler that responds with the sanitised `username` and `comment`.
 
 ### --tests--
 
-You should import the `express` module.
+Running `node build-a-data-sanitizer/server.js` should start a server listening on port `3000`.
 
 ```js
-
+const { stdout } = await __helpers.awaitExecution(
+  ["node", "build-a-data-sanitizer/server.js"],
+  "http://localhost:3000",
+  {},
+);
+const __listening = await __helpers.isServerListening(3000);
+assert.isTrue(__listening, "Your server should be listening on port 3000");
 ```
 
-You should have an `app` variable that holds the Express application instance.
+A `GET` request to `/` should redirect to `/form`.
 
 ```js
-
+const __res = await fetch(`${__url}/`);
+assert.include(__res.url, "/form", "Expected GET / to redirect to /form");
 ```
 
-You should have a `PORT` variable that holds the port number `3000`.
+A `GET` request to `/form` should return a `200` response.
 
 ```js
-
+const __res = await fetch(`${__url}/form`);
+assert.equal(__res.status, 200, "Expected GET /form to return 200");
 ```
 
-You should use `app.use(express.urlencoded({ extended: true }));` to parse form data.
+`inputCleaner` should convert `req.body.username` to lowercase, strip HTML tags from `req.body.comment`, and call `next()`.
 
 ```js
-
+const { inputCleaner } = await __helpers.importSansCache(`${project.dashedName}/middleware.js`);
+const __req = { body: { username: "ADMIN", comment: "<b>Bold</b>" } };
+let __nextCalled = false;
+inputCleaner(__req, {}, () => { __nextCalled = true; });
+assert.equal(__req.body.username, "admin", "inputCleaner should convert username to lowercase");
+assert.equal(__req.body.comment, "Bold", "inputCleaner should strip HTML tags from comment");
+assert.isTrue(__nextCalled, "inputCleaner should call next()");
 ```
 
-You should have a function called `inputCleaner`.
+`inputValidator` should call `next()` when `username` is at least 3 characters.
 
 ```js
-
+const { inputValidator } = await __helpers.importSansCache(`${project.dashedName}/middleware.js`);
+let __nextCalled = false;
+inputValidator({ body: { username: "abc" } }, {}, () => { __nextCalled = true; });
+assert.isTrue(__nextCalled, "inputValidator should call next() when username is at least 3 characters");
 ```
 
-The `inputCleaner` should take three parameters: `req`, `res`, and `next`.
+`inputValidator` should redirect to `/form` with an error message and not call `next()` when `username` is fewer than 3 characters.
 
 ```js
-
+const { inputValidator } = await __helpers.importSansCache(`${project.dashedName}/middleware.js`);
+let __nextCalled = false;
+let __redirectTarget = null;
+const __mockRes = { redirect: (url) => { __redirectTarget = url; } };
+inputValidator({ body: { username: "AB" } }, __mockRes, () => { __nextCalled = true; });
+assert.isFalse(__nextCalled, "inputValidator should not call next() when username is too short");
+assert.isNotNull(__redirectTarget, "inputValidator should call res.redirect()");
+assert.include(__redirectTarget, "/form", "Expected redirect to /form");
+assert.include(
+  decodeURIComponent(__redirectTarget),
+  "Username must be at least 3 characters",
+  "Expected the error message in the redirect URL"
+);
 ```
 
-The `inputCleaner` middleware should convert `req.body.username` to lowercase.
+A `POST` to `/submit` should convert the username to lowercase and include it in the response.
 
 ```js
-
+const __res = await fetch(`${__url}/submit`, {
+  method: "POST",
+  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  body: "username=ADMIN&comment=hello",
+});
+assert.equal(__res.status, 200, "Expected 200 for a valid submission");
+const __body = await __res.text();
+assert.include(__body, "admin", "Expected the lowercased username in the response");
 ```
 
-The `inputCleaner` middleware should remove HTML tags from `req.body.comment`.
+A `POST` to `/submit` should strip HTML tags from the comment and include it in the response.
 
 ```js
-
+const __res = await fetch(`${__url}/submit`, {
+  method: "POST",
+  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  body: "username=test&comment=<b>Bold</b>",
+});
+const __body = await __res.text();
+assert.include(__body, "Bold", "Expected the comment text in the response");
+assert.notInclude(__body, "<b>", "Expected HTML tags to be stripped from the comment");
 ```
 
-The `inputCleaner` middleware should call `next()` at the end of its logic.
+A `POST` to `/submit` with a username fewer than 3 characters should redirect to `/form` with an error message.
 
 ```js
-
+const __res = await fetch(`${__url}/submit`, {
+  method: "POST",
+  headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  body: "username=AB&comment=hello",
+});
+assert.include(__res.url, "/form", "Expected a redirect to /form");
+assert.include(
+  decodeURIComponent(__res.url),
+  "Username must be at least 3 characters",
+  "Expected the error message in the redirect URL"
+);
 ```
 
-You should have a function called `inputValidator`.
+### --before-each--
 
 ```js
-
-```
-
-The `inputValidator` should take three parameters `req`, `res` and `next`.
-
-```js
-
-```
-
-The `inputValidator` should log an error message to the console `Middleware 2] Validation FAILED: Username too short.` if username is less than 3 characters long.
-
-```js
-
-```
-
-The `inputValidator` should redirect to `/form` with an error message `Username must be at least 3 characters.` if the username is less than 3 characters long.
-
-```js
-
-```
-
-The `inputValidator` should call `next()` only if the validation criteria are met.
-
-```js
-
-```
-
-You should use `express.static()` to serve the `public` directory at the `/form` route.
-
-```js
-
-```
-
-Your GET route for `/` should redirect to `/form`.
-
-```js
-
-```
-
-Your POST route for `/submit` should use `inputCleaner` as its first middleware.
-
-```js
-
-```
-
-Your POST route for `/submit` should use `inputValidator` as its second middleware.
-
-```js
-
-```
-
-The final handler for the `/submit` route should return a success message and display the `username` and `comment`.
-
-```js
-
-```
-
-Your application should call `app.listen` using the `PORT` variable.
-
-```js
-
+const __url = "http://localhost:3000";
 ```
 
 ## --fcc-end--
