@@ -1,0 +1,12 @@
+{
+  "name": "learn-nodejs-common-modules",
+  "version": "0.0.1",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {},
+  "keywords": ["node", "freecodecamp"],
+  "license": "MIT"
+}
