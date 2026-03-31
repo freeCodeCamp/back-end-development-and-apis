@@ -115,5 +115,18 @@
     "blockingTests": true,
     "breakOnFailure": true,
     "numberOfLessons": 1
+  },
+  {
+    "id": 9,
+    "dashedName": "learn-express-by-building-a-weather-service-api",
+    "isIntegrated": false,
+    "isPublic": true,
+    "currentLesson": 0,
+    "runTestsOnWatch": true,
+    "seedEveryLesson": false,
+    "isResetEnabled": false,
+    "blockingTests": null,
+    "breakOnFailure": null,
+    "numberOfLessons": 20
   }
 ]
