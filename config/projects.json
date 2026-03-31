@@ -89,5 +89,31 @@
     "blockingTests": true,
     "breakOnFailure": true,
     "numberOfLessons": 1
+  },
+  {
+    "id": 7,
+    "dashedName": "learn-nodejs-common-modules",
+    "isIntegrated": false,
+    "isPublic": true,
+    "currentLesson": 0,
+    "runTestsOnWatch": true,
+    "seedEveryLesson": false,
+    "isResetEnabled": false,
+    "blockingTests": null,
+    "breakOnFailure": null,
+    "numberOfLessons": 29
+  },
+  {
+    "id": 8,
+    "dashedName": "build-a-prime-number-checker-module",
+    "isIntegrated": true,
+    "isPublic": true,
+    "currentLesson": 0,
+    "runTestsOnWatch": false,
+    "seedEveryLesson": false,
+    "isResetEnabled": false,
+    "blockingTests": true,
+    "breakOnFailure": true,
+    "numberOfLessons": 1
   }
 ]
