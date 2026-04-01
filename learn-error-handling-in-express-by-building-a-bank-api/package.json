@@ -1,0 +1,15 @@
+{
+  "name": "learn-error-handling-in-express-by-building-a-bank-api",
+  "version": "0.0.1",
+  "description": "Learn error handling in Express by building a Bank API",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.0.0"
+  },
+  "keywords": ["node", "freecodecamp"],
+  "license": "MIT",
+  "type": "module"
+}

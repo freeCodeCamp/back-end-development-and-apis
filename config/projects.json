@@ -10,7 +10,7 @@
     "isResetEnabled": false,
     "blockingTests": null,
     "breakOnFailure": null,
-    "numberOfLessons": 24
+    "numberOfLessons": 23
   },
   {
     "id": 1,
@@ -62,7 +62,7 @@
     "isResetEnabled": false,
     "blockingTests": null,
     "breakOnFailure": null,
-    "numberOfLessons": 6
+    "numberOfLessons": 7
   },
   {
     "id": 5,
@@ -73,7 +73,7 @@
     "runTestsOnWatch": true,
     "seedEveryLesson": false,
     "isResetEnabled": true,
-    "numberOfLessons": null,
+    "numberOfLessons": 1,
     "blockingTests": false,
     "breakOnFailure": false
   },
@@ -128,5 +128,18 @@
     "blockingTests": null,
     "breakOnFailure": null,
     "numberOfLessons": 20
+  },
+  {
+    "id": 10,
+    "dashedName": "learn-error-handling-in-express-by-building-a-bank-api",
+    "isIntegrated": false,
+    "isPublic": true,
+    "currentLesson": 0,
+    "runTestsOnWatch": true,
+    "seedEveryLesson": false,
+    "isResetEnabled": false,
+    "blockingTests": null,
+    "breakOnFailure": null,
+    "numberOfLessons": 35
   }
 ]
