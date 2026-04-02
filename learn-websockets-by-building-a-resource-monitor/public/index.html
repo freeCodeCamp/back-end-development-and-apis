@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Resource Monitor</title>
+    <style>
+      body {
+        font-family: monospace;
+        background: #1a1a2e;
+        color: #e0e0e0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem;
+        margin: 0;
+      }
+      h1 {
+        color: #00d4ff;
+        margin-bottom: 0.25rem;
+      }
+      #status {
+        font-size: 0.85rem;
+        margin-bottom: 2rem;
+        color: #888;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        width: 100%;
+        max-width: 700px;
+      }
+      .card {
+        background: #16213e;
+        border: 1px solid #0f3460;
+        border-radius: 8px;
+        padding: 1.25rem;
+      }
+      .card h2 {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #888;
+        margin: 0 0 0.5rem;
+      }
+      .card .value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #00d4ff;
+      }
+      .card .unit {
+        font-size: 0.8rem;
+        color: #666;
+        margin-top: 0.25rem;
+      }
+      .load-row {
+        display: flex;
+        gap: 1rem;
+        margin-top: 0.5rem;
+      }
+      .load-item {
+        text-align: center;
+      }
+      .load-item .lv {
+        font-size: 1.25rem;
+        color: #00d4ff;
+      }
+      .load-item .ll {
+        font-size: 0.7rem;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Resource Monitor</h1>
+    <div id="status">Connecting...</div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>Memory Usage</h2>
+        <div class="value"><span id="mem-usage">--</span><span style="font-size:1rem">%</span></div>
+        <div class="unit"><span id="free-mem">--</span> MB free / <span id="total-mem">--</span> MB total</div>
+      </div>
+
+      <div class="card">
+        <h2>Load Average</h2>
+        <div class="load-row">
+          <div class="load-item">
+            <div class="lv" id="load-1">--</div>
+            <div class="ll">1 min</div>
+          </div>
+          <div class="load-item">
+            <div class="lv" id="load-5">--</div>
+            <div class="ll">5 min</div>
+          </div>
+          <div class="load-item">
+            <div class="lv" id="load-15">--</div>
+            <div class="ll">15 min</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

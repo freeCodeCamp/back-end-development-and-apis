@@ -1,0 +1,13 @@
+{
+  "name": "learn-websockets-by-building-a-resource-monitor",
+  "version": "0.0.1",
+  "description": "",
+  "main": "server.js",
+  "scripts": {},
+  "dependencies": {
+    "ws": "^8.18.2"
+  },
+  "keywords": ["node", "freecodecamp"],
+  "license": "MIT",
+  "type": "module"
+}
