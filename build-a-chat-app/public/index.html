@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat App</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 1.5rem;
+    }
+
+    h1 { font-size: 1.5rem; margin-bottom: 0.5rem; color: #1a1a2e; }
+
+    #status-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+      color: #555;
+    }
+
+    #status-dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: #ccc;
+      transition: background 0.3s;
+    }
+    #status-dot.connected { background: #22c55e; }
+    #status-dot.disconnected { background: #ef4444; }
+
+    #chat-container {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      width: 100%;
+      max-width: 600px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    #messages {
+      padding: 1rem;
+      height: 380px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .msg { line-height: 1.4; }
+
+    .msg.system {
+      font-style: italic;
+      color: #888;
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    .msg.chat .username {
+      font-weight: 600;
+      color: #4f46e5;
+      margin-right: 0.35rem;
+    }
+
+    #input-area {
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .input-row { display: flex; gap: 0.5rem; }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="text"]:focus { border-color: #4f46e5; }
+
+    #username-input { max-width: 180px; flex: none; }
+
+    button {
+      padding: 0.5rem 1rem;
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: #4338ca; }
+    button:disabled { background: #a5b4fc; cursor: default; }
+  </style>
+</head>
+<body>
+  <h1>&#128172; Chat App</h1>
+  <div id="status-bar">
+    <div id="status-dot"></div>
+    <span id="status">Disconnected</span>
+  </div>
+
+  <div id="chat-container">
+    <div id="messages"></div>
+    <div id="input-area">
+      <div class="input-row">
+        <input id="username-input" type="text" placeholder="Username" maxlength="20" value="Camper" />
+        <button id="connect-btn">Connect</button>
+      </div>
+      <div class="input-row">
+        <input id="message-input" type="text" placeholder="Type a message…" disabled />
+        <button id="send-btn" disabled>Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

@@ -167,5 +167,18 @@
     "blockingTests": null,
     "breakOnFailure": null,
     "numberOfLessons": 19
+  },
+  {
+    "id": 13,
+    "dashedName": "build-a-chat-app",
+    "isIntegrated": true,
+    "isPublic": true,
+    "currentLesson": 0,
+    "runTestsOnWatch": false,
+    "seedEveryLesson": false,
+    "isResetEnabled": false,
+    "blockingTests": true,
+    "breakOnFailure": true,
+    "numberOfLessons": 1
   }
 ]
