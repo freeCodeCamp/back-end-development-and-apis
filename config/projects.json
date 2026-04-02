@@ -141,5 +141,31 @@
     "blockingTests": null,
     "breakOnFailure": null,
     "numberOfLessons": 35
+  },
+  {
+    "id": 11,
+    "dashedName": "learn-express-middleware-by-building-a-submission-form",
+    "isIntegrated": false,
+    "isPublic": true,
+    "currentLesson": 0,
+    "runTestsOnWatch": true,
+    "seedEveryLesson": false,
+    "isResetEnabled": false,
+    "blockingTests": null,
+    "breakOnFailure": null,
+    "numberOfLessons": 22
+  },
+  {
+    "id": 12,
+    "dashedName": "learn-websockets-by-building-a-resource-monitor",
+    "isIntegrated": false,
+    "isPublic": true,
+    "currentLesson": 0,
+    "runTestsOnWatch": true,
+    "seedEveryLesson": false,
+    "isResetEnabled": false,
+    "blockingTests": null,
+    "breakOnFailure": null,
+    "numberOfLessons": 19
   }
 ]
