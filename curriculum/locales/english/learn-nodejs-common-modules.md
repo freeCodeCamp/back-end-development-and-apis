@@ -1,6 +1,6 @@
 # Learn Node.js Common Modules
 
-Reinforce your knowledge of Node.js built-in modules by using them hands-on: `fs`, `buffer`, `crypto`, `os`, `path`, `process`, and `stream`.
+You will learn Node.js built-in modules like fs, path, and crypto by using them for file operations and data processing.
 
 ## 0
 

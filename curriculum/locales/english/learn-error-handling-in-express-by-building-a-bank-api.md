@@ -1,6 +1,6 @@
 # Learn Error Handling in Express by Building a Bank API
 
-Build a Tiny Bank REST API in Express 5, learning how to handle errors gracefully with HTTP status codes, error-handler middleware, health checks, and graceful shutdowns.
+You will learn Express 5 error handling, health checks, and graceful shutdowns by building a bank API.
 
 ## 0
 

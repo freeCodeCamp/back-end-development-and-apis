@@ -1,6 +1,6 @@
 # Learn How to Build an NPM Module
 
-In this project, you will learn how to create an NPM module. You will create a simple module that can be used to convert strings to lowercase or uppercase. You will also learn how to publish your module to the NPM registry so that others can use it.
+You will learn how to initialize, configure, and publish an NPM module by building a case converter.
 
 ## 0
 

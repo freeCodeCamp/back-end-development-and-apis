@@ -1,6 +1,6 @@
 # Learn Nodejs by Building a Web Server
 
-In this project, you will use the Nodejs API to create a web server to serve a client application
+You will learn the Node.js http module by building a web server to serve a multi-page client application.
 
 ## 0
 

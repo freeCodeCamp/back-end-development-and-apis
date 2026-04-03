@@ -4,7 +4,7 @@
 {"tags": ["Certification Project"]}
 ```
 
-In this project, you will build an npm module that exports a function to check whether a given number is prime.
+Practice building and exporting an NPM module by creating a prime number checker.
 
 ## 0
 

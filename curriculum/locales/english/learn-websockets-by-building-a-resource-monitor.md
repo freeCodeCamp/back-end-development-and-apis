@@ -1,6 +1,6 @@
 # Learn WebSockets by Building a Resource Monitor
 
-Build a live system resource monitor that streams CPU load, RAM usage, and load averages from a Node.js WebSocket server to a browser client.
+You will learn Node.js WebSockets and real-time data streaming by building a system resource monitor.
 
 ## 0
 

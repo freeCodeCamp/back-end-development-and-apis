@@ -1,6 +1,6 @@
 # Build a Personal Profile App
 
-You will build a personal profile for CamperBot using Express.
+Practice building an Express server and JSON API by creating a personal profile application.
 
 ## 0
 

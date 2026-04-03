@@ -1,6 +1,6 @@
 # Learn Express Middleware by Building a Submission Form
 
-Build a structured Express API with application-level middleware, router-level middleware, and custom error-handling middleware.
+You will learn application-level and router-level middleware by building a structured submission form.
 
 ## 0
 

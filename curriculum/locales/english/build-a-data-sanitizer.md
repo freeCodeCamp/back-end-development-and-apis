@@ -1,6 +1,6 @@
 # Build a Data Sanitizer
 
-You will be building a data sanitizer middleware for an Express application.
+Practice creating custom Express middleware by building a data sanitizer and validator.
 
 ## 0
 

@@ -1,6 +1,6 @@
 # Learn Node.js REPL
 
-In this project, you will explore the Node.js runtime from the command line - installing it, using its flags, and interacting with the interactive REPL (Read-Eval-Print Loop).
+You will learn the Node.js REPL and command-line interface by exploring the runtime from the terminal.
 
 ## 0
 

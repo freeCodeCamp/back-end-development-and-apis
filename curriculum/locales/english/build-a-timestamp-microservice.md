@@ -6,7 +6,7 @@
 }
 ```
 
-In this certification project, you will build an Express-based API for parsing and formatting dates.
+Practice building a RESTful API with date parsing logic by creating a timestamp microservice.
 
 ## 0
 

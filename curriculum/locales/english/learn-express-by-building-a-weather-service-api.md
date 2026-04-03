@@ -1,6 +1,6 @@
 # Learn Express by Building a Weather Service API
 
-In this course, you will learn Express routing, route parameters, response methods, chainable route handlers, modular routing with `express.Router`, and serving static files — all by building a weather service API.
+You will learn route parameters and modular routing with express.Router by building a weather service API.
 
 ## 0
 

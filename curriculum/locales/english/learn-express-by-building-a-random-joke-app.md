@@ -1,6 +1,6 @@
 # Learn Express by Building a Random Joke App
 
-In this course, you will learn basic Express by building a random joke app.
+You will learn basic Express routing and response methods by building a random joke app.
 
 ## 0
 
