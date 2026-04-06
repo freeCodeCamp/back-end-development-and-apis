@@ -24,9 +24,6 @@ This document summarizes identified bugs, inconsistencies, and suggested improve
 
 ### 3. Build a Personal Profile App (`build-a-personal-profile-app.md`)
 
-- **[BUG] Incorrect Fetch Method**: Tests 3, 4, and 5 use `await response.json()` for routes that return plain text (e.g., "Welcome to Camper Bot's homepage!"). This will cause a `FetchError` because the response is not valid JSON. These tests **must** use `await response.text()`.
-- **[INCONSISTENCY] User Story 5**: Asks for a JSON response, but the test doesn't explicitly check the `Content-Type: application/json` header, only the parsed body.
-
 ### 4. Build a Timestamp Microservice (`build-a-timestamp-microservice.md`)
 
 - **[BUG] Typo in Test 7**: The test code contains `(serverTime - now).toString.length`. It should be `(serverTime - now).toString().length`. As written, it accesses the `length` property of the `toString` function object, which is always 1 (the number of expected arguments).

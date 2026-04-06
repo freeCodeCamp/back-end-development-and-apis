@@ -57,7 +57,7 @@ You should have a GET route for the root path `/` that sends the response `Welco
 ```js
 try {
   const response = await fetch(`${__url}`);
-  const data = await response.json();
+  const data = await response.text();
   assert.strictEqual(data, "Welcome to Camper Bot's homepage!");
 } catch (e) {
   assert.fail(e);
@@ -69,7 +69,7 @@ You should have a GET route for the `/hobbies` path that sends the response `I l
 ```js
 try {
   const response = await fetch(`${__url}hobbies`);
-  const data = await response.json();
+  const data = await response.text();
   assert.strictEqual(data, "I love cycling, boating, and playing guitar.");
 } catch (e) {
   assert.fail(e);
@@ -81,11 +81,19 @@ You should have a GET route for the `/skills` path that sends the response `Java
 ```js
 try {
   const response = await fetch(`${__url}skills`);
-  const data = await response.json();
+  const data = await response.text();
   assert.strictEqual(data, "JavaScript, Node.js, and Express.js!");
 } catch (e) {
   assert.fail(e);
 }
+```
+
+The `/api/profile` route should return a JSON response with the correct content type.
+
+```js
+const response = await fetch(`${__url}api/profile`);
+const headers = response.headers;
+assert.include(headers["content-type"], "application/json");
 ```
 
 The `/api/profile` route should return a JSON object with a `name` property set to `Camper Bot`.
