@@ -94,7 +94,7 @@ const response = await fetch(`${__url}api`);
 const data = await response.json();
 const now = Date.now();
 const serverTime = new Date(data.utc).getTime();
-assert.isBelow((serverTime - now).toString.length, 6);
+assert.isBelow((serverTime - now).toString().length, 6);
 ```
 
 ### --before-each--

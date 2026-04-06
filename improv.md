@@ -26,8 +26,6 @@ This document summarizes identified bugs, inconsistencies, and suggested improve
 
 ### 4. Build a Timestamp Microservice (`build-a-timestamp-microservice.md`)
 
-- **[BUG] Typo in Test 7**: The test code contains `(serverTime - now).toString.length`. It should be `(serverTime - now).toString().length`. As written, it accesses the `length` property of the `toString` function object, which is always 1 (the number of expected arguments).
-
 ### 5. Learn Error Handling in Express by Building a Bank API (`learn-error-handling-in-express-by-building-a-bank-api.md`)
 
 - **[IMPROVEMENT] High Quality**: This project is excellently structured and uses `Tower` for AST checks effectively. No major bugs found.
