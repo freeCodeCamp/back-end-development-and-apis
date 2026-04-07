@@ -405,9 +405,9 @@ assert.match(
 
 ### --description--
 
-You are now in the REPL. Type any arithmetic expression and press `Enter` — the REPL will evaluate it and print the result immediately, without needing `console.log`.
+You are now in the REPL. Typing any expression and pressing `Enter` will cause the REPL to evaluate it, and print the result immediately, without needing `console.log`.
 
-```
+```bash
 > 2 ** 8
 256
 ```
@@ -437,7 +437,7 @@ Variables declared in the REPL persist for the rest of your session — you can 
 
 Declare a variable using `let` or `const` and assign it any value you like:
 
-```
+```bash
 > let city = "Paris"
 undefined
 ```
@@ -451,7 +451,7 @@ Notice the REPL prints `undefined` — that is the return value of a variable de
 You should declare a variable using `let`, `const`, or `var`.
 
 ```js
-const __temp = await __helpers.getTemp();
+const __temp = await __helpers.getRepl();
 assert.match(
   __temp,
   /\b(let|const|var)\s+\w+/,
@@ -476,7 +476,7 @@ assert.match(
 
 Previously, you declared a variable in the REPL. Because it is still in scope, you can read it back simply by typing its name and pressing `Enter`.
 
-```
+```bash
 > city
 'Paris'
 ```
@@ -507,7 +507,11 @@ const __lines = __temp
   .map((l) => l.replace(/\r$/, "").trim())
   .filter(Boolean);
 const __hasValue = __lines.some(
-  (l) => l !== "undefined" && !/^>/.test(l) && !/^Welcome/.test(l) && !/^Type/.test(l),
+  (l) =>
+    l !== "undefined" &&
+    !/^>/.test(l) &&
+    !/^Welcome/.test(l) &&
+    !/^Type/.test(l),
 );
 assert.isTrue(
   __hasValue,
@@ -521,7 +525,7 @@ assert.isTrue(
 
 The REPL provides a special variable `_` that always holds the result of the last evaluated expression. You can use it in any subsequent expression without re-typing the value.
 
-```
+```bash
 > 10 * 10
 100
 > _ + 5
@@ -537,7 +541,7 @@ Use `_` in an expression of your choice in the REPL.
 You should use `_` in an expression in the REPL.
 
 ```js
-const __temp = await __helpers.getTemp();
+const __temp = await __helpers.getRepl();
 assert.match(
   __temp,
   /> _(\W|$)/m,
@@ -551,7 +555,7 @@ assert.match(
 
 You can define functions in the REPL just as you would in a script — they stay available for the rest of the session.
 
-```
+```bash
 > function double(n) { return n * 2; }
 undefined
 ```
@@ -565,7 +569,7 @@ Define a function of your choice in the REPL. Like variable declarations, functi
 You should define a function in the REPL using the `function` keyword or an arrow function.
 
 ```js
-const __temp = await __helpers.getTemp();
+const __temp = await __helpers.getRepl();
 assert.match(
   __temp,
   /\bfunction\s+\w+|\w+\s*=\s*(\([^)]*\)|[^=])\s*=>/,
@@ -588,9 +592,9 @@ assert.match(
 
 ### --description--
 
-Now call the function you defined in the previous lesson by typing its name followed by parentheses and an argument.
+Now, the function can be called:
 
-```
+```bash
 > double(21)
 42
 ```
@@ -604,10 +608,10 @@ Call your function with an argument of your choice — the REPL will print the r
 You should call your function with an argument in the REPL.
 
 ```js
-const __temp = await __helpers.getTemp();
+const __repl = await __helpers.getRepl();
 assert.match(
-  __temp,
-  /\w+\s*\([^)]*\)/m,
+  __repl,
+  /^\w+\s*\([^)]*\)/m,
   "Call your function in the REPL — type its name followed by parentheses and an argument.",
 );
 ```
@@ -618,7 +622,7 @@ assert.match(
 
 Node.js includes a set of built-in modules you can load at any time using `require()`. You do not need to install them — they ship with Node.js itself.
 
-```
+```bash
 > const os = require('os')
 undefined
 ```
@@ -632,7 +636,7 @@ Use `require()` in the REPL to load any built-in Node.js module and assign it to
 You should use `require()` in the REPL to load a built-in module.
 
 ```js
-const __temp = await __helpers.getTemp();
+const __temp = await __helpers.getRepl();
 assert.match(
   __temp,
   /\brequire\s*\(/,
@@ -657,7 +661,7 @@ assert.match(
 
 Now that you have loaded a module, call one of its methods to get information back.
 
-```
+```bash
 > os.platform()
 'linux'
 ```
@@ -671,7 +675,7 @@ Call any method on the module you loaded and observe the return value printed by
 You should call a method on the module you loaded.
 
 ```js
-const __temp = await __helpers.getTemp();
+const __temp = await __helpers.getRepl();
 assert.match(
   __temp,
   /\w+\.\w+\s*\(/m,
@@ -692,7 +696,7 @@ The REPL has a set of special commands that start with a dot (`.`). Type `.help`
 The `.help` output should list the available dot-commands.
 
 ```js
-const __temp = await __helpers.getTemp();
+const __temp = await __helpers.getRepl();
 assert.include(
   __temp,
   ".break",

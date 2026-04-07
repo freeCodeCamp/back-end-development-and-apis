@@ -1,5 +1,9 @@
 # Build a Personal Profile App
 
+```json
+{ "tags": ["Certification Project"] }
+```
+
 Practice building an Express server and JSON API by creating a personal profile application.
 
 ## 0

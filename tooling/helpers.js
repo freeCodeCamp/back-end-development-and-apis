@@ -61,7 +61,7 @@ export async function awaitExecution(
     fetchTimeout = 2_000,
     pollInterval = 100,
     dataTimeout = 2_000,
-  } = {}
+  } = {},
 ) {
   const { execFile } = await import("node:child_process");
 
@@ -179,7 +179,7 @@ export function parseCli(str) {
           ...key
             .slice(1)
             .split("")
-            .map((flag) => `-${flag}`)
+            .map((flag) => `-${flag}`),
         );
       }
     } else if (arg.startsWith('"') || arg.startsWith("'")) {
@@ -197,6 +197,11 @@ export function parseCli(str) {
     current = iter.next();
   }
   return [command, ...args];
+}
+
+export async function getRepl() {
+  const p = join(ROOT, ".logs", ".repl.log");
+  return await readFile(p, "utf-8");
 }
 
 import { parse } from "@babel/parser";

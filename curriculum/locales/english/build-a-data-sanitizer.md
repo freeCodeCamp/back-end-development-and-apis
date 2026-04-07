@@ -1,5 +1,9 @@
 # Build a Data Sanitizer
 
+```json
+{ "tags": ["Certification Project"] }
+```
+
 Practice creating custom Express middleware by building a data sanitizer and validator.
 
 ## 0
@@ -63,39 +67,69 @@ assert.equal(__res.status, 200, "Expected GET /form to return 200");
 `inputCleaner` should convert `req.body.username` to lowercase, strip HTML tags from `req.body.comment`, and call `next()`.
 
 ```js
-const { inputCleaner } = await __helpers.importSansCache(`${project.dashedName}/middleware.js`);
+const { inputCleaner } = await __helpers.importSansCache(
+  `${project.dashedName}/middleware.js`,
+);
 const __req = { body: { username: "ADMIN", comment: "<b>Bold</b>" } };
 let __nextCalled = false;
-inputCleaner(__req, {}, () => { __nextCalled = true; });
-assert.equal(__req.body.username, "admin", "inputCleaner should convert username to lowercase");
-assert.equal(__req.body.comment, "Bold", "inputCleaner should strip HTML tags from comment");
+inputCleaner(__req, {}, () => {
+  __nextCalled = true;
+});
+assert.equal(
+  __req.body.username,
+  "admin",
+  "inputCleaner should convert username to lowercase",
+);
+assert.equal(
+  __req.body.comment,
+  "Bold",
+  "inputCleaner should strip HTML tags from comment",
+);
 assert.isTrue(__nextCalled, "inputCleaner should call next()");
 ```
 
 `inputValidator` should call `next()` when `username` is at least 3 characters.
 
 ```js
-const { inputValidator } = await __helpers.importSansCache(`${project.dashedName}/middleware.js`);
+const { inputValidator } = await __helpers.importSansCache(
+  `${project.dashedName}/middleware.js`,
+);
 let __nextCalled = false;
-inputValidator({ body: { username: "abc" } }, {}, () => { __nextCalled = true; });
-assert.isTrue(__nextCalled, "inputValidator should call next() when username is at least 3 characters");
+inputValidator({ body: { username: "abc" } }, {}, () => {
+  __nextCalled = true;
+});
+assert.isTrue(
+  __nextCalled,
+  "inputValidator should call next() when username is at least 3 characters",
+);
 ```
 
 `inputValidator` should redirect to `/form` with an error message and not call `next()` when `username` is fewer than 3 characters.
 
 ```js
-const { inputValidator } = await __helpers.importSansCache(`${project.dashedName}/middleware.js`);
+const { inputValidator } = await __helpers.importSansCache(
+  `${project.dashedName}/middleware.js`,
+);
 let __nextCalled = false;
 let __redirectTarget = null;
-const __mockRes = { redirect: (url) => { __redirectTarget = url; } };
-inputValidator({ body: { username: "AB" } }, __mockRes, () => { __nextCalled = true; });
-assert.isFalse(__nextCalled, "inputValidator should not call next() when username is too short");
+const __mockRes = {
+  redirect: (url) => {
+    __redirectTarget = url;
+  },
+};
+inputValidator({ body: { username: "AB" } }, __mockRes, () => {
+  __nextCalled = true;
+});
+assert.isFalse(
+  __nextCalled,
+  "inputValidator should not call next() when username is too short",
+);
 assert.isNotNull(__redirectTarget, "inputValidator should call res.redirect()");
 assert.include(__redirectTarget, "/form", "Expected redirect to /form");
 assert.include(
   decodeURIComponent(__redirectTarget),
   "Username must be at least 3 characters",
-  "Expected the error message in the redirect URL"
+  "Expected the error message in the redirect URL",
 );
 ```
 
@@ -109,7 +143,11 @@ const __res = await fetch(`${__url}/submit`, {
 });
 assert.equal(__res.status, 200, "Expected 200 for a valid submission");
 const __body = await __res.text();
-assert.include(__body, "admin", "Expected the lowercased username in the response");
+assert.include(
+  __body,
+  "admin",
+  "Expected the lowercased username in the response",
+);
 ```
 
 A `POST` to `/submit` should strip HTML tags from the comment and include it in the response.
@@ -122,7 +160,11 @@ const __res = await fetch(`${__url}/submit`, {
 });
 const __body = await __res.text();
 assert.include(__body, "Bold", "Expected the comment text in the response");
-assert.notInclude(__body, "<b>", "Expected HTML tags to be stripped from the comment");
+assert.notInclude(
+  __body,
+  "<b>",
+  "Expected HTML tags to be stripped from the comment",
+);
 ```
 
 A `POST` to `/submit` with a username fewer than 3 characters should redirect to `/form` with an error message.
@@ -137,7 +179,7 @@ assert.include(__res.url, "/form", "Expected a redirect to /form");
 assert.include(
   decodeURIComponent(__res.url),
   "Username must be at least 3 characters",
-  "Expected the error message in the redirect URL"
+  "Expected the error message in the redirect URL",
 );
 ```
 
