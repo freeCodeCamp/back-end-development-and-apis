@@ -696,7 +696,7 @@ The REPL has a set of special commands that start with a dot (`.`). Type `.help`
 The `.help` output should list the available dot-commands.
 
 ```js
-const __temp = await __helpers.getRepl();
+const __temp = await __helpers.getTemp();
 assert.include(
   __temp,
   ".break",

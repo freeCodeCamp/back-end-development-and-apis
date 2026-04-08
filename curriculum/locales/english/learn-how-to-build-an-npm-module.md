@@ -262,10 +262,27 @@ You should write `MIT` and press `Enter`.
 
 ```js
 const temp = await __helpers.getTemp();
-assert.include(temp, "About to write to");
+assert.include(temp, "type: (commonjs)");
 ```
 
 ## 13
+
+### --description--
+
+You are being prompted for the module system Nodejs should use to interpret the project. Typically, this is either `commonjs` or `module`
+
+Press `Enter` to accept the default, `commonjs`
+
+### --tests--
+
+You should press `Enter` to accept the default.
+
+```js
+const temp = await __helpers.getTemp();
+assert.include(temp, "About to write to");
+```
+
+## 14
 
 ### --description--
 
@@ -279,12 +296,12 @@ You should press `Enter` to confirm.
 
 ```js
 const packageJsonExists = await __helpers.fileExists(
-  join(project.dashedName, "case_converter/package.json")
+  join(project.dashedName, "case_converter/package.json"),
 );
 assert.isTrue(packageJsonExists, "The package.json file does not exist");
 ```
 
-## 14
+## 15
 
 ### --description--
 
@@ -296,7 +313,7 @@ You should have a file named `index.js` in the `case_converter/` directory.
 
 ```js
 const fileExists = await __helpers.fileExists(
-  "learn-how-to-build-an-npm-module/case_converter/index.js"
+  "learn-how-to-build-an-npm-module/case_converter/index.js",
 );
 assert.isTrue(fileExists, "The index.js file does not exist");
 ```
@@ -327,7 +344,7 @@ touch learn-how-to-build-an-npm-module/case_converter/package.json
 }
 ```
 
-## 15
+## 16
 
 ### --description--
 
@@ -340,7 +357,7 @@ The `index.js` file should contain a function named `getUpperCase`.
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/index.js"
+  "case_converter/index.js",
 );
 assert.match(file, /function getUpperCase\(|getUpperCase\s*=\s*\(/);
 ```
@@ -350,7 +367,7 @@ The `getUpperCase` function should return an uppercase version of the string arg
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/index.js"
+  "case_converter/index.js",
 );
 const evalCode = `${file}
 assert.strictEqual(getUpperCase("hello"), "HELLO");
@@ -366,7 +383,7 @@ const _ = eval(evalCode);
 touch learn-how-to-build-an-npm-module/case_converter/index.js
 ```
 
-## 16
+## 17
 
 ### --description--
 
@@ -379,7 +396,7 @@ The `index.js` file should contain a function named `getLowerCase`.
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/index.js"
+  "case_converter/index.js",
 );
 assert.match(file, /function getLowerCase\(|getLowerCase\s*=\s*\(/);
 ```
@@ -389,7 +406,7 @@ The `getLowerCase` function should return a lowercase version of the string.
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/index.js"
+  "case_converter/index.js",
 );
 const evalCode = `${file}
 assert.strictEqual(getLowerCase("HELLO"), "hello");
@@ -407,7 +424,7 @@ function getUpperCase(str) {
 }
 ```
 
-## 17
+## 18
 
 ### --description--
 
@@ -420,7 +437,7 @@ The `index.js` file should contain a function named `getSentenceCase`.
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/index.js"
+  "case_converter/index.js",
 );
 assert.match(file, /function getSentenceCase\(|getSentenceCase\s*=\s*\(/);
 ```
@@ -439,7 +456,7 @@ function getLowerCase(str) {
 }
 ```
 
-## 18
+## 19
 
 ### --description--
 
@@ -452,7 +469,7 @@ Within `getSentenceCase`, return a string of the argument with the first charact
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/index.js"
+  "case_converter/index.js",
 );
 const evalCode = `${file}
 assert.strictEqual(getSentenceCase("hello world"), "Hello world");
@@ -465,7 +482,7 @@ const _ = eval(evalCode);
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/index.js"
+  "case_converter/index.js",
 );
 const evalCode = `${file}
 assert.strictEqual(getSentenceCase("HELLO WORLD"), "Hello world");
@@ -478,7 +495,7 @@ const _ = eval(evalCode);
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/index.js"
+  "case_converter/index.js",
 );
 const evalCode = `${file}
 assert.strictEqual(getSentenceCase("hELLO wORLD"), "Hello world");
@@ -502,7 +519,7 @@ function getLowerCase(str) {
 function getSentenceCase(str) {}
 ```
 
-## 19
+## 20
 
 ### --description--
 
@@ -515,7 +532,7 @@ The `index.js` file should contain a function named `getProperCase`.
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/index.js"
+  "case_converter/index.js",
 );
 assert.match(file, /function getProperCase\(|getProperCase\s*=\s*\(/);
 ```
@@ -539,7 +556,7 @@ function getSentenceCase(str) {
 }
 ```
 
-## 20
+## 21
 
 ### --description--
 
@@ -552,7 +569,7 @@ Within `getProperCase`, return a string of the argument with the first character
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/index.js"
+  "case_converter/index.js",
 );
 const evalCode = `${file}
 assert.strictEqual(getProperCase("hello world"), "Hello World");
@@ -565,7 +582,7 @@ const _ = eval(evalCode);
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/index.js"
+  "case_converter/index.js",
 );
 const evalCode = `${file}
 assert.strictEqual(getProperCase("HELLO WORLD"), "Hello World");
@@ -578,7 +595,7 @@ const _ = eval(evalCode);
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/index.js"
+  "case_converter/index.js",
 );
 const evalCode = `${file}
 assert.strictEqual(getProperCase("hELLO wORLD"), "Hello World");
@@ -607,7 +624,7 @@ function getSentenceCase(str) {
 function getProperCase(str) {}
 ```
 
-## 21
+## 22
 
 ### --description--
 
@@ -629,7 +646,7 @@ The `index.js` file should export the `getUpperCase`, `getLowerCase`, `getSenten
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/index.js"
+  "case_converter/index.js",
 );
 const babelisedCode = new __helpers.Babeliser(file);
 const expressionStatement = babelisedCode
@@ -644,19 +661,19 @@ assert.exists(expressionStatement);
 const properties = expressionStatement.expression.right.properties;
 assert.include(
   properties.map((p) => p.key.name),
-  "getUpperCase"
+  "getUpperCase",
 );
 assert.include(
   properties.map((p) => p.key.name),
-  "getLowerCase"
+  "getLowerCase",
 );
 assert.include(
   properties.map((p) => p.key.name),
-  "getSentenceCase"
+  "getSentenceCase",
 );
 assert.include(
   properties.map((p) => p.key.name),
-  "getProperCase"
+  "getProperCase",
 );
 ```
 
@@ -684,7 +701,7 @@ function getProperCase(str) {
 }
 ```
 
-## 22
+## 23
 
 ### --description--
 
@@ -696,7 +713,7 @@ You should have a file named `README.md` in the `case_converter/` directory.
 
 ```js
 const fileExists = await __helpers.fileExists(
-  "learn-how-to-build-an-npm-module/case_converter/README.md"
+  "learn-how-to-build-an-npm-module/case_converter/README.md",
 );
 assert.isTrue(fileExists, "The README.md file does not exist");
 ```
@@ -732,7 +749,7 @@ module.exports = {
 };
 ```
 
-## 23
+## 24
 
 ### --description--
 
@@ -751,7 +768,7 @@ The `README.md` file should contain `# Case Converter`.
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/README.md"
+  "case_converter/README.md",
 );
 assert.match(file, /# Case Converter/);
 ```
@@ -764,7 +781,7 @@ assert.match(file, /# Case Converter/);
 touch learn-how-to-build-an-npm-module/case_converter/README.md
 ```
 
-## 24
+## 25
 
 ### --description--
 
@@ -777,11 +794,11 @@ The `README.md` file should contain `This package is used to convert strings to 
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/README.md"
+  "case_converter/README.md",
 );
 assert.include(
   file,
-  "This package is used to convert strings to a specific case."
+  "This package is used to convert strings to a specific case.",
 );
 ```
 
@@ -793,7 +810,7 @@ assert.include(
 # Case Converter
 ```
 
-## 25
+## 26
 
 ### --description--
 
@@ -812,7 +829,7 @@ The `README.md` file should contain `## Installation`.
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/README.md"
+  "case_converter/README.md",
 );
 assert.include(file, "## Installation");
 ```
@@ -827,7 +844,7 @@ assert.include(file, "## Installation");
 This package is used to convert strings to a specific case.
 ```
 
-## 26
+## 27
 
 ### --description--
 
@@ -846,7 +863,7 @@ The `README.md` file should contain the installation instructions.
 ````js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/README.md"
+  "case_converter/README.md",
 );
 assert.include(file, "```bash\nnpm install case_converter\n```");
 ````
@@ -863,7 +880,7 @@ This package is used to convert strings to a specific case.
 ## Installation
 ```
 
-## 27
+## 28
 
 ### --description--
 
@@ -876,7 +893,7 @@ The `README.md` file should contain `## Usage`.
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/README.md"
+  "case_converter/README.md",
 );
 assert.include(file, "## Usage");
 ```
@@ -897,7 +914,7 @@ npm install case_converter
 ```
 ````
 
-## 28
+## 29
 
 ### --description--
 
@@ -923,21 +940,21 @@ The `README.md` file should contain the given code under the `Usage` section.
 ````js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/README.md"
+  "case_converter/README.md",
 );
 assert.include(file, '```js\nconst caseConverter = require("./index");');
 assert.include(file, 'const str = "hello free Code Camp!";');
 assert.include(
   file,
-  "console.log(caseConverter.getUpperCase(str)); // HELLO FREE CODE CAMP!"
+  "console.log(caseConverter.getUpperCase(str)); // HELLO FREE CODE CAMP!",
 );
 assert.include(
   file,
-  "console.log(caseConverter.getLowerCase(str)); // hello free code camp!"
+  "console.log(caseConverter.getLowerCase(str)); // hello free code camp!",
 );
 assert.include(
   file,
-  "console.log(caseConverter.getProperCase(str)); // Hello Free Code Camp!"
+  "console.log(caseConverter.getProperCase(str)); // Hello Free Code Camp!",
 );
 assert.include(file, "console.log(caseConverter.getSentenceCase(str));");
 ````
@@ -947,11 +964,11 @@ The example code should have 4 comments. The last being `// Hello free code camp
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/README.md"
+  "case_converter/README.md",
 );
 assert.include(
   file,
-  "console.log(caseConverter.getSentenceCase(str)); // Hello free code camp!"
+  "console.log(caseConverter.getSentenceCase(str)); // Hello free code camp!",
 );
 ```
 
@@ -973,7 +990,7 @@ npm install case_converter
 ## Usage
 ````
 
-## 29
+## 30
 
 ### --description--
 
@@ -988,7 +1005,7 @@ The `README.md` file should contain `## License`.
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/README.md"
+  "case_converter/README.md",
 );
 assert.include(file, "## License");
 ```
@@ -1020,7 +1037,7 @@ console.log(caseConverter.getSentenceCase(str)); // Hello free code camp!
 ```
 ````
 
-## 30
+## 31
 
 ### --description--
 
@@ -1033,7 +1050,7 @@ The `README.md` file should contain the word `MIT` under the `License` section.
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/README.md"
+  "case_converter/README.md",
 );
 assert.include(file, "MIT");
 ```
@@ -1067,7 +1084,7 @@ console.log(caseConverter.getSentenceCase(str)); // Hello free code camp!
 ## License
 ````
 
-## 31
+## 32
 
 ### --description--
 
@@ -1079,7 +1096,7 @@ You should have a file named `index.test.js` in the `case_converter/` directory.
 
 ```js
 const fileExists = await __helpers.fileExists(
-  "learn-how-to-build-an-npm-module/case_converter/index.test.js"
+  "learn-how-to-build-an-npm-module/case_converter/index.test.js",
 );
 assert.isTrue(fileExists, "The index.test.js file does not exist");
 ```
@@ -1115,7 +1132,7 @@ console.log(caseConverter.getSentenceCase(str)); // Hello free code camp!
 The MIT License
 ````
 
-## 32
+## 33
 
 ### --description--
 
@@ -1134,11 +1151,11 @@ The `index.test.js` file should have `const assert = require("node:assert/strict
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/index.test.js"
+  "case_converter/index.test.js",
 );
 assert.match(
   file,
-  /const\s+assert\s*=\s*require\(\s*('|")node:assert\/strict\1\s*\)/
+  /const\s+assert\s*=\s*require\(\s*('|")node:assert\/strict\1\s*\)/,
 );
 ```
 
@@ -1150,7 +1167,7 @@ assert.match(
 touch learn-how-to-build-an-npm-module/case_converter/index.test.js
 ```
 
-## 33
+## 34
 
 ### --description--
 
@@ -1159,7 +1176,7 @@ Create a test for the `getUpperCase` function:
 ```js
 assert.strictEqual(
   caseConverter.getUpperCase("hello free Code Camp!"),
-  "HELLO FREE CODE CAMP!"
+  "HELLO FREE CODE CAMP!",
 );
 ```
 
@@ -1170,10 +1187,10 @@ The `index.test.js` file should contain `assert.strictEqual(caseConverter.getUpp
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/index.test.js"
+  "case_converter/index.test.js",
 );
-const t = new __helpers.Tower(file);
-const expressionStatement = t.getCalls("assert.strictEqual");
+const t = new __helpers.Tower(file, { sourceType: "commonjs" });
+const expressionStatement = t.getCalls("assert.strictEqual")?.at(0);
 assert.exists(expressionStatement);
 const [callExpression, stringLiteral] =
   expressionStatement.ast.expression.arguments;
@@ -1190,7 +1207,7 @@ assert.equal(stringLiteral.value, "HELLO FREE CODE CAMP!");
 const assert = require("node:assert/strict");
 ```
 
-## 34
+## 35
 
 ### --description--
 
@@ -1207,7 +1224,7 @@ The `index.test.js` file should contain `const caseConverter = require("./index"
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/index.test.js"
+  "case_converter/index.test.js",
 );
 const t = new __helpers.Tower(file);
 const variableDeclaration = t.getVariable("caseConverter").compact;
@@ -1219,15 +1236,15 @@ The import of `caseConverter` should be above the test.
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/index.test.js"
+  "case_converter/index.test.js",
 );
 const t = new __helpers.Tower(file);
 const variableDeclaration = t.getVariable("caseConverter");
-const expressionStatement = t.getCalls("assert.strictEqual");
+const expressionStatement = t.getCalls("assert.strictEqual").at(0);
 assert.isBelow(
   variableDeclaration.ast.start,
   expressionStatement.ast.start,
-  "The import of caseConverter should be above the test"
+  "The import of caseConverter should be above the test",
 );
 ```
 
@@ -1240,11 +1257,11 @@ const assert = require("node:assert/strict");
 
 assert.strictEqual(
   caseConverter.getUpperCase("hello free Code Camp!"),
-  "HELLO FREE CODE CAMP!"
+  "HELLO FREE CODE CAMP!",
 );
 ```
 
-## 35
+## 36
 
 ### --description--
 
@@ -1257,7 +1274,7 @@ The `index.test.js` file should contain `assert.strictEqual(caseConverter.getLow
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/index.test.js"
+  "case_converter/index.test.js",
 );
 const t = new __helpers.Tower(file);
 const expressionStatement = t.getCalls("assert.strictEqual").at(1);
@@ -1274,7 +1291,7 @@ The `index.test.js` file should contain `assert.strictEqual(caseConverter.getPro
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/index.test.js"
+  "case_converter/index.test.js",
 );
 const t = new __helpers.Tower(file);
 const expressionStatement = t.getCalls("assert.strictEqual").find((t) => {
@@ -1287,7 +1304,7 @@ const [callExpression, stringLiteral] =
   expressionStatement.ast.expression.arguments;
 assert.equal(
   __helpers.generate(callExpression, { compact: true }).code,
-  'caseConverter.getProperCase("hello free Code Camp!")'
+  'caseConverter.getProperCase("hello free Code Camp!")',
 );
 assert.equal(stringLiteral.value, "Hello Free Code Camp!");
 ```
@@ -1297,7 +1314,7 @@ The `index.test.js` file should contain `assert.strictEqual(caseConverter.getSen
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/index.test.js"
+  "case_converter/index.test.js",
 );
 const t = new __helpers.Tower(file);
 const expressionStatement = t
@@ -1305,14 +1322,14 @@ const expressionStatement = t
   .find(
     (t) =>
       t.ast.expression?.arguments?.[0]?.callee?.property?.name ===
-      "getSentenceCase"
+      "getSentenceCase",
   );
 assert.exists(expressionStatement);
 const [callExpression, stringLiteral] =
   expressionStatement.ast.expression.arguments;
 assert.equal(
   __helpers.generate(callExpression, { compact: true }).code,
-  'caseConverter.getSentenceCase("hello free Code Camp!")'
+  'caseConverter.getSentenceCase("hello free Code Camp!")',
 );
 assert.equal(stringLiteral.value, "Hello free code camp!");
 ```
@@ -1327,11 +1344,11 @@ const caseConverter = require("./index");
 
 assert.strictEqual(
   caseConverter.getUpperCase("hello free Code Camp!"),
-  "HELLO FREE CODE CAMP!"
+  "HELLO FREE CODE CAMP!",
 );
 ```
 
-## 36
+## 37
 
 ### --description--
 
@@ -1356,23 +1373,23 @@ const caseConverter = require("./index");
 
 assert.strictEqual(
   caseConverter.getUpperCase("hello free Code Camp!"),
-  "HELLO FREE CODE CAMP!"
+  "HELLO FREE CODE CAMP!",
 );
 assert.strictEqual(
   caseConverter.getLowerCase("hello free Code Camp!"),
-  "hello free code camp!"
+  "hello free code camp!",
 );
 assert.strictEqual(
   caseConverter.getProperCase("hello free Code Camp!"),
-  "Hello Free Code Camp!"
+  "Hello Free Code Camp!",
 );
 assert.strictEqual(
   caseConverter.getSentenceCase("hello free Code Camp!"),
-  "Hello free code camp!"
+  "Hello free code camp!",
 );
 ```
 
-## 37
+## 38
 
 ### --description--
 
@@ -1383,14 +1400,18 @@ Change one of the function assertions such that it fails the tests.
 The `index.test.js` file should contain an assertion that fails.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput(
-  "npm test",
-  join(project.dashedName, "case_converter")
-);
-assert.include(stdout, "AssertionError");
+try {
+  await __helpers.getCommandOutput(
+    "npm test",
+    join(project.dashedName, "case_converter"),
+  );
+  assert.fail("`npm test` should throw an error");
+} catch (e) {
+  assert.include(e.stderr, "AssertionError");
+}
 ```
 
-## 38
+## 39
 
 ### --description--
 
@@ -1415,23 +1436,23 @@ const caseConverter = require("./index");
 
 assert.strictEqual(
   caseConverter.getUpperCase("hello free Code Camp!"),
-  "HELLO FREE CODE CAMp!"
+  "HELLO FREE CODE CAMp!",
 );
 assert.strictEqual(
   caseConverter.getLowerCase("hello free Code Camp!"),
-  "hello free code camp!"
+  "hello free code camp!",
 );
 assert.strictEqual(
   caseConverter.getProperCase("hello free Code Camp!"),
-  "Hello Free Code Camp!"
+  "Hello Free Code Camp!",
 );
 assert.strictEqual(
   caseConverter.getSentenceCase("hello free Code Camp!"),
-  "Hello free code camp!"
+  "Hello free code camp!",
 );
 ```
 
-## 39
+## 40
 
 ### --description--
 
@@ -1442,14 +1463,17 @@ Fix the failing test in the `index.test.js` file.
 The `index.test.js` file should contain assertions that all pass.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput(
-  "npm test",
-  join(project.dashedName, "case_converter")
-);
-assert.notInclude(stdout, "AssertionError");
+try {
+  await __helpers.getCommandOutput(
+    "npm test",
+    join(project.dashedName, "case_converter"),
+  );
+} catch (e) {
+  assert.fail("`npm test` should not throw");
+}
 ```
 
-## 40
+## 41
 
 ### --description--
 
@@ -1480,23 +1504,23 @@ const caseConverter = require("./index");
 
 assert.strictEqual(
   caseConverter.getUpperCase("hello free Code Camp!"),
-  "HELLO FREE CODE CAMP!"
+  "HELLO FREE CODE CAMP!",
 );
 assert.strictEqual(
   caseConverter.getLowerCase("hello free Code Camp!"),
-  "hello free code camp!"
+  "hello free code camp!",
 );
 assert.strictEqual(
   caseConverter.getProperCase("hello free Code Camp!"),
-  "Hello Free Code Camp!"
+  "Hello Free Code Camp!",
 );
 assert.strictEqual(
   caseConverter.getSentenceCase("hello free Code Camp!"),
-  "Hello free code camp!"
+  "Hello free code camp!",
 );
 ```
 
-## 41
+## 42
 
 ### --description--
 
@@ -1516,7 +1540,7 @@ You should have a file named `.npmignore` in the `case_converter/` directory.
 const { access, constants } = await import("fs/promises");
 await access(
   join(ROOT, project.dashedName, "case_converter", ".npmignore"),
-  constants.F_OK
+  constants.F_OK,
 );
 ```
 
@@ -1525,12 +1549,12 @@ You should have `index.test.js` in the `.npmignore` file.
 ```js
 const file = await __helpers.getFile(
   project.dashedName,
-  "case_converter/.npmignore"
+  "case_converter/.npmignore",
 );
 assert.include(file, "index.test.js");
 ```
 
-## 42
+## 43
 
 ### --description--
 
@@ -1553,7 +1577,7 @@ assert.equal(lastCommand.trim(), "npm publish --dry-run");
 index.test.js
 ```
 
-## 43
+## 44
 
 ### --description--
 
