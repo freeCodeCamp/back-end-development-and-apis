@@ -6,11 +6,31 @@ You will learn Node.js built-in modules like fs, path, and crypto by using them 
 
 ### --description--
 
-Node.js comes with a set of <dfn title="built-in modules that are part of Node.js itself and do not need to be installed">core modules</dfn> you can use without installing anything. To load one, pass its name to `require`:
+In this project, you will learn about the set of <dfn title="built-in modules that are part of Node.js itself and do not need to be installed">core modules</dfn> Nodejs comes with.
+
+Open a new terminal and run `cd learn-nodejs-common-modules` to change into the project directory.
+
+### --tests--
+
+You should be in the `learn-nodejs-common-modules/` directory.
 
 ```js
-const http = require('http');
-console.log(http);
+const __cwd = await __helpers.getLastCWD();
+assert.include(
+  __cwd,
+  project.dashedName,
+  `Run \`cd ${project.dashedName}\` to enter the project directory.`,
+);
+```
+
+## 1
+
+### --description--
+
+To load a module, `require` can be used:
+
+```js
+const http = require("http");
 ```
 
 In `server.js`, use `require` to import the `fs` module and store it in a variable called `fs`. Then log `fs` to the console with `console.log`.
@@ -22,18 +42,29 @@ Run the file with `node server.js` in the terminal to see the full API surface o
 `server.js` declares a variable called `fs` assigned to `require('fs')`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __t = new __helpers.Tower(__file);
-const __fs = __t.getVariable('fs');
-assert.isDefined(__fs, 'You should declare a variable called `fs`');
-assert.match(__fs.compact, /require\(["']fs["']\)/, 'You should assign `require("fs")` to `fs`');
+const __fs = __t.getVariable("fs");
+assert.isDefined(__fs, "You should declare a variable called `fs`");
+assert.match(
+  __fs.compact,
+  /require\(["']fs["']\)/,
+  'You should assign `require("fs")` to `fs`',
+);
 ```
 
 Running `server.js` with Node logs the `fs` module to the console.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-assert.include(stdout, 'readFile', 'Running `node server.js` should log the `fs` module (expected to see `readFile` in the output)');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+assert.include(
+  stdout,
+  "readFile",
+  "Running `node server.js` should log the `fs` module (expected to see `readFile` in the output)",
+);
 ```
 
 ### --seed--
@@ -44,14 +75,14 @@ assert.include(stdout, 'readFile', 'Running `node server.js` should log the `fs`
 // Add your code below this line
 ```
 
-## 1
+## 2
 
 ### --description--
 
 `fs.readFileSync` reads a file <dfn title="blocking the event loop until the operation completes">synchronously</dfn> and returns its contents as a `Buffer` by default:
 
 ```js
-const data = fs.readFileSync('path/to/file.txt');
+const data = fs.readFileSync("path/to/file.txt");
 console.log(data); // <Buffer 48 65 6c 6c 6f ...>
 ```
 
@@ -64,22 +95,33 @@ Run the file with `node server.js` — you should see a raw `Buffer` printed, no
 `server.js` calls `fs.readFileSync` with a path pointing to `assets/poem.txt`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls('fs.readFileSync');
-assert.isAbove(__calls.length, 0, 'You should call `fs.readFileSync` in `server.js`');
+const __calls = __t.getCalls("fs.readFileSync");
+assert.isAbove(
+  __calls.length,
+  0,
+  "You should call `fs.readFileSync` in `server.js`",
+);
 assert.match(
   __calls.at(0).compact,
   /assets[/\\]?poem\.txt/,
-  'The path passed to `fs.readFileSync` should point to `assets/poem.txt`'
+  "The path passed to `fs.readFileSync` should point to `assets/poem.txt`",
 );
 ```
 
 Running `server.js` prints a raw `Buffer` to the console.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-assert.include(stdout, '<Buffer', 'Running `node server.js` should print a Buffer — make sure you are logging the result of `fs.readFileSync` without an encoding option');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+assert.include(
+  stdout,
+  "<Buffer",
+  "Running `node server.js` should print a Buffer — make sure you are logging the result of `fs.readFileSync` without an encoding option",
+);
 ```
 
 ### --seed--
@@ -93,7 +135,7 @@ mkdir -p learn-nodejs-common-modules/assets
 #### --"learn-nodejs-common-modules/server.js"--
 
 ```js
-const fs = require('fs');
+const fs = require("fs");
 
 // Add your code below this line
 ```
@@ -110,14 +152,14 @@ on silent haunches
 and then moves on.
 ```
 
-## 2
+## 3
 
 ### --description--
 
 In the previous lesson, `fs.readFileSync` returned a raw `Buffer` because no encoding was specified. To get a string instead, pass an options object with `encoding: 'utf8'` as the second argument:
 
 ```js
-const data = fs.readFileSync('path/to/file.txt', { encoding: 'utf8' });
+const data = fs.readFileSync("path/to/file.txt", { encoding: "utf8" });
 console.log(data); // Hello, World!
 ```
 
@@ -130,33 +172,48 @@ Run `node server.js` — the poem should now print as readable text instead of a
 `fs.readFileSync` is called with `{ encoding: 'utf8' }` as the second argument.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls('fs.readFileSync');
-assert.isAbove(__calls.length, 0, 'You should call `fs.readFileSync` in `server.js`');
+const __calls = __t.getCalls("fs.readFileSync");
+assert.isAbove(
+  __calls.length,
+  0,
+  "You should call `fs.readFileSync` in `server.js`",
+);
 assert.match(
   __calls.at(0).compact,
   /encoding.*utf.?8/,
-  'Pass `{ encoding: "utf8" }` as the second argument to `fs.readFileSync`'
+  'Pass `{ encoding: "utf8" }` as the second argument to `fs.readFileSync`',
 );
 ```
 
 Running `server.js` prints the poem as a plain string, not a Buffer.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-assert.notInclude(stdout, '<Buffer', 'The output should be a string, not a Buffer — make sure you passed the encoding option');
-assert.include(stdout, 'fog comes', 'Running `node server.js` should print the contents of `assets/poem.txt` as a string');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+assert.notInclude(
+  stdout,
+  "<Buffer",
+  "The output should be a string, not a Buffer — make sure you passed the encoding option",
+);
+assert.include(
+  stdout,
+  "fog comes",
+  "Running `node server.js` should print the contents of `assets/poem.txt` as a string",
+);
 ```
 
-## 3
+## 4
 
 ### --description--
 
 The second way to use `fs` is `fs.readFile`, which reads a file <dfn title="without blocking the event loop — other code can continue while the file is being read">asynchronously</dfn> using a <dfn title="a function passed as an argument that is called when the operation completes">callback</dfn>. The callback receives an error (or `null`) and the file data:
 
 ```js
-fs.readFile('path/to/file.txt', { encoding: 'utf8' }, (err, data) => {
+fs.readFile("path/to/file.txt", { encoding: "utf8" }, (err, data) => {
   console.log(data);
 });
 ```
@@ -170,33 +227,44 @@ Run `node server.js` to verify the poem prints.
 `server.js` calls `fs.readFile` with a path pointing to `assets/poem.txt`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls('fs.readFile');
-assert.isAbove(__calls.length, 0, 'You should call `fs.readFile` in `server.js`');
+const __calls = __t.getCalls("fs.readFile");
+assert.isAbove(
+  __calls.length,
+  0,
+  "You should call `fs.readFile` in `server.js`",
+);
 assert.match(
   __calls.at(0).compact,
   /assets[/\\]?poem\.txt/,
-  'The first argument to `fs.readFile` should be the path `assets/poem.txt`'
+  "The first argument to `fs.readFile` should be the path `assets/poem.txt`",
 );
 ```
 
 `fs.readFile` is called with a callback function as its last argument.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
 assert.match(
   __file,
   /fs\.readFile\s*\([^)]*function\s*\(|fs\.readFile\s*\([^)]*=>/,
-  'You should pass a callback function as the last argument to `fs.readFile`'
+  "You should pass a callback function as the last argument to `fs.readFile`",
 );
 ```
 
 Running `server.js` prints the poem contents to the console via the callback.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-assert.include(stdout, 'fog comes', 'Running `node server.js` should print the poem — log the data inside the callback');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+assert.include(
+  stdout,
+  "fog comes",
+  "Running `node server.js` should print the poem — log the data inside the callback",
+);
 ```
 
 ### --seed--
@@ -204,22 +272,24 @@ assert.include(stdout, 'fog comes', 'Running `node server.js` should print the p
 #### --"learn-nodejs-common-modules/server.js"--
 
 ```js
-const fs = require('fs');
+const fs = require("fs");
 
 // Add your code below this line
 ```
 
-## 4
+## 5
 
 ### --description--
 
 The third way to read a file with `fs` is via its `promises` API, which lets you use `async`/`await` instead of a callback. You can access it as `require('fs').promises` or by importing `fs/promises` directly:
 
 ```js
-const fsPromises = require('fs').promises;
+const fsPromises = require("fs").promises;
 
 async function main() {
-  const data = await fsPromises.readFile('path/to/file.txt', { encoding: 'utf8' });
+  const data = await fsPromises.readFile("path/to/file.txt", {
+    encoding: "utf8",
+  });
   console.log(data);
 }
 
@@ -235,27 +305,42 @@ Run `node server.js` to confirm the poem prints.
 `server.js` accesses the `promises` API from the `fs` module.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
 assert.match(
   __file,
   /require\(["']fs[/"'].*promises|fs\.promises|require\(["']fs\/promises["']\)/,
-  'You should access `fs.promises` or require `fs/promises`'
+  "You should access `fs.promises` or require `fs/promises`",
 );
 ```
 
 `server.js` uses `await` to call `readFile` on the promises API.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
-assert.match(__file, /await/, 'You should use `await` to read the file asynchronously');
-assert.match(__file, /\.readFile\s*\(/, 'You should call `.readFile(...)` on the promises API');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+assert.match(
+  __file,
+  /await/,
+  "You should use `await` to read the file asynchronously",
+);
+assert.match(
+  __file,
+  /\.readFile\s*\(/,
+  "You should call `.readFile(...)` on the promises API",
+);
 ```
 
 Running `server.js` prints the poem to the console.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-assert.include(stdout, 'fog comes', 'Running `node server.js` should print the poem using the promises-based API');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+assert.include(
+  stdout,
+  "fog comes",
+  "Running `node server.js` should print the poem using the promises-based API",
+);
 ```
 
 ### --seed--
@@ -263,19 +348,19 @@ assert.include(stdout, 'fog comes', 'Running `node server.js` should print the p
 #### --"learn-nodejs-common-modules/server.js"--
 
 ```js
-const fs = require('fs');
+const fs = require("fs");
 
 // Add your code below this line
 ```
 
-## 5
+## 6
 
 ### --description--
 
 `fs.writeFileSync` creates a file (or overwrites it) <dfn title="blocking the event loop until the write completes">synchronously</dfn>. Pass a path and the content to write:
 
 ```js
-fs.writeFileSync('assets/output.txt', 'Hello, World!');
+fs.writeFileSync("assets/output.txt", "Hello, World!");
 ```
 
 In `server.js`, use `fs.writeFileSync` to create the file `'assets/output.txt'` and write the string `'Hello, freeCodeCamp!'` to it.
@@ -287,25 +372,34 @@ Run `node server.js` — the file should be created in the `assets/` directory.
 `server.js` calls `fs.writeFileSync` with the path `'assets/output.txt'`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls('fs.writeFileSync');
-assert.isAbove(__calls.length, 0, 'You should call `fs.writeFileSync` in `server.js`');
+const __calls = __t.getCalls("fs.writeFileSync");
+assert.isAbove(
+  __calls.length,
+  0,
+  "You should call `fs.writeFileSync` in `server.js`",
+);
 assert.match(
   __calls.at(0).compact,
   /assets[/\\]?output\.txt/,
-  'The first argument to `fs.writeFileSync` should be `assets/output.txt`'
+  "The first argument to `fs.writeFileSync` should be `assets/output.txt`",
 );
 ```
 
 Running `server.js` creates `assets/output.txt` on disk.
 
 ```js
-const { join } = await import('path');
-const { existsSync } = await import('fs');
-await __helpers.getCommandOutput('node server.js', project.dashedName);
-const __exists = existsSync(join(ROOT, project.dashedName, 'assets', 'output.txt'));
-assert.isTrue(__exists, '`assets/output.txt` should exist after running `node server.js`');
+const { join } = await import("path");
+const { existsSync } = await import("fs");
+await __helpers.getCommandOutput("node server.js", project.dashedName);
+const __exists = existsSync(
+  join(ROOT, project.dashedName, "assets", "output.txt"),
+);
+assert.isTrue(
+  __exists,
+  "`assets/output.txt` should exist after running `node server.js`",
+);
 ```
 
 ### --seed--
@@ -313,19 +407,19 @@ assert.isTrue(__exists, '`assets/output.txt` should exist after running `node se
 #### --"learn-nodejs-common-modules/server.js"--
 
 ```js
-const fs = require('fs');
+const fs = require("fs");
 
 // Add your code below this line
 ```
 
-## 6
+## 7
 
 ### --description--
 
 `fs.appendFileSync` adds content to an existing file without overwriting it. If the file does not exist, it is created:
 
 ```js
-fs.appendFileSync('assets/output.txt', '\nSecond line');
+fs.appendFileSync("assets/output.txt", "\nSecond line");
 ```
 
 In `server.js`, add a call to `fs.appendFileSync` below the existing `writeFileSync` call. Append a second line — any string of your choice — to `'assets/output.txt'`.
@@ -337,25 +431,36 @@ Run `node server.js` to verify the file now has two lines.
 `server.js` calls `fs.appendFileSync` with the path `'assets/output.txt'`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls('fs.appendFileSync');
-assert.isAbove(__calls.length, 0, 'You should call `fs.appendFileSync` in `server.js`');
+const __calls = __t.getCalls("fs.appendFileSync");
+assert.isAbove(
+  __calls.length,
+  0,
+  "You should call `fs.appendFileSync` in `server.js`",
+);
 assert.match(
   __calls.at(0).compact,
   /assets[/\\]?output\.txt/,
-  'The first argument to `fs.appendFileSync` should be `assets/output.txt`'
+  "The first argument to `fs.appendFileSync` should be `assets/output.txt`",
 );
 ```
 
 After running `server.js`, `assets/output.txt` contains more than one line.
 
 ```js
-const { join } = await import('path');
-const { readFileSync } = await import('fs');
-await __helpers.getCommandOutput('node server.js', project.dashedName);
-const __content = readFileSync(join(ROOT, project.dashedName, 'assets', 'output.txt'), 'utf8');
-assert.isAbove(__content.split('\n').filter(Boolean).length, 1, '`assets/output.txt` should contain more than one line after running `node server.js`');
+const { join } = await import("path");
+const { readFileSync } = await import("fs");
+await __helpers.getCommandOutput("node server.js", project.dashedName);
+const __content = readFileSync(
+  join(ROOT, project.dashedName, "assets", "output.txt"),
+  "utf8",
+);
+assert.isAbove(
+  __content.split("\n").filter(Boolean).length,
+  1,
+  "`assets/output.txt` should contain more than one line after running `node server.js`",
+);
 ```
 
 ### --seed--
@@ -363,21 +468,21 @@ assert.isAbove(__content.split('\n').filter(Boolean).length, 1, '`assets/output.
 #### --"learn-nodejs-common-modules/server.js"--
 
 ```js
-const fs = require('fs');
+const fs = require("fs");
 
-fs.writeFileSync('assets/output.txt', 'Hello, freeCodeCamp!');
+fs.writeFileSync("assets/output.txt", "Hello, freeCodeCamp!");
 
 // Add your code below this line
 ```
 
-## 7
+## 8
 
 ### --description--
 
 `fs.existsSync` checks whether a file or directory exists and returns a boolean:
 
 ```js
-const exists = fs.existsSync('assets/output.txt');
+const exists = fs.existsSync("assets/output.txt");
 console.log(exists); // true or false
 ```
 
@@ -390,22 +495,33 @@ Run `node server.js` — you should see `true` printed.
 `server.js` calls `fs.existsSync` with the path `'assets/output.txt'`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls('fs.existsSync');
-assert.isAbove(__calls.length, 0, 'You should call `fs.existsSync` in `server.js`');
+const __calls = __t.getCalls("fs.existsSync");
+assert.isAbove(
+  __calls.length,
+  0,
+  "You should call `fs.existsSync` in `server.js`",
+);
 assert.match(
   __calls.at(0).compact,
   /assets[/\\]?output\.txt/,
-  'The argument to `fs.existsSync` should be `assets/output.txt`'
+  "The argument to `fs.existsSync` should be `assets/output.txt`",
 );
 ```
 
 Running `server.js` prints `true` to the console.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-assert.include(stdout, 'true', 'Running `node server.js` should print `true` — make sure you are logging the result of `fs.existsSync`');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+assert.include(
+  stdout,
+  "true",
+  "Running `node server.js` should print `true` — make sure you are logging the result of `fs.existsSync`",
+);
 ```
 
 ### --seed--
@@ -413,22 +529,22 @@ assert.include(stdout, 'true', 'Running `node server.js` should print `true` —
 #### --"learn-nodejs-common-modules/server.js"--
 
 ```js
-const fs = require('fs');
+const fs = require("fs");
 
-fs.writeFileSync('assets/output.txt', 'Hello, freeCodeCamp!');
-fs.appendFileSync('assets/output.txt', '\nSecond line');
+fs.writeFileSync("assets/output.txt", "Hello, freeCodeCamp!");
+fs.appendFileSync("assets/output.txt", "\nSecond line");
 
 // Add your code below this line
 ```
 
-## 8
+## 9
 
 ### --description--
 
 `fs.readdirSync` reads the contents of a directory and returns an array of file and folder names:
 
 ```js
-const entries = fs.readdirSync('assets');
+const entries = fs.readdirSync("assets");
 console.log(entries); // [ 'output.txt', 'poem.txt' ]
 ```
 
@@ -441,18 +557,33 @@ Run `node server.js` — you should see an array listing the files in the `asset
 `server.js` calls `fs.readdirSync` with `'assets'`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls('fs.readdirSync');
-assert.isAbove(__calls.length, 0, 'You should call `fs.readdirSync` in `server.js`');
-assert.match(__calls.at(0).compact, /['"]assets['"]/, 'The argument to `fs.readdirSync` should be `\'assets\'`');
+const __calls = __t.getCalls("fs.readdirSync");
+assert.isAbove(
+  __calls.length,
+  0,
+  "You should call `fs.readdirSync` in `server.js`",
+);
+assert.match(
+  __calls.at(0).compact,
+  /['"]assets['"]/,
+  "The argument to `fs.readdirSync` should be `'assets'`",
+);
 ```
 
 Running `server.js` prints an array that includes `poem.txt`.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-assert.include(stdout, 'poem.txt', 'Running `node server.js` should print the contents of the `assets/` directory, which includes `poem.txt`');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+assert.include(
+  stdout,
+  "poem.txt",
+  "Running `node server.js` should print the contents of the `assets/` directory, which includes `poem.txt`",
+);
 ```
 
 ### --seed--
@@ -460,19 +591,19 @@ assert.include(stdout, 'poem.txt', 'Running `node server.js` should print the co
 #### --"learn-nodejs-common-modules/server.js"--
 
 ```js
-const fs = require('fs');
+const fs = require("fs");
 
 // Add your code below this line
 ```
 
-## 9
+## 10
 
 ### --description--
 
 The `Buffer` module is a global in Node.js — you do not need to `require` it. A `Buffer` represents a fixed-length sequence of raw bytes in memory. Create one from a string using `Buffer.from`:
 
 ```js
-const buf = Buffer.from('Hello');
+const buf = Buffer.from("Hello");
 console.log(buf); // <Buffer 48 65 6c 6c 6f>
 ```
 
@@ -485,15 +616,26 @@ Run `node server.js` — you should see the raw byte values printed as a `Buffer
 `server.js` calls `Buffer.from` with the string `'Hello, Node!'`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
-assert.match(__file, /Buffer\.from\s*\(\s*['"]Hello,\s*Node!['"]\s*\)/, 'You should call `Buffer.from("Hello, Node!")` in `server.js`');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+assert.match(
+  __file,
+  /Buffer\.from\s*\(\s*['"]Hello,\s*Node!['"]\s*\)/,
+  'You should call `Buffer.from("Hello, Node!")` in `server.js`',
+);
 ```
 
 Running `server.js` prints a `Buffer` to the console.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-assert.include(stdout, '<Buffer', 'Running `node server.js` should print a Buffer');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+assert.include(
+  stdout,
+  "<Buffer",
+  "Running `node server.js` should print a Buffer",
+);
 ```
 
 ### --seed--
@@ -504,16 +646,16 @@ assert.include(stdout, '<Buffer', 'Running `node server.js` should print a Buffe
 // Add your code below this line
 ```
 
-## 10
+## 11
 
 ### --description--
 
 A `Buffer` can be encoded to a human-readable string using `.toString(encoding)`. The two most common encodings are `'hex'` (hexadecimal digits) and `'base64'`:
 
 ```js
-const buf = Buffer.from('Hello');
-console.log(buf.toString('hex'));    // 48656c6c6f
-console.log(buf.toString('base64')); // SGVsbG8=
+const buf = Buffer.from("Hello");
+console.log(buf.toString("hex")); // 48656c6c6f
+console.log(buf.toString("base64")); // SGVsbG8=
 ```
 
 In `server.js`, add two more `console.log` calls below the existing one: one that logs `buf.toString('hex')` and one that logs `buf.toString('base64')`.
@@ -525,26 +667,45 @@ Run `node server.js` to see both encoded forms.
 `server.js` calls `buf.toString('hex')`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
-assert.match(__file, /\.toString\s*\(\s*['"]hex['"]\s*\)/, 'You should call `.toString("hex")` on the buffer');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+assert.match(
+  __file,
+  /\.toString\s*\(\s*['"]hex['"]\s*\)/,
+  'You should call `.toString("hex")` on the buffer',
+);
 ```
 
 `server.js` calls `buf.toString('base64')`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
-assert.match(__file, /\.toString\s*\(\s*['"]base64['"]\s*\)/, 'You should call `.toString("base64")` on the buffer');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+assert.match(
+  __file,
+  /\.toString\s*\(\s*['"]base64['"]\s*\)/,
+  'You should call `.toString("base64")` on the buffer',
+);
 ```
 
 Running `server.js` prints both a hex string and a base64 string.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-assert.match(stdout, /[0-9a-f]{10,}/, 'Running `node server.js` should print a hex-encoded string');
-assert.match(stdout, /[A-Za-z0-9+/]+=*/, 'Running `node server.js` should print a base64-encoded string');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+assert.match(
+  stdout,
+  /[0-9a-f]{10,}/,
+  "Running `node server.js` should print a hex-encoded string",
+);
+assert.match(
+  stdout,
+  /[A-Za-z0-9+/]+=*/,
+  "Running `node server.js` should print a base64-encoded string",
+);
 ```
 
-## 11
+## 12
 
 ### --description--
 
@@ -564,25 +725,36 @@ Run `node server.js` — you should see `<Buffer ff ff ff ff ff ff ff ff>`.
 `server.js` calls `Buffer.alloc(8)` with a fill value of `0xff`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
-assert.match(__file, /Buffer\.alloc\s*\(\s*8\s*,\s*0xff\s*\)/, 'You should call `Buffer.alloc(8, 0xff)` in `server.js`');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+assert.match(
+  __file,
+  /Buffer\.alloc\s*\(\s*8\s*,\s*0xff\s*\)/,
+  "You should call `Buffer.alloc(8, 0xff)` in `server.js`",
+);
 ```
 
 Running `server.js` prints a buffer of 8 `ff` bytes.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-assert.match(stdout, /ff ff ff ff ff ff ff ff/, 'Running `node server.js` should print `<Buffer ff ff ff ff ff ff ff ff>`');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+assert.match(
+  stdout,
+  /ff ff ff ff ff ff ff ff/,
+  "Running `node server.js` should print `<Buffer ff ff ff ff ff ff ff ff>`",
+);
 ```
 
-## 12
+## 13
 
 ### --description--
 
 You can decode a base64 string back to readable text by creating a `Buffer` from the base64 string and then calling `.toString('utf8')`:
 
 ```js
-const decoded = Buffer.from('SGVsbG8=', 'base64').toString('utf8');
+const decoded = Buffer.from("SGVsbG8=", "base64").toString("utf8");
 console.log(decoded); // Hello
 ```
 
@@ -599,30 +771,37 @@ Run `node server.js` — you should see the decoded text printed.
 `server.js` decodes a base64 string using `Buffer.from`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
 assert.match(
   __file,
   /Buffer\.from\s*\(\s*['"]ZnJlZUNvZGVDYW1w['"]\s*,\s*['"]base64['"]\s*\)/,
-  'You should call `Buffer.from("ZnJlZUNvZGVDYW1w", "base64")` in `server.js`'
+  'You should call `Buffer.from("ZnJlZUNvZGVDYW1w", "base64")` in `server.js`',
 );
 ```
 
 Running `server.js` prints the decoded UTF-8 string.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-assert.include(stdout, 'freeCodeCamp', 'Running `node server.js` should print the decoded string `freeCodeCamp`');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+assert.include(
+  stdout,
+  "freeCodeCamp",
+  "Running `node server.js` should print the decoded string `freeCodeCamp`",
+);
 ```
 
-## 13
+## 14
 
 ### --description--
 
 The `crypto` module provides cryptographic functionality. One common use is hashing — transforming data into a fixed-length string that cannot be reversed. Use `crypto.createHash` to create a hash, `.update` to feed it data, and `.digest` to get the result:
 
 ```js
-const crypto = require('crypto');
-const hash = crypto.createHash('sha256').update('hello').digest('hex');
+const crypto = require("crypto");
+const hash = crypto.createHash("sha256").update("hello").digest("hex");
 console.log(hash); // 2cf24dba...
 ```
 
@@ -635,19 +814,34 @@ Run `node server.js` — you should see a 64-character hexadecimal string.
 `server.js` requires `crypto` and calls `crypto.createHash('sha256')`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __t = new __helpers.Tower(__file);
-const __crypto = __t.getVariable('crypto');
-assert.isDefined(__crypto, 'You should declare a variable called `crypto`');
-assert.match(__crypto.compact, /require\(["']crypto["']\)/, 'You should assign `require("crypto")` to `crypto`');
-assert.match(__file, /createHash\s*\(\s*['"]sha256['"]\s*\)/, 'You should call `crypto.createHash("sha256")`');
+const __crypto = __t.getVariable("crypto");
+assert.isDefined(__crypto, "You should declare a variable called `crypto`");
+assert.match(
+  __crypto.compact,
+  /require\(["']crypto["']\)/,
+  'You should assign `require("crypto")` to `crypto`',
+);
+assert.match(
+  __file,
+  /createHash\s*\(\s*['"]sha256['"]\s*\)/,
+  'You should call `crypto.createHash("sha256")`',
+);
 ```
 
 Running `server.js` prints a 64-character hex digest.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-assert.match(stdout.trim(), /^[0-9a-f]{64}$/, 'Running `node server.js` should print a 64-character SHA-256 hex digest');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+assert.match(
+  stdout.trim(),
+  /^[0-9a-f]{64}$/,
+  "Running `node server.js` should print a 64-character SHA-256 hex digest",
+);
 ```
 
 ### --seed--
@@ -658,14 +852,14 @@ assert.match(stdout.trim(), /^[0-9a-f]{64}$/, 'Running `node server.js` should p
 // Add your code below this line
 ```
 
-## 14
+## 15
 
 ### --description--
 
 `crypto.randomBytes(n)` generates `n` cryptographically strong random bytes and returns them as a `Buffer`. Calling `.toString('hex')` on the result gives a random hex string:
 
 ```js
-const random = crypto.randomBytes(8).toString('hex');
+const random = crypto.randomBytes(8).toString("hex");
 console.log(random); // e.g. 4f3a9c1b8e2d7a05
 ```
 
@@ -678,20 +872,30 @@ Run `node server.js` — you should see a 32-character random hex string on a ne
 `server.js` calls `crypto.randomBytes(16)`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
-assert.match(__file, /crypto\.randomBytes\s*\(\s*16\s*\)/, 'You should call `crypto.randomBytes(16)` in `server.js`');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+assert.match(
+  __file,
+  /crypto\.randomBytes\s*\(\s*16\s*\)/,
+  "You should call `crypto.randomBytes(16)` in `server.js`",
+);
 ```
 
 Running `server.js` prints a 32-character hex string.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-const __lines = stdout.trim().split('\n');
-const __hexLine = __lines.find(l => /^[0-9a-f]{32}$/.test(l.trim()));
-assert.isDefined(__hexLine, 'Running `node server.js` should print a 32-character hex string from `crypto.randomBytes(16)`');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+const __lines = stdout.trim().split("\n");
+const __hexLine = __lines.find((l) => /^[0-9a-f]{32}$/.test(l.trim()));
+assert.isDefined(
+  __hexLine,
+  "Running `node server.js` should print a 32-character hex string from `crypto.randomBytes(16)`",
+);
 ```
 
-## 15
+## 16
 
 ### --description--
 
@@ -711,26 +915,38 @@ Run `node server.js` — you should see a UUID printed on a new line.
 `server.js` calls `crypto.randomUUID()`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
-assert.match(__file, /crypto\.randomUUID\s*\(\s*\)/, 'You should call `crypto.randomUUID()` in `server.js`');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+assert.match(
+  __file,
+  /crypto\.randomUUID\s*\(\s*\)/,
+  "You should call `crypto.randomUUID()` in `server.js`",
+);
 ```
 
 Running `server.js` prints a valid UUID v4.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-const __uuidPattern = /[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i;
-assert.match(stdout, __uuidPattern, 'Running `node server.js` should print a valid UUID v4');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+const __uuidPattern =
+  /[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i;
+assert.match(
+  stdout,
+  __uuidPattern,
+  "Running `node server.js` should print a valid UUID v4",
+);
 ```
 
-## 16
+## 17
 
 ### --description--
 
 The `os` module provides information about the operating system. Require it like any other module:
 
 ```js
-const os = require('os');
+const os = require("os");
 ```
 
 In `server.js`, require the `os` module and log the following three values, each on its own line:
@@ -746,23 +962,45 @@ Run `node server.js` to see the values for your system.
 `server.js` requires `os` and calls `os.platform()`, `os.arch()`, and `os.hostname()`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __t = new __helpers.Tower(__file);
-const __os = __t.getVariable('os');
-assert.isDefined(__os, 'You should declare a variable called `os`');
-assert.match(__os.compact, /require\(["']os["']\)/, 'You should assign `require("os")` to `os`');
-assert.match(__file, /os\.platform\s*\(\s*\)/, 'You should call `os.platform()`');
-assert.match(__file, /os\.arch\s*\(\s*\)/, 'You should call `os.arch()`');
-assert.match(__file, /os\.hostname\s*\(\s*\)/, 'You should call `os.hostname()`');
+const __os = __t.getVariable("os");
+assert.isDefined(__os, "You should declare a variable called `os`");
+assert.match(
+  __os.compact,
+  /require\(["']os["']\)/,
+  'You should assign `require("os")` to `os`',
+);
+assert.match(
+  __file,
+  /os\.platform\s*\(\s*\)/,
+  "You should call `os.platform()`",
+);
+assert.match(__file, /os\.arch\s*\(\s*\)/, "You should call `os.arch()`");
+assert.match(
+  __file,
+  /os\.hostname\s*\(\s*\)/,
+  "You should call `os.hostname()`",
+);
 ```
 
 Running `server.js` prints non-empty strings for platform, arch, and hostname.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-const __lines = stdout.trim().split('\n').filter(Boolean);
-assert.isAtLeast(__lines.length, 3, 'Running `node server.js` should print at least 3 lines (platform, arch, hostname)');
-assert.isTrue(__lines.every(l => l.trim().length > 0), 'Each logged value should be a non-empty string');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+const __lines = stdout.trim().split("\n").filter(Boolean);
+assert.isAtLeast(
+  __lines.length,
+  3,
+  "Running `node server.js` should print at least 3 lines (platform, arch, hostname)",
+);
+assert.isTrue(
+  __lines.every((l) => l.trim().length > 0),
+  "Each logged value should be a non-empty string",
+);
 ```
 
 ### --seed--
@@ -773,7 +1011,7 @@ assert.isTrue(__lines.every(l => l.trim().length > 0), 'Each logged value should
 // Add your code below this line
 ```
 
-## 17
+## 18
 
 ### --description--
 
@@ -792,23 +1030,38 @@ Run `node server.js` — you should now see six lines of output.
 `server.js` calls `os.totalmem()`, `os.freemem()`, and `os.uptime()`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
-assert.match(__file, /os\.totalmem\s*\(\s*\)/, 'You should call `os.totalmem()`');
-assert.match(__file, /os\.freemem\s*\(\s*\)/, 'You should call `os.freemem()`');
-assert.match(__file, /os\.uptime\s*\(\s*\)/, 'You should call `os.uptime()`');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+assert.match(
+  __file,
+  /os\.totalmem\s*\(\s*\)/,
+  "You should call `os.totalmem()`",
+);
+assert.match(__file, /os\.freemem\s*\(\s*\)/, "You should call `os.freemem()`");
+assert.match(__file, /os\.uptime\s*\(\s*\)/, "You should call `os.uptime()`");
 ```
 
 Running `server.js` prints numeric values for total memory, free memory, and uptime.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-const __lines = stdout.trim().split('\n').filter(Boolean);
-assert.isAtLeast(__lines.length, 6, 'Running `node server.js` should print at least 6 lines');
-const __nums = __lines.filter(l => /^\d+(\.\d+)?$/.test(l.trim()));
-assert.isAtLeast(__nums.length, 3, 'At least three of the logged values should be numbers (totalmem, freemem, uptime)');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+const __lines = stdout.trim().split("\n").filter(Boolean);
+assert.isAtLeast(
+  __lines.length,
+  6,
+  "Running `node server.js` should print at least 6 lines",
+);
+const __nums = __lines.filter((l) => /^\d+(\.\d+)?$/.test(l.trim()));
+assert.isAtLeast(
+  __nums.length,
+  3,
+  "At least three of the logged values should be numbers (totalmem, freemem, uptime)",
+);
 ```
 
-## 18
+## 19
 
 ### --description--
 
@@ -827,29 +1080,44 @@ Run `node server.js` — a positive integer should appear at the end of the outp
 `server.js` logs `os.cpus().length`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
-assert.match(__file, /os\.cpus\s*\(\s*\)\.length/, 'You should log `os.cpus().length` in `server.js`');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+assert.match(
+  __file,
+  /os\.cpus\s*\(\s*\)\.length/,
+  "You should log `os.cpus().length` in `server.js`",
+);
 ```
 
 Running `server.js` prints a positive integer for the CPU count.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-const __lines = stdout.trim().split('\n').filter(Boolean);
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+const __lines = stdout.trim().split("\n").filter(Boolean);
 const __last = __lines.at(-1).trim();
-assert.match(__last, /^\d+$/, 'The last line of output should be the CPU count — a positive integer');
-assert.isAbove(parseInt(__last, 10), 0, 'The CPU count should be greater than 0');
+assert.match(
+  __last,
+  /^\d+$/,
+  "The last line of output should be the CPU count — a positive integer",
+);
+assert.isAbove(
+  parseInt(__last, 10),
+  0,
+  "The CPU count should be greater than 0",
+);
 ```
 
-## 19
+## 20
 
 ### --description--
 
 The `path` module provides utilities for working with file and directory paths in a cross-platform way. Use `path.join` to build paths from segments — it inserts the correct separator (`/` on Unix, `\` on Windows) automatically:
 
 ```js
-const path = require('path');
-const fullPath = path.join(__dirname, 'assets', 'poem.txt');
+const path = require("path");
+const fullPath = path.join(__dirname, "assets", "poem.txt");
 console.log(fullPath);
 ```
 
@@ -862,23 +1130,46 @@ Run `node server.js` — you should see an absolute path to `assets/poem.txt`.
 `server.js` requires `path` and calls `path.join` with `__dirname`, `'assets'`, and `'poem.txt'`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __t = new __helpers.Tower(__file);
-const __path = __t.getVariable('path');
-assert.isDefined(__path, 'You should declare a variable called `path`');
-assert.match(__path.compact, /require\(["']path["']\)/, 'You should assign `require("path")` to `path`');
-const __calls = __t.getCalls('path.join');
-assert.isAbove(__calls.length, 0, 'You should call `path.join` in `server.js`');
-assert.match(__calls.at(0).compact, /__dirname/, 'The first argument to `path.join` should be `__dirname`');
-assert.match(__calls.at(0).compact, /assets/, 'The path segments should include `assets`');
-assert.match(__calls.at(0).compact, /poem\.txt/, 'The path segments should include `poem.txt`');
+const __path = __t.getVariable("path");
+assert.isDefined(__path, "You should declare a variable called `path`");
+assert.match(
+  __path.compact,
+  /require\(["']path["']\)/,
+  'You should assign `require("path")` to `path`',
+);
+const __calls = __t.getCalls("path.join");
+assert.isAbove(__calls.length, 0, "You should call `path.join` in `server.js`");
+assert.match(
+  __calls.at(0).compact,
+  /__dirname/,
+  "The first argument to `path.join` should be `__dirname`",
+);
+assert.match(
+  __calls.at(0).compact,
+  /assets/,
+  "The path segments should include `assets`",
+);
+assert.match(
+  __calls.at(0).compact,
+  /poem\.txt/,
+  "The path segments should include `poem.txt`",
+);
 ```
 
 Running `server.js` prints an absolute path ending in `assets/poem.txt`.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-assert.match(stdout.trim(), /assets.poem\.txt/, 'Running `node server.js` should print a path containing `assets/poem.txt`');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+assert.match(
+  stdout.trim(),
+  /assets.poem\.txt/,
+  "Running `node server.js` should print a path containing `assets/poem.txt`",
+);
 ```
 
 ### --seed--
@@ -889,7 +1180,7 @@ assert.match(stdout.trim(), /assets.poem\.txt/, 'Running `node server.js` should
 // Add your code below this line
 ```
 
-## 20
+## 21
 
 ### --description--
 
@@ -908,21 +1199,44 @@ Run `node server.js` — you should see the filename, directory, and extension p
 `server.js` calls `path.basename`, `path.dirname`, and `path.extname` on `filePath`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
-assert.match(__file, /path\.basename\s*\(/, 'You should call `path.basename(filePath)` in `server.js`');
-assert.match(__file, /path\.dirname\s*\(/, 'You should call `path.dirname(filePath)` in `server.js`');
-assert.match(__file, /path\.extname\s*\(/, 'You should call `path.extname(filePath)` in `server.js`');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+assert.match(
+  __file,
+  /path\.basename\s*\(/,
+  "You should call `path.basename(filePath)` in `server.js`",
+);
+assert.match(
+  __file,
+  /path\.dirname\s*\(/,
+  "You should call `path.dirname(filePath)` in `server.js`",
+);
+assert.match(
+  __file,
+  /path\.extname\s*\(/,
+  "You should call `path.extname(filePath)` in `server.js`",
+);
 ```
 
 Running `server.js` prints `poem.txt`, a directory path, and `.txt` on separate lines.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-assert.include(stdout, 'poem.txt', 'Running `node server.js` should print `poem.txt` (from `path.basename`)');
-assert.include(stdout, '.txt', 'Running `node server.js` should print `.txt` (from `path.extname`)');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+assert.include(
+  stdout,
+  "poem.txt",
+  "Running `node server.js` should print `poem.txt` (from `path.basename`)",
+);
+assert.include(
+  stdout,
+  ".txt",
+  "Running `node server.js` should print `.txt` (from `path.extname`)",
+);
 ```
 
-## 21
+## 22
 
 ### --description--
 
@@ -932,8 +1246,8 @@ assert.include(stdout, '.txt', 'Running `node server.js` should print `.txt` (fr
 - `path.resolve` always returns an absolute path, processing `'..'` segments against the current working directory.
 
 ```js
-console.log(path.join('assets', '..', 'server.js'));   // assets/../server.js → assets/../server.js (relative)
-console.log(path.resolve('assets', '..', 'server.js')); // /absolute/path/to/server.js
+console.log(path.join("assets", "..", "server.js")); // assets/../server.js → assets/../server.js (relative)
+console.log(path.resolve("assets", "..", "server.js")); // /absolute/path/to/server.js
 ```
 
 In `server.js`, add two `console.log` calls: one using `path.join('assets', '..', 'server.js')` and one using `path.resolve('assets', '..', 'server.js')`.
@@ -945,35 +1259,58 @@ Run `node server.js` to compare the outputs.
 `server.js` calls `path.join` with `'assets'`, `'..'`, and `'server.js'`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
-assert.match(__file, /path\.join\s*\(\s*['"]assets['"].*['"]\.\.['"].*['"]server\.js['"]\s*\)/, 'You should call `path.join("assets", "..", "server.js")` in `server.js`');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+assert.match(
+  __file,
+  /path\.join\s*\(\s*['"]assets['"].*['"]\.\.['"].*['"]server\.js['"]\s*\)/,
+  'You should call `path.join("assets", "..", "server.js")` in `server.js`',
+);
 ```
 
 `server.js` calls `path.resolve` with `'assets'`, `'..'`, and `'server.js'`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
-assert.match(__file, /path\.resolve\s*\(\s*['"]assets['"].*['"]\.\.['"].*['"]server\.js['"]\s*\)/, 'You should call `path.resolve("assets", "..", "server.js")` in `server.js`');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+assert.match(
+  __file,
+  /path\.resolve\s*\(\s*['"]assets['"].*['"]\.\.['"].*['"]server\.js['"]\s*\)/,
+  'You should call `path.resolve("assets", "..", "server.js")` in `server.js`',
+);
 ```
 
 Running `server.js` prints two paths — one relative, one absolute.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-const __lines = stdout.trim().split('\n').filter(l => l.includes('server.js'));
-assert.isAtLeast(__lines.length, 2, 'Running `node server.js` should print two paths containing `server.js`');
-const __hasAbsolute = __lines.some(l => l.trim().startsWith('/') || /^[A-Z]:\\/.test(l.trim()));
-assert.isTrue(__hasAbsolute, 'One of the paths should be absolute (from `path.resolve`)');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+const __lines = stdout
+  .trim()
+  .split("\n")
+  .filter((l) => l.includes("server.js"));
+assert.isAtLeast(
+  __lines.length,
+  2,
+  "Running `node server.js` should print two paths containing `server.js`",
+);
+const __hasAbsolute = __lines.some(
+  (l) => l.trim().startsWith("/") || /^[A-Z]:\\/.test(l.trim()),
+);
+assert.isTrue(
+  __hasAbsolute,
+  "One of the paths should be absolute (from `path.resolve`)",
+);
 ```
 
-## 22
+## 23
 
 ### --description--
 
 `path.parse(p)` breaks a path string into its component parts and returns an object with `root`, `dir`, `base`, `ext`, and `name` properties:
 
 ```js
-const parts = path.parse('/home/user/assets/poem.txt');
+const parts = path.parse("/home/user/assets/poem.txt");
 console.log(parts);
 // { root: '/', dir: '/home/user/assets', base: 'poem.txt', ext: '.txt', name: 'poem' }
 ```
@@ -987,20 +1324,39 @@ Run `node server.js` — you should see an object with all five properties print
 `server.js` calls `path.parse` with `filePath`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
-assert.match(__file, /path\.parse\s*\(\s*filePath\s*\)/, 'You should call `path.parse(filePath)` in `server.js`');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+assert.match(
+  __file,
+  /path\.parse\s*\(\s*filePath\s*\)/,
+  "You should call `path.parse(filePath)` in `server.js`",
+);
 ```
 
 Running `server.js` prints an object containing `ext` and `name` properties from the parsed path.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-assert.include(stdout, 'ext', 'Running `node server.js` should print an object with an `ext` property');
-assert.include(stdout, 'name', 'Running `node server.js` should print an object with a `name` property');
-assert.include(stdout, 'poem', 'The parsed path should include `poem` as the file name');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+assert.include(
+  stdout,
+  "ext",
+  "Running `node server.js` should print an object with an `ext` property",
+);
+assert.include(
+  stdout,
+  "name",
+  "Running `node server.js` should print an object with a `name` property",
+);
+assert.include(
+  stdout,
+  "poem",
+  "The parsed path should include `poem` as the file name",
+);
 ```
 
-## 23
+## 24
 
 ### --description--
 
@@ -1019,17 +1375,36 @@ Run `node server.js` — you should see the version, platform, and `undefined` (
 `server.js` logs `process.version`, `process.platform`, and `process.env.NODE_ENV`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
-assert.match(__file, /process\.version/, 'You should log `process.version` in `server.js`');
-assert.match(__file, /process\.platform/, 'You should log `process.platform` in `server.js`');
-assert.match(__file, /process\.env\.NODE_ENV/, 'You should log `process.env.NODE_ENV` in `server.js`');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+assert.match(
+  __file,
+  /process\.version/,
+  "You should log `process.version` in `server.js`",
+);
+assert.match(
+  __file,
+  /process\.platform/,
+  "You should log `process.platform` in `server.js`",
+);
+assert.match(
+  __file,
+  /process\.env\.NODE_ENV/,
+  "You should log `process.env.NODE_ENV` in `server.js`",
+);
 ```
 
 Running `server.js` prints the Node.js version string.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-assert.match(stdout, /v\d+\.\d+\.\d+/, 'Running `node server.js` should print the Node.js version (e.g. `v20.0.0`)');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+assert.match(
+  stdout,
+  /v\d+\.\d+\.\d+/,
+  "Running `node server.js` should print the Node.js version (e.g. `v20.0.0`)",
+);
 ```
 
 ### --seed--
@@ -1040,7 +1415,7 @@ assert.match(stdout, /v\d+\.\d+\.\d+/, 'Running `node server.js` should print th
 // Add your code below this line
 ```
 
-## 24
+## 25
 
 ### --description--
 
@@ -1048,7 +1423,7 @@ assert.match(stdout, /v\d+\.\d+\.\d+/, 'Running `node server.js` should print th
 
 ```js
 // run with: node server.js hello world
-console.log(process.argv);    // [ '/path/to/node', '/path/to/server.js', 'hello', 'world' ]
+console.log(process.argv); // [ '/path/to/node', '/path/to/server.js', 'hello', 'world' ]
 console.log(process.argv[2]); // 'hello'
 ```
 
@@ -1061,27 +1436,38 @@ Run `node server.js` and also try passing an extra argument like `node server.js
 `server.js` logs `process.argv`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
-assert.match(__file, /process\.argv/, 'You should log `process.argv` in `server.js`');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+assert.match(
+  __file,
+  /process\.argv/,
+  "You should log `process.argv` in `server.js`",
+);
 ```
 
 Running `server.js` prints an array that includes the path to the script file.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-assert.include(stdout, 'server.js', 'Running `node server.js` should print the argv array, which includes the script path');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+assert.include(
+  stdout,
+  "server.js",
+  "Running `node server.js` should print the argv array, which includes the script path",
+);
 ```
 
-## 25
+## 26
 
 ### --description--
 
 `process.stdout.write` and `process.stderr.write` let you write directly to the standard output and standard error streams, without the automatic newline that `console.log` adds:
 
 ```js
-process.stdout.write('Hello ');
-process.stdout.write('World\n'); // newline only when you add \n
-process.stderr.write('Something went wrong\n');
+process.stdout.write("Hello ");
+process.stdout.write("World\n"); // newline only when you add \n
+process.stderr.write("Something went wrong\n");
 ```
 
 In `server.js`, add a call to `process.stdout.write` that writes `'Hello from stdout\n'` and a call to `process.stderr.write` that writes `'Hello from stderr\n'`.
@@ -1093,40 +1479,55 @@ Run `node server.js` — both messages should appear in the terminal.
 `server.js` calls `process.stdout.write`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
-assert.match(__file, /process\.stdout\.write\s*\(/, 'You should call `process.stdout.write(...)` in `server.js`');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+assert.match(
+  __file,
+  /process\.stdout\.write\s*\(/,
+  "You should call `process.stdout.write(...)` in `server.js`",
+);
 ```
 
 `server.js` calls `process.stderr.write`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
-assert.match(__file, /process\.stderr\.write\s*\(/, 'You should call `process.stderr.write(...)` in `server.js`');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+assert.match(
+  __file,
+  /process\.stderr\.write\s*\(/,
+  "You should call `process.stderr.write(...)` in `server.js`",
+);
 ```
 
 Running `server.js` outputs the stdout message to the terminal.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-assert.include(stdout, 'Hello from stdout', 'Running `node server.js` should write `Hello from stdout` to stdout');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+assert.include(
+  stdout,
+  "Hello from stdout",
+  "Running `node server.js` should write `Hello from stdout` to stdout",
+);
 ```
 
-## 26
+## 27
 
 ### --description--
 
 A <dfn title="a sequence of data made available over time, processed piece by piece rather than all at once">stream</dfn> lets you handle data incrementally without loading it all into memory. `fs.createReadStream` creates a readable stream that emits chunks of a file:
 
 ```js
-const fs = require('fs');
-const readable = fs.createReadStream('assets/poem.txt', { encoding: 'utf8' });
+const fs = require("fs");
+const readable = fs.createReadStream("assets/poem.txt", { encoding: "utf8" });
 
-readable.on('data', (chunk) => {
+readable.on("data", (chunk) => {
   console.log(chunk);
 });
 
-readable.on('end', () => {
-  console.log('Done reading');
+readable.on("end", () => {
+  console.log("Done reading");
 });
 ```
 
@@ -1139,26 +1540,49 @@ Run `node server.js` — the poem should print in chunks, followed by your end m
 `server.js` calls `fs.createReadStream` with `'assets/poem.txt'`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls('fs.createReadStream');
-assert.isAbove(__calls.length, 0, 'You should call `fs.createReadStream` in `server.js`');
-assert.match(__calls.at(0).compact, /assets[/\\]?poem\.txt/, 'The path passed to `fs.createReadStream` should be `assets/poem.txt`');
+const __calls = __t.getCalls("fs.createReadStream");
+assert.isAbove(
+  __calls.length,
+  0,
+  "You should call `fs.createReadStream` in `server.js`",
+);
+assert.match(
+  __calls.at(0).compact,
+  /assets[/\\]?poem\.txt/,
+  "The path passed to `fs.createReadStream` should be `assets/poem.txt`",
+);
 ```
 
 `server.js` listens to the `data` event and the `end` event on the readable stream.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
-assert.match(__file, /\.on\s*\(\s*['"]data['"]/, 'You should listen to the `data` event on the readable stream');
-assert.match(__file, /\.on\s*\(\s*['"]end['"]/, 'You should listen to the `end` event on the readable stream');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+assert.match(
+  __file,
+  /\.on\s*\(\s*['"]data['"]/,
+  "You should listen to the `data` event on the readable stream",
+);
+assert.match(
+  __file,
+  /\.on\s*\(\s*['"]end['"]/,
+  "You should listen to the `end` event on the readable stream",
+);
 ```
 
 Running `server.js` prints the poem contents to the console.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput('node server.js', project.dashedName);
-assert.include(stdout, 'fog comes', 'Running `node server.js` should print the poem from the readable stream');
+const { stdout } = await __helpers.getCommandOutput(
+  "node server.js",
+  project.dashedName,
+);
+assert.include(
+  stdout,
+  "fog comes",
+  "Running `node server.js` should print the poem from the readable stream",
+);
 ```
 
 ### --seed--
@@ -1166,21 +1590,21 @@ assert.include(stdout, 'fog comes', 'Running `node server.js` should print the p
 #### --"learn-nodejs-common-modules/server.js"--
 
 ```js
-const fs = require('fs');
+const fs = require("fs");
 
 // Add your code below this line
 ```
 
-## 27
+## 28
 
 ### --description--
 
 `fs.createWriteStream` creates a writable stream. You can push data into it using `.write(chunk)` and signal that writing is complete with `.end()`:
 
 ```js
-const writable = fs.createWriteStream('assets/stream-output.txt');
-writable.write('First chunk\n');
-writable.write('Second chunk\n');
+const writable = fs.createWriteStream("assets/stream-output.txt");
+writable.write("First chunk\n");
+writable.write("Second chunk\n");
 writable.end();
 ```
 
@@ -1193,32 +1617,45 @@ Run `node server.js` — the file `assets/stream-output.txt` should be created w
 `server.js` calls `fs.createWriteStream` with `'assets/stream-output.txt'`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls('fs.createWriteStream');
-assert.isAbove(__calls.length, 0, 'You should call `fs.createWriteStream` in `server.js`');
-assert.match(__calls.at(0).compact, /assets[/\\]?stream-output\.txt/, 'The path passed to `fs.createWriteStream` should be `assets/stream-output.txt`');
+const __calls = __t.getCalls("fs.createWriteStream");
+assert.isAbove(
+  __calls.length,
+  0,
+  "You should call `fs.createWriteStream` in `server.js`",
+);
+assert.match(
+  __calls.at(0).compact,
+  /assets[/\\]?stream-output\.txt/,
+  "The path passed to `fs.createWriteStream` should be `assets/stream-output.txt`",
+);
 ```
 
 Running `server.js` creates `assets/stream-output.txt` on disk.
 
 ```js
-const { join } = await import('path');
-const { existsSync } = await import('fs');
-await __helpers.getCommandOutput('node server.js', project.dashedName);
-const __exists = existsSync(join(ROOT, project.dashedName, 'assets', 'stream-output.txt'));
-assert.isTrue(__exists, '`assets/stream-output.txt` should exist after running `node server.js`');
+const { join } = await import("path");
+const { existsSync } = await import("fs");
+await __helpers.getCommandOutput("node server.js", project.dashedName);
+const __exists = existsSync(
+  join(ROOT, project.dashedName, "assets", "stream-output.txt"),
+);
+assert.isTrue(
+  __exists,
+  "`assets/stream-output.txt` should exist after running `node server.js`",
+);
 ```
 
-## 28
+## 29
 
 ### --description--
 
 `readable.pipe(writable)` connects a readable stream directly to a writable stream — data flows from the source to the destination automatically without you having to handle `data` events manually:
 
 ```js
-const readable = fs.createReadStream('assets/poem.txt');
-const writable = fs.createWriteStream('assets/stream-output.txt');
+const readable = fs.createReadStream("assets/poem.txt");
+const writable = fs.createWriteStream("assets/stream-output.txt");
 readable.pipe(writable);
 ```
 
@@ -1231,18 +1668,29 @@ Run `node server.js` — `assets/stream-output.txt` should be overwritten with t
 `server.js` calls `.pipe()` to connect the readable to the writable stream.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'server.js');
-assert.match(__file, /\.pipe\s*\(/, 'You should call `.pipe(writable)` on the readable stream');
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+assert.match(
+  __file,
+  /\.pipe\s*\(/,
+  "You should call `.pipe(writable)` on the readable stream",
+);
 ```
 
 Running `server.js` writes the poem into `assets/stream-output.txt`.
 
 ```js
-const { join } = await import('path');
-const { readFileSync } = await import('fs');
-await __helpers.getCommandOutput('node server.js', project.dashedName);
-const __content = readFileSync(join(ROOT, project.dashedName, 'assets', 'stream-output.txt'), 'utf8');
-assert.include(__content, 'fog comes', '`assets/stream-output.txt` should contain the poem after piping');
+const { join } = await import("path");
+const { readFileSync } = await import("fs");
+await __helpers.getCommandOutput("node server.js", project.dashedName);
+const __content = readFileSync(
+  join(ROOT, project.dashedName, "assets", "stream-output.txt"),
+  "utf8",
+);
+assert.include(
+  __content,
+  "fog comes",
+  "`assets/stream-output.txt` should contain the poem after piping",
+);
 ```
 
 ### --seed--
@@ -1250,10 +1698,10 @@ assert.include(__content, 'fog comes', '`assets/stream-output.txt` should contai
 #### --"learn-nodejs-common-modules/server.js"--
 
 ```js
-const fs = require('fs');
+const fs = require("fs");
 
-const readable = fs.createReadStream('assets/poem.txt');
-const writable = fs.createWriteStream('assets/stream-output.txt');
+const readable = fs.createReadStream("assets/poem.txt");
+const writable = fs.createWriteStream("assets/stream-output.txt");
 
 // Replace this comment with your pipe call
 ```
