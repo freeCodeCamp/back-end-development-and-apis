@@ -13,12 +13,6 @@ pluginEvents.onProjectFinished = async (project) => {};
 pluginEvents.onLessonFailed = async (project) => {};
 
 pluginEvents.onLessonPassed = async (project) => {
-  // for `learn-nodejs-repl`, reset log files per lesson
-
-  if (project.dashedName !== "learn-nodejs-repl") {
-    return;
-  }
-
   await resetLogs();
 };
 
