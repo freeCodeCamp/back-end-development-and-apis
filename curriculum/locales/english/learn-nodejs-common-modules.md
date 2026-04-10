@@ -39,7 +39,7 @@ Run the file with `node server.js` in the terminal to see the full API surface o
 
 ### --tests--
 
-`server.js` declares a variable called `fs` assigned to `require('fs')`.
+`server.js` should declare a variable called `fs` assigned to `require('fs')`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -53,7 +53,7 @@ assert.match(
 );
 ```
 
-Running `server.js` with Node logs the `fs` module to the console.
+Running `server.js` with Nodejs should log the `fs` module to the console.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -67,12 +67,18 @@ assert.include(
 );
 ```
 
+You should run `node server.js` to see the console output.
+
+```js
+assert.fail();
+```
+
 ### --seed--
 
 #### --"learn-nodejs-common-modules/server.js"--
 
 ```js
-// Add your code below this line
+
 ```
 
 ## 2
@@ -92,7 +98,7 @@ Run the file with `node server.js` — you should see a raw `Buffer` printed, no
 
 ### --tests--
 
-`server.js` calls `fs.readFileSync` with a path pointing to `assets/poem.txt`.
+`server.js` should call `fs.readFileSync` with a path pointing to `assets/poem.txt`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -110,7 +116,7 @@ assert.match(
 );
 ```
 
-Running `server.js` prints a raw `Buffer` to the console.
+Running `server.js` should print a raw `Buffer` to the console.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -124,32 +130,19 @@ assert.include(
 );
 ```
 
-### --seed--
+You should run `node server.js` to see the console output.
 
-#### --cmd--
-
-```bash
-mkdir -p learn-nodejs-common-modules/assets
+```js
+assert.fail();
 ```
+
+### --seed--
 
 #### --"learn-nodejs-common-modules/server.js"--
 
 ```js
 const fs = require("fs");
-
-// Add your code below this line
-```
-
-#### --"learn-nodejs-common-modules/assets/poem.txt"--
-
-```
-The fog comes
-on little cat feet.
-
-It sits looking
-over harbor and city
-on silent haunches
-and then moves on.
+console.log(fs);
 ```
 
 ## 3
@@ -169,7 +162,7 @@ Run `node server.js` — the poem should now print as readable text instead of a
 
 ### --tests--
 
-`fs.readFileSync` is called with `{ encoding: 'utf8' }` as the second argument.
+`fs.readFileSync` should be called with `{ encoding: 'utf8' }` as the second argument.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -187,7 +180,7 @@ assert.match(
 );
 ```
 
-Running `server.js` prints the poem as a plain string, not a Buffer.
+Running `server.js` should print the poem as a plain string, not a Buffer.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -201,7 +194,7 @@ assert.notInclude(
 );
 assert.include(
   stdout,
-  "fog comes",
+  "one by one",
   "Running `node server.js` should print the contents of `assets/poem.txt` as a string",
 );
 ```
@@ -210,7 +203,7 @@ assert.include(
 
 ### --description--
 
-The second way to use `fs` is `fs.readFile`, which reads a file <dfn title="without blocking the event loop — other code can continue while the file is being read">asynchronously</dfn> using a <dfn title="a function passed as an argument that is called when the operation completes">callback</dfn>. The callback receives an error (or `null`) and the file data:
+Another way to use `fs` is `fs.readFile`, which reads a file <dfn title="without blocking the event loop — other code can continue while the file is being read">asynchronously</dfn> using a <dfn title="a function passed as an argument that is called when the operation completes">callback</dfn>. The callback receives an error (or `null`) and the file data:
 
 ```js
 fs.readFile("path/to/file.txt", { encoding: "utf8" }, (err, data) => {
@@ -224,7 +217,7 @@ Run `node server.js` to verify the poem prints.
 
 ### --tests--
 
-`server.js` calls `fs.readFile` with a path pointing to `assets/poem.txt`.
+`server.js` should call `fs.readFile` with a path pointing to `assets/poem.txt`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -242,7 +235,7 @@ assert.match(
 );
 ```
 
-`fs.readFile` is called with a callback function as its last argument.
+`fs.readFile` should be called with a callback function as its last argument.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -253,7 +246,7 @@ assert.match(
 );
 ```
 
-Running `server.js` prints the poem contents to the console via the callback.
+Running `server.js` should print the poem contents to the console via the callback.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -262,29 +255,19 @@ const { stdout } = await __helpers.getCommandOutput(
 );
 assert.include(
   stdout,
-  "fog comes",
+  "one by one",
   "Running `node server.js` should print the poem — log the data inside the callback",
 );
-```
-
-### --seed--
-
-#### --"learn-nodejs-common-modules/server.js"--
-
-```js
-const fs = require("fs");
-
-// Add your code below this line
 ```
 
 ## 5
 
 ### --description--
 
-The third way to read a file with `fs` is via its `promises` API, which lets you use `async`/`await` instead of a callback. You can access it as `require('fs').promises` or by importing `fs/promises` directly:
+Another way to read a file with `fs` is via its `promises` API, which lets you use `async`/`await` instead of a callback. You can access it as `require('fs').promises` or by importing `fs/promises` directly:
 
 ```js
-const fsPromises = require("fs").promises;
+const fsPromises = require("fs/promises");
 
 async function main() {
   const data = await fsPromises.readFile("path/to/file.txt", {
@@ -302,7 +285,7 @@ Run `node server.js` to confirm the poem prints.
 
 ### --tests--
 
-`server.js` accesses the `promises` API from the `fs` module.
+`server.js` should access the `promises` API from the `fs` module.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -313,7 +296,7 @@ assert.match(
 );
 ```
 
-`server.js` uses `await` to call `readFile` on the promises API.
+`server.js` should use `await` to call `readFile` on the promises API.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -329,7 +312,7 @@ assert.match(
 );
 ```
 
-Running `server.js` prints the poem to the console.
+Running `server.js` should print the poem to the console.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -338,19 +321,9 @@ const { stdout } = await __helpers.getCommandOutput(
 );
 assert.include(
   stdout,
-  "fog comes",
+  "one by one",
   "Running `node server.js` should print the poem using the promises-based API",
 );
-```
-
-### --seed--
-
-#### --"learn-nodejs-common-modules/server.js"--
-
-```js
-const fs = require("fs");
-
-// Add your code below this line
 ```
 
 ## 6
@@ -400,16 +373,6 @@ assert.isTrue(
   __exists,
   "`assets/output.txt` should exist after running `node server.js`",
 );
-```
-
-### --seed--
-
-#### --"learn-nodejs-common-modules/server.js"--
-
-```js
-const fs = require("fs");
-
-// Add your code below this line
 ```
 
 ## 7
@@ -1580,7 +1543,7 @@ const { stdout } = await __helpers.getCommandOutput(
 );
 assert.include(
   stdout,
-  "fog comes",
+  "one by one",
   "Running `node server.js` should print the poem from the readable stream",
 );
 ```
@@ -1688,7 +1651,7 @@ const __content = readFileSync(
 );
 assert.include(
   __content,
-  "fog comes",
+  "one by one",
   "`assets/stream-output.txt` should contain the poem after piping",
 );
 ```
