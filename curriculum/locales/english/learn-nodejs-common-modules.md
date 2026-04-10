@@ -342,7 +342,7 @@ Run `node server.js` — the file should be created in the `assets/` directory.
 
 ### --tests--
 
-`server.js` calls `fs.writeFileSync` with the path `'assets/output.txt'`.
+`server.js` should call `fs.writeFileSync` with the path `'assets/output.txt'`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -360,7 +360,7 @@ assert.match(
 );
 ```
 
-Running `server.js` creates `assets/output.txt` on disk.
+Running `server.js` should create an `assets/output.txt` file.
 
 ```js
 const { join } = await import("path");
@@ -391,7 +391,7 @@ Run `node server.js` to verify the file now has two lines.
 
 ### --tests--
 
-`server.js` calls `fs.appendFileSync` with the path `'assets/output.txt'`.
+`server.js` should call `fs.appendFileSync` with the path `'assets/output.txt'`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -409,7 +409,7 @@ assert.match(
 );
 ```
 
-After running `server.js`, `assets/output.txt` contains more than one line.
+After running `server.js`, `assets/output.txt` should contain more than one line.
 
 ```js
 const { join } = await import("path");
@@ -455,7 +455,7 @@ Run `node server.js` — you should see `true` printed.
 
 ### --tests--
 
-`server.js` calls `fs.existsSync` with the path `'assets/output.txt'`.
+`server.js` should call `fs.existsSync` with the path `'assets/output.txt'`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -473,7 +473,7 @@ assert.match(
 );
 ```
 
-Running `server.js` prints `true` to the console.
+Running `server.js` should print `true` to the console.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -517,7 +517,7 @@ Run `node server.js` — you should see an array listing the files in the `asset
 
 ### --tests--
 
-`server.js` calls `fs.readdirSync` with `'assets'`.
+`server.js` should call `fs.readdirSync` with `'assets'`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -535,7 +535,7 @@ assert.match(
 );
 ```
 
-Running `server.js` prints an array that includes `poem.txt`.
+Running `server.js` should print an array that includes `poem.txt`.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -576,7 +576,7 @@ Run `node server.js` — you should see the raw byte values printed as a `Buffer
 
 ### --tests--
 
-`server.js` calls `Buffer.from` with the string `'Hello, Node!'`.
+`server.js` should call `Buffer.from` with the string `'Hello, Node!'`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -587,7 +587,7 @@ assert.match(
 );
 ```
 
-Running `server.js` prints a `Buffer` to the console.
+Running `server.js` should print a `Buffer` to the console.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -627,7 +627,7 @@ Run `node server.js` to see both encoded forms.
 
 ### --tests--
 
-`server.js` calls `buf.toString('hex')`.
+`server.js` should call `buf.toString('hex')`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -638,7 +638,7 @@ assert.match(
 );
 ```
 
-`server.js` calls `buf.toString('base64')`.
+`server.js` should call `buf.toString('base64')`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -649,7 +649,7 @@ assert.match(
 );
 ```
 
-Running `server.js` prints both a hex string and a base64 string.
+Running `server.js` should print both a hex string and a base64 string.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -685,7 +685,7 @@ Run `node server.js` — you should see `<Buffer ff ff ff ff ff ff ff ff>`.
 
 ### --tests--
 
-`server.js` calls `Buffer.alloc(8)` with a fill value of `0xff`.
+`server.js` should call `Buffer.alloc(8)` with a fill value of `0xff`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -696,7 +696,7 @@ assert.match(
 );
 ```
 
-Running `server.js` prints a buffer of 8 `ff` bytes.
+Running `server.js` should print a buffer of 8 `ff` bytes.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -731,7 +731,7 @@ Run `node server.js` — you should see the decoded text printed.
 
 ### --tests--
 
-`server.js` decodes a base64 string using `Buffer.from`.
+`server.js` should decode a base64 string using `Buffer.from`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -742,7 +742,7 @@ assert.match(
 );
 ```
 
-Running `server.js` prints the decoded UTF-8 string.
+Running `server.js` should print the decoded UTF-8 string.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -774,7 +774,7 @@ Run `node server.js` — you should see a 64-character hexadecimal string.
 
 ### --tests--
 
-`server.js` requires `crypto` and calls `crypto.createHash('sha256')`.
+`server.js` should require `crypto` and call `crypto.createHash('sha256')`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -793,7 +793,7 @@ assert.match(
 );
 ```
 
-Running `server.js` prints a 64-character hex digest.
+Running `server.js` should print a 64-character hex digest.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -832,7 +832,7 @@ Run `node server.js` — you should see a 32-character random hex string on a ne
 
 ### --tests--
 
-`server.js` calls `crypto.randomBytes(16)`.
+`server.js` should call `crypto.randomBytes(16)`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -843,7 +843,7 @@ assert.match(
 );
 ```
 
-Running `server.js` prints a 32-character hex string.
+Running `server.js` should print a 32-character hex string.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -875,7 +875,7 @@ Run `node server.js` — you should see a UUID printed on a new line.
 
 ### --tests--
 
-`server.js` calls `crypto.randomUUID()`.
+`server.js` should call `crypto.randomUUID()`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -886,7 +886,7 @@ assert.match(
 );
 ```
 
-Running `server.js` prints a valid UUID v4.
+Running `server.js` should print a valid UUID v4.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -922,7 +922,7 @@ Run `node server.js` to see the values for your system.
 
 ### --tests--
 
-`server.js` requires `os` and calls `os.platform()`, `os.arch()`, and `os.hostname()`.
+`server.js` should require `os` and call `os.platform()`, `os.arch()`, and `os.hostname()`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -947,7 +947,7 @@ assert.match(
 );
 ```
 
-Running `server.js` prints non-empty strings for platform, arch, and hostname.
+Running `server.js` should print non-empty strings for platform, arch, and hostname.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -990,7 +990,7 @@ Run `node server.js` — you should now see six lines of output.
 
 ### --tests--
 
-`server.js` calls `os.totalmem()`, `os.freemem()`, and `os.uptime()`.
+`server.js` should call `os.totalmem()`, `os.freemem()`, and `os.uptime()`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -1003,7 +1003,7 @@ assert.match(__file, /os\.freemem\s*\(\s*\)/, "You should call `os.freemem()`");
 assert.match(__file, /os\.uptime\s*\(\s*\)/, "You should call `os.uptime()`");
 ```
 
-Running `server.js` prints numeric values for total memory, free memory, and uptime.
+Running `server.js` should print numeric values for total memory, free memory, and uptime.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -1040,7 +1040,7 @@ Run `node server.js` — a positive integer should appear at the end of the outp
 
 ### --tests--
 
-`server.js` logs `os.cpus().length`.
+`server.js` should log `os.cpus().length`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -1051,7 +1051,7 @@ assert.match(
 );
 ```
 
-Running `server.js` prints a positive integer for the CPU count.
+Running `server.js` should print a positive integer for the CPU count.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -1090,7 +1090,7 @@ Run `node server.js` — you should see an absolute path to `assets/poem.txt`.
 
 ### --tests--
 
-`server.js` requires `path` and calls `path.join` with `__dirname`, `'assets'`, and `'poem.txt'`.
+`server.js` should require `path` and call `path.join` with `__dirname`, `'assets'`, and `'poem.txt'`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -1121,7 +1121,7 @@ assert.match(
 );
 ```
 
-Running `server.js` prints an absolute path ending in `assets/poem.txt`.
+Running `server.js` should print an absolute path ending in `assets/poem.txt`.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -1159,7 +1159,7 @@ Run `node server.js` — you should see the filename, directory, and extension p
 
 ### --tests--
 
-`server.js` calls `path.basename`, `path.dirname`, and `path.extname` on `filePath`.
+`server.js` should call `path.basename`, `path.dirname`, and `path.extname` on `filePath`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -1180,7 +1180,7 @@ assert.match(
 );
 ```
 
-Running `server.js` prints `poem.txt`, a directory path, and `.txt` on separate lines.
+Running `server.js` should print `poem.txt`, a directory path, and `.txt` on separate lines.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -1219,7 +1219,7 @@ Run `node server.js` to compare the outputs.
 
 ### --tests--
 
-`server.js` calls `path.join` with `'assets'`, `'..'`, and `'server.js'`.
+`server.js` should call `path.join` with `'assets'`, `'..'`, and `'server.js'`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -1230,7 +1230,7 @@ assert.match(
 );
 ```
 
-`server.js` calls `path.resolve` with `'assets'`, `'..'`, and `'server.js'`.
+`server.js` should call `path.resolve` with `'assets'`, `'..'`, and `'server.js'`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -1241,7 +1241,7 @@ assert.match(
 );
 ```
 
-Running `server.js` prints two paths — one relative, one absolute.
+Running `server.js` should print two paths — one relative, one absolute.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -1284,7 +1284,7 @@ Run `node server.js` — you should see an object with all five properties print
 
 ### --tests--
 
-`server.js` calls `path.parse` with `filePath`.
+`server.js` should call `path.parse` with `filePath`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -1295,7 +1295,7 @@ assert.match(
 );
 ```
 
-Running `server.js` prints an object containing `ext` and `name` properties from the parsed path.
+Running `server.js` should print an object containing `ext` and `name` properties from the parsed path.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -1335,7 +1335,7 @@ Run `node server.js` — you should see the version, platform, and `undefined` (
 
 ### --tests--
 
-`server.js` logs `process.version`, `process.platform`, and `process.env.NODE_ENV`.
+`server.js` should log `process.version`, `process.platform`, and `process.env.NODE_ENV`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -1356,7 +1356,7 @@ assert.match(
 );
 ```
 
-Running `server.js` prints the Node.js version string.
+Running `server.js` should print the Node.js version string.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -1396,7 +1396,7 @@ Run `node server.js` and also try passing an extra argument like `node server.js
 
 ### --tests--
 
-`server.js` logs `process.argv`.
+`server.js` should log `process.argv`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -1407,7 +1407,7 @@ assert.match(
 );
 ```
 
-Running `server.js` prints an array that includes the path to the script file.
+Running `server.js` should print an array that includes the path to the script file.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -1439,7 +1439,7 @@ Run `node server.js` — both messages should appear in the terminal.
 
 ### --tests--
 
-`server.js` calls `process.stdout.write`.
+`server.js` should call `process.stdout.write`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -1450,7 +1450,7 @@ assert.match(
 );
 ```
 
-`server.js` calls `process.stderr.write`.
+`server.js` should call `process.stderr.write`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -1461,7 +1461,7 @@ assert.match(
 );
 ```
 
-Running `server.js` outputs the stdout message to the terminal.
+Running `server.js` should output the stdout message to the terminal.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -1500,7 +1500,7 @@ Run `node server.js` — the poem should print in chunks, followed by your end m
 
 ### --tests--
 
-`server.js` calls `fs.createReadStream` with `'assets/poem.txt'`.
+`server.js` should call `fs.createReadStream` with `'assets/poem.txt'`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -1518,7 +1518,7 @@ assert.match(
 );
 ```
 
-`server.js` listens to the `data` event and the `end` event on the readable stream.
+`server.js` should listen to the `data` event and the `end` event on the readable stream.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -1534,7 +1534,7 @@ assert.match(
 );
 ```
 
-Running `server.js` prints the poem contents to the console.
+Running `server.js` should print the poem contents to the console.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -1577,7 +1577,7 @@ Run `node server.js` — the file `assets/stream-output.txt` should be created w
 
 ### --tests--
 
-`server.js` calls `fs.createWriteStream` with `'assets/stream-output.txt'`.
+`server.js` should call `fs.createWriteStream` with `'assets/stream-output.txt'`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -1595,7 +1595,7 @@ assert.match(
 );
 ```
 
-Running `server.js` creates `assets/stream-output.txt` on disk.
+Running `server.js` should create an `assets/stream-output.txt` file.
 
 ```js
 const { join } = await import("path");
@@ -1628,7 +1628,7 @@ Run `node server.js` — `assets/stream-output.txt` should be overwritten with t
 
 ### --tests--
 
-`server.js` calls `.pipe()` to connect the readable to the writable stream.
+`server.js` should call `.pipe()` to connect the readable to the writable stream.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -1639,7 +1639,7 @@ assert.match(
 );
 ```
 
-Running `server.js` writes the poem into `assets/stream-output.txt`.
+Running `server.js` should write the poem into `assets/stream-output.txt`.
 
 ```js
 const { join } = await import("path");
