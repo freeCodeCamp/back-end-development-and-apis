@@ -35,7 +35,7 @@ You should create a `learn-nodejs-by-building-a-web-server/server.js` file.
 
 ```js
 const fileExists = await __helpers.fileExists(
-  join(project.dashedName, "server.js")
+  join(project.dashedName, "server.js"),
 );
 assert.isTrue(fileExists, "The server.js file does not exist");
 ```
@@ -43,18 +43,6 @@ assert.isTrue(fileExists, "The server.js file does not exist");
 ## 2
 
 ### --description--
-
-Previously, you learnt how to import your JavaScript module using the `require` function:
-
-```js
-const myModule = require("./path/to/my-module/index");
-```
-
-You can also use the `require` function to import built-in modules. For example, to import the `fs` module used to interact with the file system:
-
-```js
-const fs = require("fs");
-```
 
 Within the `server.js` file, import the `http` module, and store it in a variable called `http`.
 
@@ -270,7 +258,7 @@ await new Promise((resolve) => {
 const lastCommand = await __helpers.getLastCommand();
 assert.include(
   lastCommand,
-  "curl --verbose --max-time 2 http://localhost:3001"
+  "curl --verbose --max-time 2 http://localhost:3001",
 );
 ```
 
@@ -323,7 +311,7 @@ const expectedData = "IncomingMessage {";
 const { stdout } = await __helpers.awaitExecution(
   ["node", testServerPath],
   "http://localhost:3002",
-  { expectedData }
+  { expectedData },
 );
 assert.include(stdout, expectedData);
 ```
@@ -336,6 +324,23 @@ await rm(join(ROOT, "__test"), { recursive: true, force: true });
 ```
 
 ## 12
+
+### --description--
+
+Restart your server again.
+
+**Note**: Once running, click the "Rust Tests" button.
+
+### --tests--
+
+You should start the server by running `node server.js`.
+
+```js
+const isListening = await __helpers.isServerListening(3001);
+assert.isTrue(isListening, "The server is not listening on port 3001");
+```
+
+## 13
 
 ### --description--
 
@@ -372,11 +377,11 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 13
+## 14
 
 ### --description--
 
-Yikes! 😅 That is a lot of information. You are probably not interested in all of that. So, log just the `headers` property of the request.
+Yikes! 😅 The server terminal is showing a lot of information. You are probably not interested in all of that. So, log just the `headers` property of the request.
 
 Request headers are a set of key-value pairs that contain information about the request, such as the `User-Agent` (the client application making the request), `Accept` (the media types the client can understand), and `Accept-Language` (the language the client prefers for the response).
 
@@ -406,7 +411,7 @@ const expectedData = "host:";
 const { stdout } = await __helpers.awaitExecution(
   ["node", testServerPath],
   "http://localhost:3002",
-  { expectedData }
+  { expectedData },
 );
 assert.notInclude(stdout, "IncomingMessage {");
 ```
@@ -418,7 +423,7 @@ const { rm } = await import("fs/promises");
 await rm(join(ROOT, "__test"), { recursive: true, force: true });
 ```
 
-## 14
+## 15
 
 ### --description--
 
@@ -442,7 +447,7 @@ const temp = await __helpers.getTemp();
 assert.include(temp, "IncomingMessage {");
 ```
 
-## 15
+## 16
 
 ### --description--
 
@@ -473,7 +478,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 16
+## 17
 
 ### --description--
 
@@ -495,10 +500,10 @@ const http_createServer = server.getCalls("http.createServer").at(0);
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const logs = cbTower.getCalls("console.log");
-assert.isTrue(logs.some(l => l.generate.includes("request.url")));
+assert.isTrue(logs.some((l) => l.generate.includes("request.url")));
 ```
 
-## 17
+## 18
 
 ### --description--
 
@@ -530,7 +535,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 18
+## 19
 
 ### --description--
 
@@ -554,10 +559,10 @@ const http_createServer = server.getCalls("http.createServer").at(0);
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const ends = cbTower.getCalls("response.end");
-assert.equal(ends.at(0).compact, 'response.end(request.url);');
+assert.equal(ends.at(0).compact, "response.end(request.url);");
 ```
 
-## 19
+## 20
 
 ### --description--
 
@@ -588,7 +593,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 20
+## 21
 
 ### --description--
 
@@ -624,10 +629,13 @@ const http_createServer = server.getCalls("http.createServer").at(0);
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const urlVar = cbTower.getVariable("url");
-assert.include(urlVar.compact, 'const url=request.url==="/"?"/index.html":request.url');
+assert.include(
+  urlVar.compact,
+  'const url=request.url==="/"?"/index.html":request.url',
+);
 ```
 
-## 21
+## 22
 
 ### --description--
 
@@ -667,7 +675,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 22
+## 23
 
 ### --description--
 
@@ -682,7 +690,7 @@ const temp = await __helpers.getTemp();
 assert.include(temp, "curl http://localhost:3001/");
 ```
 
-## 23
+## 24
 
 ### --description--
 
@@ -747,7 +755,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 24
+## 25
 
 ### --description--
 
@@ -783,7 +791,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 25
+## 26
 
 ### --description--
 
@@ -837,7 +845,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 26
+## 27
 
 ### --description--
 
@@ -871,7 +879,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 27
+## 28
 
 ### --description--
 
@@ -895,10 +903,10 @@ const http_createServer = server.getCalls("http.createServer").at(0);
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const readFiles = cbTower.getCalls("readFile");
-assert.equal(readFiles.at(0).compact, 'readFile(filePath);');
+assert.equal(readFiles.at(0).compact, "readFile(filePath);");
 ```
 
-## 28
+## 29
 
 ### --description--
 
@@ -936,7 +944,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 29
+## 30
 
 ### --description--
 
@@ -993,7 +1001,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 30
+## 31
 
 ### --description--
 
@@ -1013,9 +1021,14 @@ const cbTower = new __helpers.Tower(callback);
 const readFiles = cbTower.getCalls("readFile");
 const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
-const errorIf = rfcbTower.getIfStatements().find(i => i.test.name === "error");
-assert.isDefined(errorIf, "You should have an if statement checking for 'error'");
-assert.include(rfcbTower.compact, 'if(error){console.error(error);return;}');
+const errorIf = rfcbTower
+  .getIfStatements()
+  .find((i) => i.test.name === "error");
+assert.isDefined(
+  errorIf,
+  "You should have an if statement checking for 'error'",
+);
+assert.include(rfcbTower.compact, "if(error){console.error(error);return;}");
 ```
 
 ### --seed--
@@ -1040,7 +1053,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 31
+## 32
 
 ### --description--
 
@@ -1061,7 +1074,10 @@ const readFiles = cbTower.getCalls("readFile");
 const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const ends = rfcbTower.getCalls("response.end");
-assert.isTrue(ends.some(e => e.compact === 'response.end(file,"utf-8");'), "You should have response.end(file, \"utf-8\") within the readFile callback function.");
+assert.isTrue(
+  ends.some((e) => e.compact === 'response.end(file,"utf-8");'),
+  'You should have response.end(file, "utf-8") within the readFile callback function.',
+);
 ```
 
 ### --seed--
@@ -1091,7 +1107,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 32
+## 33
 
 ### --description--
 
@@ -1133,7 +1149,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 33
+## 34
 
 ### --description--
 
@@ -1147,12 +1163,12 @@ You should make a request to a path that does not exist.
 const lastCommand = await __helpers.getLastCommand();
 const [command, ...args] = __helpers.parseCli(lastCommand);
 assert.equal(command, "curl");
-const urlArg = args.find(a => a.startsWith("http"));
+const urlArg = args.find((a) => a.startsWith("http"));
 assert.notEqual(urlArg, "http://localhost:3001/");
 assert.notEqual(urlArg, "http://localhost:3001/index.html");
 ```
 
-## 34
+## 35
 
 ### --description--
 
@@ -1174,13 +1190,18 @@ const cbTower = new __helpers.Tower(callback);
 const readFiles = cbTower.getCalls("readFile");
 const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
-const errorIf = rfcbTower.getIfStatements().find(i => i.test.name === "error");
+const errorIf = rfcbTower
+  .getIfStatements()
+  .find((i) => i.test.name === "error");
 const ifTower = new __helpers.Tower(errorIf.consequent);
 const ends = ifTower.getCalls("response.end");
-assert.isTrue(ends.some(e => e.compact === 'response.end(error,"utf-8");'), "You should have response.end(error, \"utf-8\") within the if block.");
+assert.isTrue(
+  ends.some((e) => e.compact === 'response.end(error,"utf-8");'),
+  'You should have response.end(error, "utf-8") within the if block.',
+);
 ```
 
-## 35
+## 36
 
 ### --description--
 
@@ -1222,7 +1243,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 36
+## 37
 
 ### --description--
 
@@ -1248,13 +1269,18 @@ const cbTower = new __helpers.Tower(callback);
 const readFiles = cbTower.getCalls("readFile");
 const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
-const errorIf = rfcbTower.getIfStatements().find(i => i.test.name === "error");
+const errorIf = rfcbTower
+  .getIfStatements()
+  .find((i) => i.test.name === "error");
 const ifTower = new __helpers.Tower(errorIf.consequent);
 const ends = ifTower.getCalls("response.end");
-assert.isTrue(ends.some(e => e.compact === 'response.end(error.message,"utf-8");'), "You should have response.end(error.message, \"utf-8\") within the if block.");
+assert.isTrue(
+  ends.some((e) => e.compact === 'response.end(error.message,"utf-8");'),
+  'You should have response.end(error.message, "utf-8") within the if block.',
+);
 ```
 
-## 37
+## 38
 
 ### --description--
 
@@ -1268,10 +1294,21 @@ You should restart the server, and make a request to it.
 const lastCommand = await __helpers.getLastCommand();
 const [command, ...args] = __helpers.parseCli(lastCommand);
 assert.equal(command, "curl");
-const urlArg = args.find(a => a.startsWith("http"));
-assert.isTrue(urlArg.includes("localhost:3001/"), "You should curl the server at port 3001");
-assert.notEqual(urlArg, "http://localhost:3001/", "You should curl an invalid path");
-assert.notEqual(urlArg, "http://localhost:3001/index.html", "You should curl an invalid path");
+const urlArg = args.find((a) => a.startsWith("http"));
+assert.isTrue(
+  urlArg.includes("localhost:3001/"),
+  "You should curl the server at port 3001",
+);
+assert.notEqual(
+  urlArg,
+  "http://localhost:3001/",
+  "You should curl an invalid path",
+);
+assert.notEqual(
+  urlArg,
+  "http://localhost:3001/index.html",
+  "You should curl an invalid path",
+);
 ```
 
 ### --seed--
@@ -1301,7 +1338,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 38
+## 39
 
 ### --description--
 
@@ -1323,13 +1360,19 @@ const cbTower = new __helpers.Tower(callback);
 const readFiles = cbTower.getCalls("readFile");
 const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
-const errorIf = rfcbTower.getIfStatements().find(i => i.test.name === "error");
+const errorIf = rfcbTower
+  .getIfStatements()
+  .find((i) => i.test.name === "error");
 const body = errorIf.consequent.body;
 const lastStatement = body[body.length - 1];
-assert.equal(lastStatement.type, "ReturnStatement", "You should return from the function after calling response.end within the if statement.");
+assert.equal(
+  lastStatement.type,
+  "ReturnStatement",
+  "You should return from the function after calling response.end within the if statement.",
+);
 ```
 
-## 39
+## 40
 
 ### --description--
 
@@ -1343,10 +1386,21 @@ You should restart the server, and make a request to it.
 const lastCommand = await __helpers.getLastCommand();
 const [command, ...args] = __helpers.parseCli(lastCommand);
 assert.equal(command, "curl");
-const urlArg = args.find(a => a.startsWith("http"));
-assert.isTrue(urlArg.includes("localhost:3001/"), "You should curl the server at port 3001");
-assert.notEqual(urlArg, "http://localhost:3001/", "You should curl an invalid path");
-assert.notEqual(urlArg, "http://localhost:3001/index.html", "You should curl an invalid path");
+const urlArg = args.find((a) => a.startsWith("http"));
+assert.isTrue(
+  urlArg.includes("localhost:3001/"),
+  "You should curl the server at port 3001",
+);
+assert.notEqual(
+  urlArg,
+  "http://localhost:3001/",
+  "You should curl an invalid path",
+);
+assert.notEqual(
+  urlArg,
+  "http://localhost:3001/index.html",
+  "You should curl an invalid path",
+);
 ```
 
 ### --seed--
@@ -1377,7 +1431,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 40
+## 41
 
 ### --description--
 
@@ -1415,16 +1469,26 @@ const cbTower = new __helpers.Tower(callback);
 const readFiles = cbTower.getCalls("readFile");
 const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
-const errorIf = rfcbTower.getIfStatements().find(i => i.test.name === "error");
+const errorIf = rfcbTower
+  .getIfStatements()
+  .find((i) => i.test.name === "error");
 const ifTower = new __helpers.Tower(errorIf.consequent);
 const nestedReadFiles = ifTower.getCalls("readFile");
-assert.isTrue(nestedReadFiles.some(r => r.compact.includes('"public/404.html"')), "You should have readFile(\"public/404.html\", ...) within the if statement.");
+assert.isTrue(
+  nestedReadFiles.some((r) => r.compact.includes('"public/404.html"')),
+  'You should have readFile("public/404.html", ...) within the if statement.',
+);
 const nestedCallback = nestedReadFiles.at(0).ast.expression.arguments[1];
 const ncbTower = new __helpers.Tower(nestedCallback);
-assert.isTrue(ncbTower.getCalls("response.end").some(e => e.compact === 'response.end(file,"utf-8");'), "You should have response.end(file, \"utf-8\") within the nested readFile callback.");
+assert.isTrue(
+  ncbTower
+    .getCalls("response.end")
+    .some((e) => e.compact === 'response.end(file,"utf-8");'),
+  'You should have response.end(file, "utf-8") within the nested readFile callback.',
+);
 ```
 
-## 41
+## 42
 
 ### --description--
 
@@ -1438,10 +1502,21 @@ You should restart the server, and make a request to it.
 const lastCommand = await __helpers.getLastCommand();
 const [command, ...args] = __helpers.parseCli(lastCommand);
 assert.equal(command, "curl");
-const urlArg = args.find(a => a.startsWith("http"));
-assert.isTrue(urlArg.includes("localhost:3001/"), "You should curl the server at port 3001");
-assert.notEqual(urlArg, "http://localhost:3001/", "You should curl an invalid path");
-assert.notEqual(urlArg, "http://localhost:3001/index.html", "You should curl an invalid path");
+const urlArg = args.find((a) => a.startsWith("http"));
+assert.isTrue(
+  urlArg.includes("localhost:3001/"),
+  "You should curl the server at port 3001",
+);
+assert.notEqual(
+  urlArg,
+  "http://localhost:3001/",
+  "You should curl an invalid path",
+);
+assert.notEqual(
+  urlArg,
+  "http://localhost:3001/index.html",
+  "You should curl an invalid path",
+);
 ```
 
 ### --seed--
@@ -1474,7 +1549,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 42
+## 43
 
 ### --description--
 
@@ -1501,12 +1576,19 @@ const cbTower = new __helpers.Tower(callback);
 const readFiles = cbTower.getCalls("readFile");
 const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
-const errorIf = rfcbTower.getIfStatements().find(i => i.test.name === "error");
+const errorIf = rfcbTower
+  .getIfStatements()
+  .find((i) => i.test.name === "error");
 const ifTower = new __helpers.Tower(errorIf.consequent);
 const nestedReadFiles = ifTower.getCalls("readFile");
 const nestedCallback = nestedReadFiles.at(0).ast.expression.arguments[1];
 const ncbTower = new __helpers.Tower(nestedCallback);
-assert.isTrue(ncbTower.getCalls("response.writeHead").some(w => w.compact.includes("404")), "You should have response.writeHead(404) within the nested readFile callback.");
+assert.isTrue(
+  ncbTower
+    .getCalls("response.writeHead")
+    .some((w) => w.compact.includes("404")),
+  "You should have response.writeHead(404) within the nested readFile callback.",
+);
 ```
 
 You should have `response.writeHead(200)` after the `if` statement.
@@ -1522,10 +1604,13 @@ const readFiles = cbTower.getCalls("readFile");
 const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const successWrites = rfcbTower.getCalls("response.writeHead");
-assert.isTrue(successWrites.some(w => w.compact.includes("200")), "You should have response.writeHead(200) after the if statement.");
+assert.isTrue(
+  successWrites.some((w) => w.compact.includes("200")),
+  "You should have response.writeHead(200) after the if statement.",
+);
 ```
 
-## 43
+## 44
 
 ### --description--
 
@@ -1543,11 +1628,25 @@ You should restart the server, and make a request to it.
 const lastCommand = await __helpers.getLastCommand();
 const [command, ...args] = __helpers.parseCli(lastCommand);
 assert.equal(command, "curl");
-assert.isTrue(args.includes("-v") || args.includes("--verbose"), "You should use the verbose flag");
-const urlArg = args.find(a => a.startsWith("http"));
-assert.isTrue(urlArg.includes("localhost:3001/"), "You should curl the server at port 3001");
-assert.notEqual(urlArg, "http://localhost:3001/", "You should curl an invalid path");
-assert.notEqual(urlArg, "http://localhost:3001/index.html", "You should curl an invalid path");
+assert.isTrue(
+  args.includes("-v") || args.includes("--verbose"),
+  "You should use the verbose flag",
+);
+const urlArg = args.find((a) => a.startsWith("http"));
+assert.isTrue(
+  urlArg.includes("localhost:3001/"),
+  "You should curl the server at port 3001",
+);
+assert.notEqual(
+  urlArg,
+  "http://localhost:3001/",
+  "You should curl an invalid path",
+);
+assert.notEqual(
+  urlArg,
+  "http://localhost:3001/index.html",
+  "You should curl an invalid path",
+);
 ```
 
 ### --seed--
@@ -1582,7 +1681,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 44
+## 45
 
 ### --description--
 
@@ -1612,7 +1711,10 @@ const http_createServer = server.getCalls("http.createServer").at(0);
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const mimeTypes = cbTower.getVariable("mimeTypes");
-assert.isDefined(mimeTypes, "You should have a mimeTypes variable within the createServer callback");
+assert.isDefined(
+  mimeTypes,
+  "You should have a mimeTypes variable within the createServer callback",
+);
 ```
 
 `mimeTypes` should have a key of `".html"` with a value of `"text/html"`.
@@ -1671,7 +1773,7 @@ const js = mimeTypes.getProperty(".js");
 assert.equal(js.compact, '".js":"text/javascript"');
 ```
 
-## 45
+## 46
 
 ### --description--
 
@@ -1690,8 +1792,14 @@ You should have `const { extname } = require("path")` at the top of your file.
 ```js
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
-const pathImport = t.getVariable("{join,extname}") || t.getVariable("{extname,join}") || t.getVariable("{extname}");
-assert.isTrue(pathImport.compact.includes('require("path")'), 'You should import extname from "path"');
+const pathImport =
+  t.getVariable("{join,extname}") ||
+  t.getVariable("{extname,join}") ||
+  t.getVariable("{extname}");
+assert.isTrue(
+  pathImport.compact.includes('require("path")'),
+  'You should import extname from "path"',
+);
 ```
 
 You should have `const ext = extname(filePath)` within the `createServer` callback function.
@@ -1747,7 +1855,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 46
+## 47
 
 ### --description--
 
@@ -1765,7 +1873,10 @@ const http_createServer = server.getCalls("http.createServer").at(0);
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const contentType = cbTower.getVariable("contentType");
-assert.equal(contentType.compact, 'const contentType=mimeTypes[ext]||"application/octet-stream";');
+assert.equal(
+  contentType.compact,
+  'const contentType=mimeTypes[ext]||"application/octet-stream";',
+);
 ```
 
 ### --seed--
@@ -1809,7 +1920,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 47
+## 48
 
 ### --description--
 
@@ -1829,13 +1940,18 @@ const cbTower = new __helpers.Tower(callback);
 const readFiles = cbTower.getCalls("readFile");
 const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
-const errorIf = rfcbTower.getIfStatements().find(i => i.test.name === "error");
+const errorIf = rfcbTower
+  .getIfStatements()
+  .find((i) => i.test.name === "error");
 const ifTower = new __helpers.Tower(errorIf.consequent);
 const nestedReadFiles = ifTower.getCalls("readFile");
 const nestedCallback = nestedReadFiles.at(0).ast.expression.arguments[1];
 const ncbTower = new __helpers.Tower(nestedCallback);
 const head = ncbTower.getCalls("response.writeHead").at(0);
-assert.equal(head.compact, 'response.writeHead(404,{"Content-Type":"text/html"});');
+assert.equal(
+  head.compact,
+  'response.writeHead(404,{"Content-Type":"text/html"});',
+);
 ```
 
 You should have `response.writeHead(200, { "Content-Type": contentType })` after the `if` statement.
@@ -1851,7 +1967,13 @@ const readFiles = cbTower.getCalls("readFile");
 const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const successWrites = rfcbTower.getCalls("response.writeHead");
-assert.isTrue(successWrites.some(w => w.compact === 'response.writeHead(200,{"Content-Type":contentType});'), "You should have response.writeHead(200, {\"Content-Type\": contentType}) after the if statement.");
+assert.isTrue(
+  successWrites.some(
+    (w) =>
+      w.compact === 'response.writeHead(200,{"Content-Type":contentType});',
+  ),
+  'You should have response.writeHead(200, {"Content-Type": contentType}) after the if statement.',
+);
 ```
 
 ### --seed--
@@ -1896,7 +2018,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 48
+## 49
 
 ### --description--
 
@@ -1910,8 +2032,11 @@ You should restart the server, and make a request to it.
 const lastCommand = await __helpers.getLastCommand();
 const [command, ...args] = __helpers.parseCli(lastCommand);
 assert.equal(command, "curl");
-const urlArg = args.find(a => a.startsWith("http"));
-assert.isTrue(urlArg.includes("localhost:3001/"), "You should curl the server at port 3001");
+const urlArg = args.find((a) => a.startsWith("http"));
+assert.isTrue(
+  urlArg.includes("localhost:3001/"),
+  "You should curl the server at port 3001",
+);
 ```
 
 ### --seed--
@@ -1956,7 +2081,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 49
+## 50
 
 ### --description--
 
@@ -1986,7 +2111,7 @@ const ext = cbTower.getVariable("ext");
 assert.equal(ext.compact, "const ext=extname(filePath).toLowerCase();");
 ```
 
-## 50
+## 51
 
 ### --description--
 
@@ -2006,7 +2131,12 @@ You should have `server.listen(3001, () => console.log("Server is listening on p
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const listen = t.getCalls("server.listen").at(0);
-assert.isTrue(listen.compact.includes('()=>console.log("Server is listening on port 3001")'), 'You should log "Server is listening on port 3001" in the listen callback');
+assert.isTrue(
+  listen.compact.includes(
+    '()=>console.log("Server is listening on port 3001")',
+  ),
+  'You should log "Server is listening on port 3001" in the listen callback',
+);
 ```
 
 ### --seed--
@@ -2051,7 +2181,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001);
 ```
 
-## 51
+## 52
 
 ### --description--
 
@@ -2075,7 +2205,8 @@ You should have `import { join, extname } from "path"`.
 ```js
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
-const pathImport = t.getVariable("{join,extname}") || t.getVariable("{extname,join}");
+const pathImport =
+  t.getVariable("{join,extname}") || t.getVariable("{extname,join}");
 assert.equal(pathImport.compact, 'import{join,extname}from"path";');
 ```
 
@@ -2093,7 +2224,10 @@ You should not have any `require` statements in your file.
 ```js
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
-assert.isFalse(file.includes("require("), "You should not have any require statements");
+assert.isFalse(
+  file.includes("require("),
+  "You should not have any require statements",
+);
 ```
 
 ### --seed--
@@ -2138,7 +2272,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001, () => console.log("Server is listening on port 3001"));
 ```
 
-## 52
+## 53
 
 ### --description--
 
@@ -2150,7 +2284,10 @@ You should restart the server, and see an error.
 
 ```js
 const __isListening = await __helpers.isServerListening(3001);
-assert.isFalse(__isListening, "The server should fail to start — it is still listening when it should not be");
+assert.isFalse(
+  __isListening,
+  "The server should fail to start — it is still listening when it should not be",
+);
 ```
 
 ### --seed--
@@ -2195,7 +2332,7 @@ const server = http.createServer((request, response) => {
 server.listen(3001, () => console.log("Server is listening on port 3001"));
 ```
 
-## 53
+## 54
 
 ### --description--
 
@@ -2213,12 +2350,16 @@ You should have `"type": "module"` in your `package.json` file.
 
 ```js
 const __packageJson = JSON.parse(
-  await __helpers.getFile(project.dashedName, "package.json")
+  await __helpers.getFile(project.dashedName, "package.json"),
 );
-assert.equal(__packageJson.type, "module", 'package.json should have "type": "module"');
+assert.equal(
+  __packageJson.type,
+  "module",
+  'package.json should have "type": "module"',
+);
 ```
 
-## 54
+## 55
 
 ### --description--
 
@@ -2252,7 +2393,7 @@ assert.include(__args, "http://localhost:3001");
 }
 ```
 
-## 55
+## 56
 
 ### --description--
 
@@ -2270,10 +2411,14 @@ You should install `wrk` with `sudo apt install -y wrk`.
 
 ```js
 const __lastCommand = await __helpers.getLastCommand();
-assert.include(__lastCommand, "sudo apt install -y wrk", "You should install wrk using sudo apt install -y wrk");
+assert.include(
+  __lastCommand,
+  "sudo apt install -y wrk",
+  "You should install wrk using sudo apt install -y wrk",
+);
 ```
 
-## 56
+## 57
 
 ### --description--
 
@@ -2298,10 +2443,14 @@ You should run `wrk -t2 -c5 -d5s http://localhost:3001`.
 
 ```js
 const __lastCommand = await __helpers.getLastCommand();
-assert.include(__lastCommand, "wrk -t2 -c5 -d5s http://localhost:3001", "You should run the wrk load test command");
+assert.include(
+  __lastCommand,
+  "wrk -t2 -c5 -d5s http://localhost:3001",
+  "You should run the wrk load test command",
+);
 ```
 
-## 57
+## 58
 
 ### --description--
 
@@ -2319,17 +2468,25 @@ const __createServer = __server.getCalls("http.createServer").at(0);
 const __callback = __createServer.ast.init.arguments[0];
 const __cbTower = new __helpers.Tower(__callback);
 const __logs = __cbTower.getCalls("console.log");
-assert.equal(__logs.length, 0, "You should not have any console.log calls within the createServer callback");
+assert.equal(
+  __logs.length,
+  0,
+  "You should not have any console.log calls within the createServer callback",
+);
 ```
 
 You should run `wrk -t2 -c5 -d5s http://localhost:3001`.
 
 ```js
 const __lastCommand = await __helpers.getLastCommand();
-assert.include(__lastCommand, "wrk -t2 -c5 -d5s http://localhost:3001", "You should re-run the wrk load test command");
+assert.include(
+  __lastCommand,
+  "wrk -t2 -c5 -d5s http://localhost:3001",
+  "You should re-run the wrk load test command",
+);
 ```
 
-## 58
+## 59
 
 ### --description--
 
@@ -2384,7 +2541,11 @@ You should type `done` in the terminal.
 
 ```js
 const __temp = await __helpers.getTemp();
-assert.include(__temp, "done", "You should type 'done' in the terminal to submit your project");
+assert.include(
+  __temp,
+  "done",
+  "You should type 'done' in the terminal to submit your project",
+);
 ```
 
 ## --fcc-end--
