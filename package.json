@@ -1,9 +1,9 @@
 {
   "author": "",
   "dependencies": {
-    "@babel/generator": "7.28.6",
-    "@babel/parser": "7.28.6",
-    "@freecodecamp/freecodecamp-os": "3.5.1",
+    "@babel/generator": "7.29.1",
+    "@babel/parser": "7.29.2",
+    "@freecodecamp/freecodecamp-os": "3.5.2",
     "babeliser": "0.6.0"
   },
   "description": "",
