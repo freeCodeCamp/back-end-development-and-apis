@@ -27,7 +27,7 @@ assert.include(
 
 ### --description--
 
-`package.json` already has `express` installed and `"type": "module"` set. Add a `"start"` script to `package.json` that runs `node server.js`.
+The `package.json` already has `express` installed and `"type": "module"` set. Add a `"start"` script to `package.json` that runs `node server.js`.
 
 ### --tests--
 
@@ -77,7 +77,7 @@ assert.isTrue(__exists, "server.js does not exist — create the file first.");
 
 ### --description--
 
-In `server.js`, import `express` using ESM syntax, declare a constant `PORT` set to `3000`, and create an Express app instance stored in a variable named `app`.
+In `server.js`, import `express` using ESM syntax, and create an Express app instance stored in a variable named `app`.
 
 ### --tests--
 
@@ -89,15 +89,6 @@ assert.match(
   /import\s+express\s+from\s+['"]express['"]/,
   'server.js should have: import express from "express"',
 );
-```
-
-`server.js` should declare a `const PORT` equal to `3000`.
-
-```js
-const __t = new __helpers.Tower(__file);
-const __port = __t.getVariable("PORT");
-assert.isDefined(__port, "A variable named PORT should be declared.");
-assert.match(__port.compact, /PORT=3000/, "PORT should be set to 3000.");
 ```
 
 `server.js` should declare a `const app` initialised by calling `express()`.
@@ -113,30 +104,24 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 4
 
 ### --description--
 
-In `server.js`, call `app.listen` with `PORT` as the first argument and a callback that logs the server URL to the console.
+In `server.js`, call `app.listen` with `3000` as the first argument and a callback that logs the server URL to the console.
 
 ### --tests--
 
-`server.js` should call `app.listen` with `PORT` as the first argument.
+`server.js` should call `app.listen` with `3000` as the first argument.
 
 ```js
+const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __t = new __helpers.Tower(__file);
 const __calls = __t.getCalls("app.listen");
 assert.isAbove(
@@ -146,46 +131,42 @@ assert.isAbove(
 );
 const __firstArg = __calls.at(0).ast.expression.arguments.at(0);
 assert.equal(
-  __firstArg.name,
-  "PORT",
-  "The first argument to app.listen should be PORT.",
+  __firstArg.value,
+  3000,
+  "The first argument to app.listen should be the number 3000.",
 );
 ```
 
-The `app.listen` callback should log a message containing the server URL.
+The `app.listen` callback should output a message containing the server URL when the server starts.
 
 ```js
+const { stdout } = await __helpers.awaitExecution(
+  ["node", `${project.dashedName}/server.js`],
+  "http://localhost:3000",
+  { dataTimeout: 3000, fetchTimeout: 3000 },
+);
 assert.match(
-  __file,
-  /console\.log\(.*localhost.*\$\{PORT\}|console\.log\(.*localhost.*3000/s,
-  "The app.listen callback should log the server URL.",
+  stdout,
+  /localhost.*3000|3000.*localhost/,
+  "The app.listen callback should output the server URL.",
 );
-```
-
-### --before-all--
-
-```js
-const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 5
 
 ### --description--
 
-<dfn title="a function that receives the request object, response object, and a next function, and runs during the request-response cycle">Middleware</dfn> in Express is registered with `app.use()`. Every middleware function receives `req`, `res`, and `next` as arguments, and **must** call `next()` to pass control forward — otherwise the request will hang.
+<dfn title="a function that has access to the request object, the response object, and the next function in the application's request-response cycle">Middleware</dfn> in Express is registered with the `.use()` method. A middleware function either sends a response - ending the cycle - or calls the `next` function to pass control to the next middleware in the stack.
 
-In `server.js`, before `app.listen`, register a logger middleware using `app.use` that logs the request method and URL, then calls `next()`.
+```js
+app.use((req, res, next) => {});
+```
+
+In `server.js`, register a logger middleware using `app.use` that logs the request method and URL, then calls `next()`.
 
 ### --tests--
 
-`server.js` should call `app.use` with a middleware function before `app.listen`.
+`server.js` should call `app.use` with a middleware function.
 
 ```js
 const __t = new __helpers.Tower(__file);
@@ -210,28 +191,27 @@ The middleware should call `next()`.
 assert.match(__file, /next\(\)/, "The middleware should call next().");
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 6
 
 ### --description--
 
-Express ships with <dfn title="middleware bundled directly into Express, requiring no extra installation">built-in middleware</dfn> for common tasks. In `server.js`, mount `express.json()` to parse incoming JSON request bodies into `req.body`.
+Express ships with <dfn title="middleware bundled directly into Express, requiring no extra installation">built-in middleware</dfn> for common tasks.
+
+```js
+app.use(express.middleware());
+```
+
+In `server.js`, mount the `json` middleware to parse incoming JSON request bodies into `req.body`.
 
 ### --tests--
 
-`server.js` should use `express.json()` as middleware with `app.use`.
+`server.js` should have `app.use(express.json())`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -247,6 +227,8 @@ assert.match(
 ### --description--
 
 Mount `express.urlencoded({ extended: true })` in `server.js` to parse <dfn title="a format used by HTML forms to encode field names and values">URL-encoded</dfn> request bodies — the default format submitted by HTML `<form>` elements.
+
+The `extended` option enables parsing more complex JSON formats.
 
 ### --tests--
 
