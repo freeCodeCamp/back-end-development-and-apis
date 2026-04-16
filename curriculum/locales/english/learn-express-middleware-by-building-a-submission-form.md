@@ -307,7 +307,7 @@ const __file = await __helpers.getFile(
 
 ### --description--
 
-In `routes/api.routes.js`, add a `GET /` route on `router` that responds with status `200` and the text `'API is available!'`.
+In `routes/api.routes.js`, add a `GET /` route on `router` that responds with the default status of `200` and the text `'API is available!'`.
 
 ### --tests--
 
@@ -546,7 +546,15 @@ const __file = await __helpers.getFile(
 
 ### --description--
 
-You can attach a specific HTTP status directly to an error object — the error handler will read it to send the correct response code.
+You can attach a specific HTTP status directly to an error object - the error handler will read it to send the correct response code:
+
+```js
+app.get("/", (req, res, next) => {
+  const err = new Error("Unauthorized");
+  err.status = 403;
+  next(err);
+});
+```
 
 In `routes/api.routes.js`, add a `GET /bad-request` route that creates an `Error` with the message `'Client-side data is missing.'`, sets `err.status` to `400`, and passes it to `next`.
 
@@ -567,12 +575,12 @@ assert.isDefined(
 );
 ```
 
-The `/bad-request` handler should set `err.status` to `400`.
+The `/bad-request` handler should set the error `status` to `400`.
 
 ```js
 assert.match(
   __file,
-  /err\.status\s*=\s*400/,
+  /\.status\s*=\s*400/,
   "The /bad-request handler should set err.status = 400.",
 );
 ```
@@ -584,11 +592,6 @@ assert.match(
   __file,
   /new\s+Error\(['"]Client-side data is missing\.['"]\)/,
   'The /bad-request handler should create new Error("Client-side data is missing.").',
-);
-assert.match(
-  __file,
-  /next\(\s*err\s*\)/,
-  "The /bad-request handler should call next(err).",
 );
 ```
 
@@ -605,7 +608,7 @@ const __file = await __helpers.getFile(
 
 ### --description--
 
-Create the file `middleware/error.middleware.js` inside the project directory.
+Create a new directory and file `middleware/error.middleware.js` inside the project directory.
 
 ### --tests--
 
@@ -625,7 +628,19 @@ assert.isTrue(
 
 ### --description--
 
-In `middleware/error.middleware.js`, declare a function `notFoundHandler` that is a <dfn title="middleware that runs when no prior route matched the request URL, used to generate a 404 response">catch-all 404 handler</dfn>. It should create a new `Error` whose message includes `req.originalUrl`, set `error.status` to `404`, and call `next(error)`.
+Within `middleware/error.middleware.js`, declare a function `notFoundHandler` that is a <dfn title="middleware that runs when no prior route matched the request URL, used to generate a 404 response">catch-all 404 handler</dfn>. It should create a new `Error` whose message includes `req.originalUrl`, set `error.status` to `404`, and call `next(error)`.
+
+### --hints--
+
+#### 0
+
+```js
+function notFoundHandler(req, res, next) {
+  const error = new Error(`Cannot find ${req.originalUrl}`);
+  error.status = 404;
+  next(error);
+}
+```
 
 ### --tests--
 
@@ -675,7 +690,7 @@ const __file = await __helpers.getFile(
 
 ### --description--
 
-Express identifies an error handler by its **exactly four parameters**: `err, req, res, next`. Any middleware with that signature is treated as an error handler and only called when an error is passed to `next`.
+Express identifies an error handler by its **four parameters**: `err, req, res, next`. Any middleware with that signature is treated as an error handler and only called when an error is passed to `next`.
 
 In `middleware/error.middleware.js`, declare `finalErrorHandler` with four parameters. It should derive the HTTP status from `err.status || 500`, log the error, and respond with a JSON body containing `error: true`, the `status`, and a `message`. For `500` responses, use the generic message `'Internal Server Error (Check Server Logs)'`; otherwise use `err.message`.
 
@@ -787,7 +802,7 @@ const __file = await __helpers.getFile(
 
 ### --description--
 
-In `server.js`, import `notFoundHandler` and `finalErrorHandler` from `./middleware/error.middleware.js` and mount them using `app.use` — in order, **after** `apiRouter`. `notFoundHandler` must come before `finalErrorHandler`, since it generates the 404 error that `finalErrorHandler` then catches.
+In `server.js`, import `notFoundHandler` and `finalErrorHandler` from `./middleware/error.middleware.js` and mount them using `app.use` - in order, **after** `apiRouter`. `notFoundHandler` must come before `finalErrorHandler`, since it generates the 404 error that `finalErrorHandler` then catches.
 
 ### --tests--
 
