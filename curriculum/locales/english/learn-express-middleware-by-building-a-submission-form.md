@@ -226,7 +226,7 @@ assert.match(
 
 ### --description--
 
-Mount `express.urlencoded({ extended: true })` in `server.js` to parse <dfn title="a format used by HTML forms to encode field names and values">URL-encoded</dfn> request bodies — the default format submitted by HTML `<form>` elements.
+Mount `express.urlencoded({ extended: true })` as middleware in `server.js` to parse <dfn title="a format used by HTML forms to encode field names and values">URL-encoded</dfn> request bodies - the default format submitted by HTML `<form>` elements.
 
 The `extended` option enables parsing more complex JSON formats.
 
@@ -267,7 +267,7 @@ assert.isTrue(
 
 ### --description--
 
-In `routes/api.routes.js`, import `Router` from `express` and use it to create a router instance stored in a variable named `router`.
+In `routes/api.routes.js`, import the named export `Router` from `express` and use it to create a router instance stored in a variable named `router`.
 
 ### --tests--
 
@@ -294,20 +294,13 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(
   project.dashedName,
   "routes/api.routes.js",
 );
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 10
@@ -336,27 +329,67 @@ assert.isDefined(
 The `GET /` route handler should send a `200` response with the text `'API is available!'`.
 
 ```js
-assert.match(
-  __file,
-  /res\.status\(200\)\.send\(['"]API is available!['"]\)/,
-  'The GET / handler should respond with status 200 and "API is available!".',
+const { mkdir, writeFile, rm } = await import("fs/promises");
+const { join } = await import("path");
+
+const __testDir = join(ROOT, project.dashedName, "__test");
+await mkdir(__testDir, { recursive: true });
+
+const __routesContent = __file;
+const __routesWithExport = /export\s+default\s+router/.test(__routesContent)
+  ? __routesContent
+  : __routesContent.trimEnd() + "\nexport default router;\n";
+
+await writeFile(join(__testDir, "api.routes.js"), __routesWithExport);
+await writeFile(
+  join(__testDir, "runner.js"),
+  `import express from "express";
+import router from "./api.routes.js";
+const app = express();
+app.use(router);
+const server = app.listen(3002, async () => {
+  try {
+    const res = await fetch("http://localhost:3002/");
+    const text = await res.text();
+    console.log("RESULT:" + JSON.stringify({ status: res.status, text }));
+  } catch (e) {
+    console.error("ERROR:" + e.message);
+  } finally {
+    server.close(() => process.exit(0));
+  }
+});
+`,
+);
+
+const { stdout } = await __helpers.awaitExecution(
+  ["node", `${project.dashedName}/__test/runner.js`],
+  "http://localhost:3002/",
+  { expectedData: "RESULT:", dataTimeout: 5000, fetchTimeout: 5000 },
+);
+
+await rm(__testDir, { recursive: true, force: true });
+
+const __line = stdout.split("\n").find((l) => l.startsWith("RESULT:"));
+assert.exists(
+  __line,
+  "The GET / handler did not respond — check your route definition.",
+);
+const __result = JSON.parse(__line.slice("RESULT:".length));
+assert.equal(__result.status, 200, "GET / should respond with status 200.");
+assert.equal(
+  __result.text,
+  "API is available!",
+  'GET / should respond with the text "API is available!".',
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(
   project.dashedName,
   "routes/api.routes.js",
 );
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 11
@@ -385,16 +418,30 @@ assert.match(
 
 ### --description--
 
-In `server.js`, import `apiRouter` from `routes/api.routes.js` and mount it at the `/api` path using `app.use`.
+In the same way middleware can be mounted to an express app, a `Router` can be mounted, and a base path can be provided too:
+
+```js
+app.use("/base/path", router);
+```
+
+In `server.js`, import `apiRouter` from `routes/api.routes.js` and mount it to the app at the `/api` path.
 
 ### --tests--
 
 `server.js` should import `apiRouter` from `./routes/api.routes.js`.
 
 ```js
-assert.match(
-  __file,
-  /import\s+apiRouter\s+from\s+['"]\.\/routes\/api\.routes\.js['"]/,
+const __t = new __helpers.Tower(__file);
+const __imports = __t.ast.body.filter((n) => n.type === "ImportDeclaration");
+const __apiRouterImport = __imports.find(
+  (n) =>
+    n.specifiers.some(
+      (s) =>
+        s.type === "ImportDefaultSpecifier" && s.local.name === "apiRouter",
+    ) && n.source.value === "./routes/api.routes.js",
+);
+assert.isDefined(
+  __apiRouterImport,
   'server.js should import apiRouter from "./routes/api.routes.js".',
 );
 ```
@@ -414,24 +461,19 @@ assert.isDefined(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 13
 
 ### --description--
 
-Start the server with `npm start` and verify it boots without errors. **NOTE:** Keep the server running, then click _Run Tests_.
+Start the server with `npm start` and verify it boots without errors.
+
+**NOTE:** Keep the server running, then click _Run Tests_.
 
 ### --tests--
 
@@ -449,9 +491,15 @@ assert.isTrue(
 
 ### --description--
 
-When you call `next(err)` with an error object, Express skips all remaining regular middleware and routes and jumps directly to the nearest <dfn title="a special Express middleware with four parameters: err, req, res, next — used to handle errors passed via next(err)">error-handling middleware</dfn>.
+When you call the `NextFunction` parameter of a route handler with an error object, Express skips all remaining regular middleware and routes, and jumps directly to the nearest <dfn title="a special Express middleware with four parameters: err, req, res, next — used to handle errors passed via next(err)">error-handling middleware</dfn>:
 
-In `routes/api.routes.js`, add a `GET /crash` route that creates a new `Error` with the message `'Database connection failed.'` and passes it to `next`. Do not set a status on the error — it should default to `500`.
+```js
+app.get("/", (req, res, next) => {
+  next(new Error("Throw"));
+});
+```
+
+In `routes/api.routes.js`, add a `GET /crash` route that creates a new `Error` with the message `'Database connection failed.'` and passes it to the . Do not set a status on the error - it should default to `500`.
 
 ### --tests--
 
@@ -485,20 +533,13 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(
   project.dashedName,
   "routes/api.routes.js",
 );
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 15
@@ -551,20 +592,13 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(
   project.dashedName,
   "routes/api.routes.js",
 );
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 16
@@ -628,20 +662,13 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(
   project.dashedName,
   "middleware/error.middleware.js",
 );
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 18
@@ -710,20 +737,13 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(
   project.dashedName,
   "middleware/error.middleware.js",
 );
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 19
@@ -754,20 +774,13 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(
   project.dashedName,
   "middleware/error.middleware.js",
 );
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 20
@@ -817,17 +830,10 @@ const __feh = __calls.find((c) => {
 assert.isDefined(__feh, "server.js should call app.use(finalErrorHandler).");
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 21
