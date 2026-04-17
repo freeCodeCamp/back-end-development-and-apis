@@ -31,7 +31,34 @@ assert.include(
 
 ### --description--
 
-`package.json` already has the `ws` package installed and `"type": "module"` set. Add a `"start"` script to `package.json` that runs `node server.js`.
+The boilerplate has a `package.json` and `server.js` file. Whilst Nodejs does come with a `WebSocket` implementation, it is just a browser-compatible implmentation of the protocol, and does not handle the initial HTTP handshake. To create a WebSocket server, you will use the popular `ws` npm package, which provides a simple API for handling WebSocket connections.
+
+Install `ws` as a dependency:
+
+```bash
+npm install ws
+```
+
+### --tests--
+
+`ws` should be listed as a dependency in `package.json`.
+
+```js
+const __pkg = JSON.parse(
+  await __helpers.getFile(project.dashedName, "package.json"),
+);
+assert.property(
+  __pkg.dependencies,
+  "ws",
+  "The 'ws' package should be listed as a dependency.",
+);
+```
+
+## 1
+
+### --description--
+
+Add a `"start"` script to `package.json` that runs `node server.js`.
 
 ### --tests--
 
@@ -87,13 +114,13 @@ Next, create an HTTP server using `http.createServer()` and store it in a variab
 
 ```js
 const server = http.createServer((req, res) => {
-  fs.readFile('./public/index.html', (err, data) => {
+  fs.readFile("./public/index.html", (err, data) => {
     if (err) {
       res.writeHead(500);
-      res.end('Error loading page');
+      res.end("Error loading page");
       return;
     }
-    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.writeHead(200, { "Content-Type": "text/html" });
     res.end(data);
   });
 });
@@ -143,17 +170,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ### --seed--
@@ -161,20 +181,14 @@ delete global.__file;
 #### --"learn-websockets-by-building-a-resource-monitor/server.js"--
 
 ```js
-// Starter file — add your code here
+
 ```
 
 ## 4
 
 ### --description--
 
-Start the HTTP server by calling `server.listen` with `PORT` as the first argument and a callback as the second. The callback should log the server URL to the console:
-
-```js
-server.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
-```
+Start the HTTP server by calling `server.listen` with `PORT` as the first argument and a callback as the second. The callback should log the server URL to the console.
 
 **NOTE:** Once your server is running, open `http://localhost:3000` in a browser to confirm the resource monitor page loads.
 
@@ -185,7 +199,11 @@ server.listen(PORT, () => {
 ```js
 const __t = new __helpers.Tower(__file);
 const __calls = __t.getCalls("server.listen");
-assert.isAbove(__calls.length, 0, "server.listen() should be called in server.js.");
+assert.isAbove(
+  __calls.length,
+  0,
+  "server.listen() should be called in server.js.",
+);
 const __firstArg = __calls.at(0).ast.expression.arguments.at(0);
 assert.equal(
   __firstArg.name,
@@ -204,17 +222,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ### --seed--
@@ -222,19 +233,19 @@ delete global.__file;
 #### --"learn-websockets-by-building-a-resource-monitor/server.js"--
 
 ```js
-import http from 'http';
-import fs from 'fs';
+import http from "http";
+import fs from "fs";
 
 const PORT = 3000;
 
 const server = http.createServer((req, res) => {
-  fs.readFile('./public/index.html', (err, data) => {
+  fs.readFile("./public/index.html", (err, data) => {
     if (err) {
       res.writeHead(500);
-      res.end('Error loading page');
+      res.end("Error loading page");
       return;
     }
-    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.writeHead(200, { "Content-Type": "text/html" });
     res.end(data);
   });
 });
@@ -249,7 +260,7 @@ const server = http.createServer((req, res) => {
 The `ws` npm package handles the handshake for you. Import `WebSocketServer` from `'ws'` using named ESM syntax:
 
 ```js
-import { WebSocketServer } from 'ws';
+import { WebSocketServer } from "ws";
 ```
 
 ### --tests--
@@ -264,17 +275,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ### --seed--
@@ -282,19 +286,19 @@ delete global.__file;
 #### --"learn-websockets-by-building-a-resource-monitor/server.js"--
 
 ```js
-import http from 'http';
-import fs from 'fs';
+import http from "http";
+import fs from "fs";
 
 const PORT = 3000;
 
 const server = http.createServer((req, res) => {
-  fs.readFile('./public/index.html', (err, data) => {
+  fs.readFile("./public/index.html", (err, data) => {
     if (err) {
       res.writeHead(500);
-      res.end('Error loading page');
+      res.end("Error loading page");
       return;
     }
-    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.writeHead(200, { "Content-Type": "text/html" });
     res.end(data);
   });
 });
@@ -341,17 +345,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ### --seed--
@@ -359,20 +356,20 @@ delete global.__file;
 #### --"learn-websockets-by-building-a-resource-monitor/server.js"--
 
 ```js
-import http from 'http';
-import fs from 'fs';
-import { WebSocketServer } from 'ws';
+import http from "http";
+import fs from "fs";
+import { WebSocketServer } from "ws";
 
 const PORT = 3000;
 
 const server = http.createServer((req, res) => {
-  fs.readFile('./public/index.html', (err, data) => {
+  fs.readFile("./public/index.html", (err, data) => {
     if (err) {
       res.writeHead(500);
-      res.end('Error loading page');
+      res.end("Error loading page");
       return;
     }
-    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.writeHead(200, { "Content-Type": "text/html" });
     res.end(data);
   });
 });
@@ -391,8 +388,8 @@ When a browser completes the WebSocket handshake with the server, `wss` emits a 
 Register a `'connection'` listener on `wss` that logs `'Client connected'` and accepts a `socket` parameter:
 
 ```js
-wss.on('connection', (socket) => {
-  console.log('Client connected');
+wss.on("connection", (socket) => {
+  console.log("Client connected");
 });
 ```
 
@@ -424,17 +421,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ### --seed--
@@ -442,20 +432,20 @@ delete global.__file;
 #### --"learn-websockets-by-building-a-resource-monitor/server.js"--
 
 ```js
-import http from 'http';
-import fs from 'fs';
-import { WebSocketServer } from 'ws';
+import http from "http";
+import fs from "fs";
+import { WebSocketServer } from "ws";
 
 const PORT = 3000;
 
 const server = http.createServer((req, res) => {
-  fs.readFile('./public/index.html', (err, data) => {
+  fs.readFile("./public/index.html", (err, data) => {
     if (err) {
       res.writeHead(500);
-      res.end('Error loading page');
+      res.end("Error loading page");
       return;
     }
-    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.writeHead(200, { "Content-Type": "text/html" });
     res.end(data);
   });
 });
@@ -476,8 +466,8 @@ Each `socket` object also emits lifecycle events. The `'message'` event fires wh
 Inside the `'connection'` callback, add a `'message'` listener on `socket`:
 
 ```js
-socket.on('message', (data) => {
-  console.log('Received:', data.toString());
+socket.on("message", (data) => {
+  console.log("Received:", data.toString());
 });
 ```
 
@@ -503,17 +493,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ### --seed--
@@ -521,28 +504,28 @@ delete global.__file;
 #### --"learn-websockets-by-building-a-resource-monitor/server.js"--
 
 ```js
-import http from 'http';
-import fs from 'fs';
-import { WebSocketServer } from 'ws';
+import http from "http";
+import fs from "fs";
+import { WebSocketServer } from "ws";
 
 const PORT = 3000;
 
 const server = http.createServer((req, res) => {
-  fs.readFile('./public/index.html', (err, data) => {
+  fs.readFile("./public/index.html", (err, data) => {
     if (err) {
       res.writeHead(500);
-      res.end('Error loading page');
+      res.end("Error loading page");
       return;
     }
-    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.writeHead(200, { "Content-Type": "text/html" });
     res.end(data);
   });
 });
 
 const wss = new WebSocketServer({ server });
 
-wss.on('connection', (socket) => {
-  console.log('Client connected');
+wss.on("connection", (socket) => {
+  console.log("Client connected");
 });
 
 server.listen(PORT, () => {
@@ -557,8 +540,8 @@ server.listen(PORT, () => {
 The `'close'` event fires when the client disconnects — for example, when the user closes the browser tab. Add a `'close'` listener on `socket` inside the `'connection'` callback:
 
 ```js
-socket.on('close', () => {
-  console.log('Client disconnected');
+socket.on("close", () => {
+  console.log("Client disconnected");
 });
 ```
 
@@ -584,17 +567,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ### --seed--
@@ -602,31 +578,31 @@ delete global.__file;
 #### --"learn-websockets-by-building-a-resource-monitor/server.js"--
 
 ```js
-import http from 'http';
-import fs from 'fs';
-import { WebSocketServer } from 'ws';
+import http from "http";
+import fs from "fs";
+import { WebSocketServer } from "ws";
 
 const PORT = 3000;
 
 const server = http.createServer((req, res) => {
-  fs.readFile('./public/index.html', (err, data) => {
+  fs.readFile("./public/index.html", (err, data) => {
     if (err) {
       res.writeHead(500);
-      res.end('Error loading page');
+      res.end("Error loading page");
       return;
     }
-    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.writeHead(200, { "Content-Type": "text/html" });
     res.end(data);
   });
 });
 
 const wss = new WebSocketServer({ server });
 
-wss.on('connection', (socket) => {
-  console.log('Client connected');
+wss.on("connection", (socket) => {
+  console.log("Client connected");
 
-  socket.on('message', (data) => {
-    console.log('Received:', data.toString());
+  socket.on("message", (data) => {
+    console.log("Received:", data.toString());
   });
 });
 
@@ -642,8 +618,8 @@ server.listen(PORT, () => {
 The `'error'` event fires when an unexpected problem occurs on the socket — such as a broken connection. Add an `'error'` listener on `socket` inside the `'connection'` callback:
 
 ```js
-socket.on('error', (err) => {
-  console.error('Socket error:', err);
+socket.on("error", (err) => {
+  console.error("Socket error:", err);
 });
 ```
 
@@ -669,17 +645,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ### --seed--
@@ -687,35 +656,35 @@ delete global.__file;
 #### --"learn-websockets-by-building-a-resource-monitor/server.js"--
 
 ```js
-import http from 'http';
-import fs from 'fs';
-import { WebSocketServer } from 'ws';
+import http from "http";
+import fs from "fs";
+import { WebSocketServer } from "ws";
 
 const PORT = 3000;
 
 const server = http.createServer((req, res) => {
-  fs.readFile('./public/index.html', (err, data) => {
+  fs.readFile("./public/index.html", (err, data) => {
     if (err) {
       res.writeHead(500);
-      res.end('Error loading page');
+      res.end("Error loading page");
       return;
     }
-    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.writeHead(200, { "Content-Type": "text/html" });
     res.end(data);
   });
 });
 
 const wss = new WebSocketServer({ server });
 
-wss.on('connection', (socket) => {
-  console.log('Client connected');
+wss.on("connection", (socket) => {
+  console.log("Client connected");
 
-  socket.on('message', (data) => {
-    console.log('Received:', data.toString());
+  socket.on("message", (data) => {
+    console.log("Received:", data.toString());
   });
 
-  socket.on('close', () => {
-    console.log('Client disconnected');
+  socket.on("close", () => {
+    console.log("Client disconnected");
   });
 });
 
@@ -731,7 +700,7 @@ server.listen(PORT, () => {
 Node.js includes a built-in `os` module with methods for reading system metrics. Import it at the top of `server.js`:
 
 ```js
-import os from 'os';
+import os from "os";
 ```
 
 Then write a function named `getMetrics` that returns an object with the following properties:
@@ -747,7 +716,10 @@ function getMetrics() {
     loadAvg: os.loadavg(),
     freeMemMB: (os.freemem() / 1024 / 1024).toFixed(0),
     totalMemMB: (os.totalmem() / 1024 / 1024).toFixed(0),
-    memUsagePct: (((os.totalmem() - os.freemem()) / os.totalmem()) * 100).toFixed(1),
+    memUsagePct: (
+      ((os.totalmem() - os.freemem()) / os.totalmem()) *
+      100
+    ).toFixed(1),
   };
 }
 ```
@@ -792,17 +764,10 @@ assert.match(__file, /totalMemMB/, "getMetrics should include totalMemMB.");
 assert.match(__file, /memUsagePct/, "getMetrics should include memUsagePct.");
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ### --seed--
@@ -810,39 +775,39 @@ delete global.__file;
 #### --"learn-websockets-by-building-a-resource-monitor/server.js"--
 
 ```js
-import http from 'http';
-import fs from 'fs';
-import { WebSocketServer } from 'ws';
+import http from "http";
+import fs from "fs";
+import { WebSocketServer } from "ws";
 
 const PORT = 3000;
 
 const server = http.createServer((req, res) => {
-  fs.readFile('./public/index.html', (err, data) => {
+  fs.readFile("./public/index.html", (err, data) => {
     if (err) {
       res.writeHead(500);
-      res.end('Error loading page');
+      res.end("Error loading page");
       return;
     }
-    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.writeHead(200, { "Content-Type": "text/html" });
     res.end(data);
   });
 });
 
 const wss = new WebSocketServer({ server });
 
-wss.on('connection', (socket) => {
-  console.log('Client connected');
+wss.on("connection", (socket) => {
+  console.log("Client connected");
 
-  socket.on('message', (data) => {
-    console.log('Received:', data.toString());
+  socket.on("message", (data) => {
+    console.log("Received:", data.toString());
   });
 
-  socket.on('close', () => {
-    console.log('Client disconnected');
+  socket.on("close", () => {
+    console.log("Client disconnected");
   });
 
-  socket.on('error', (err) => {
-    console.error('Socket error:', err);
+  socket.on("error", (err) => {
+    console.error("Socket error:", err);
   });
 });
 
@@ -899,17 +864,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ### --seed--
@@ -917,21 +875,21 @@ delete global.__file;
 #### --"learn-websockets-by-building-a-resource-monitor/server.js"--
 
 ```js
-import http from 'http';
-import fs from 'fs';
-import { WebSocketServer } from 'ws';
-import os from 'os';
+import http from "http";
+import fs from "fs";
+import { WebSocketServer } from "ws";
+import os from "os";
 
 const PORT = 3000;
 
 const server = http.createServer((req, res) => {
-  fs.readFile('./public/index.html', (err, data) => {
+  fs.readFile("./public/index.html", (err, data) => {
     if (err) {
       res.writeHead(500);
-      res.end('Error loading page');
+      res.end("Error loading page");
       return;
     }
-    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.writeHead(200, { "Content-Type": "text/html" });
     res.end(data);
   });
 });
@@ -941,25 +899,28 @@ function getMetrics() {
     loadAvg: os.loadavg(),
     freeMemMB: (os.freemem() / 1024 / 1024).toFixed(0),
     totalMemMB: (os.totalmem() / 1024 / 1024).toFixed(0),
-    memUsagePct: (((os.totalmem() - os.freemem()) / os.totalmem()) * 100).toFixed(1),
+    memUsagePct: (
+      ((os.totalmem() - os.freemem()) / os.totalmem()) *
+      100
+    ).toFixed(1),
   };
 }
 
 const wss = new WebSocketServer({ server });
 
-wss.on('connection', (socket) => {
-  console.log('Client connected');
+wss.on("connection", (socket) => {
+  console.log("Client connected");
 
-  socket.on('message', (data) => {
-    console.log('Received:', data.toString());
+  socket.on("message", (data) => {
+    console.log("Received:", data.toString());
   });
 
-  socket.on('close', () => {
-    console.log('Client disconnected');
+  socket.on("close", () => {
+    console.log("Client disconnected");
   });
 
-  socket.on('error', (err) => {
-    console.error('Socket error:', err);
+  socket.on("error", (err) => {
+    console.error("Socket error:", err);
   });
 });
 
@@ -977,9 +938,9 @@ server.listen(PORT, () => {
 Call `clearInterval(interval)` at the top of the `'close'` handler to cancel the interval as soon as the client disconnects:
 
 ```js
-socket.on('close', () => {
+socket.on("close", () => {
   clearInterval(interval);
-  console.log('Client disconnected');
+  console.log("Client disconnected");
 });
 ```
 
@@ -995,17 +956,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ### --seed--
@@ -1013,21 +967,21 @@ delete global.__file;
 #### --"learn-websockets-by-building-a-resource-monitor/server.js"--
 
 ```js
-import http from 'http';
-import fs from 'fs';
-import { WebSocketServer } from 'ws';
-import os from 'os';
+import http from "http";
+import fs from "fs";
+import { WebSocketServer } from "ws";
+import os from "os";
 
 const PORT = 3000;
 
 const server = http.createServer((req, res) => {
-  fs.readFile('./public/index.html', (err, data) => {
+  fs.readFile("./public/index.html", (err, data) => {
     if (err) {
       res.writeHead(500);
-      res.end('Error loading page');
+      res.end("Error loading page");
       return;
     }
-    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.writeHead(200, { "Content-Type": "text/html" });
     res.end(data);
   });
 });
@@ -1037,29 +991,32 @@ function getMetrics() {
     loadAvg: os.loadavg(),
     freeMemMB: (os.freemem() / 1024 / 1024).toFixed(0),
     totalMemMB: (os.totalmem() / 1024 / 1024).toFixed(0),
-    memUsagePct: (((os.totalmem() - os.freemem()) / os.totalmem()) * 100).toFixed(1),
+    memUsagePct: (
+      ((os.totalmem() - os.freemem()) / os.totalmem()) *
+      100
+    ).toFixed(1),
   };
 }
 
 const wss = new WebSocketServer({ server });
 
-wss.on('connection', (socket) => {
-  console.log('Client connected');
+wss.on("connection", (socket) => {
+  console.log("Client connected");
 
   const interval = setInterval(() => {
     socket.send(JSON.stringify(getMetrics()));
   }, 1000);
 
-  socket.on('message', (data) => {
-    console.log('Received:', data.toString());
+  socket.on("message", (data) => {
+    console.log("Received:", data.toString());
   });
 
-  socket.on('close', () => {
-    console.log('Client disconnected');
+  socket.on("close", () => {
+    console.log("Client disconnected");
   });
 
-  socket.on('error', (err) => {
-    console.error('Socket error:', err);
+  socket.on("error", (err) => {
+    console.error("Socket error:", err);
   });
 });
 
@@ -1079,7 +1036,7 @@ WebSocket URIs use `ws://` for plain connections and `wss://` for <dfn title="Tr
 Create a `WebSocket` and store it in a constant named `socket`:
 
 ```js
-const socket = new WebSocket('ws://localhost:3000');
+const socket = new WebSocket("ws://localhost:3000");
 ```
 
 ### --tests--
@@ -1087,7 +1044,10 @@ const socket = new WebSocket('ws://localhost:3000');
 `public/script.js` should create a `WebSocket` connection to `ws://localhost:3000` stored in a variable named `socket`.
 
 ```js
-const __script = await __helpers.getFile(project.dashedName, "public/script.js");
+const __script = await __helpers.getFile(
+  project.dashedName,
+  "public/script.js",
+);
 assert.match(
   __script,
   /const\s+socket\s*=\s*new\s+WebSocket\s*\(\s*['"]ws:\/\/localhost:3000['"]\s*\)/,
@@ -1100,21 +1060,21 @@ assert.match(
 #### --"learn-websockets-by-building-a-resource-monitor/server.js"--
 
 ```js
-import http from 'http';
-import fs from 'fs';
-import { WebSocketServer } from 'ws';
-import os from 'os';
+import http from "http";
+import fs from "fs";
+import { WebSocketServer } from "ws";
+import os from "os";
 
 const PORT = 3000;
 
 const server = http.createServer((req, res) => {
-  fs.readFile('./public/index.html', (err, data) => {
+  fs.readFile("./public/index.html", (err, data) => {
     if (err) {
       res.writeHead(500);
-      res.end('Error loading page');
+      res.end("Error loading page");
       return;
     }
-    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.writeHead(200, { "Content-Type": "text/html" });
     res.end(data);
   });
 });
@@ -1124,30 +1084,33 @@ function getMetrics() {
     loadAvg: os.loadavg(),
     freeMemMB: (os.freemem() / 1024 / 1024).toFixed(0),
     totalMemMB: (os.totalmem() / 1024 / 1024).toFixed(0),
-    memUsagePct: (((os.totalmem() - os.freemem()) / os.totalmem()) * 100).toFixed(1),
+    memUsagePct: (
+      ((os.totalmem() - os.freemem()) / os.totalmem()) *
+      100
+    ).toFixed(1),
   };
 }
 
 const wss = new WebSocketServer({ server });
 
-wss.on('connection', (socket) => {
-  console.log('Client connected');
+wss.on("connection", (socket) => {
+  console.log("Client connected");
 
   const interval = setInterval(() => {
     socket.send(JSON.stringify(getMetrics()));
   }, 1000);
 
-  socket.on('message', (data) => {
-    console.log('Received:', data.toString());
+  socket.on("message", (data) => {
+    console.log("Received:", data.toString());
   });
 
-  socket.on('close', () => {
+  socket.on("close", () => {
     clearInterval(interval);
-    console.log('Client disconnected');
+    console.log("Client disconnected");
   });
 
-  socket.on('error', (err) => {
-    console.error('Socket error:', err);
+  socket.on("error", (err) => {
+    console.error("Socket error:", err);
   });
 });
 
@@ -1185,7 +1148,7 @@ The browser's `WebSocket` object fires `onopen` when the connection is successfu
 
 ```js
 socket.onopen = () => {
-  setStatus('Connected');
+  setStatus("Connected");
 };
 ```
 
@@ -1194,7 +1157,10 @@ socket.onopen = () => {
 `public/script.js` should assign a function to `socket.onopen`.
 
 ```js
-const __script = await __helpers.getFile(project.dashedName, "public/script.js");
+const __script = await __helpers.getFile(
+  project.dashedName,
+  "public/script.js",
+);
 assert.match(
   __script,
   /socket\.onopen\s*=/,
@@ -1205,7 +1171,10 @@ assert.match(
 The `onopen` handler should call `setStatus('Connected')`.
 
 ```js
-const __script = await __helpers.getFile(project.dashedName, "public/script.js");
+const __script = await __helpers.getFile(
+  project.dashedName,
+  "public/script.js",
+);
 assert.match(
   __script,
   /socket\.onopen\s*=[\s\S]*?setStatus\s*\(\s*['"]Connected['"]\s*\)/,
@@ -1235,7 +1204,7 @@ function setStatus(text) {
 
 // Your code below — create a WebSocket connection and handle events.
 
-const socket = new WebSocket('ws://localhost:3000');
+const socket = new WebSocket("ws://localhost:3000");
 ```
 
 ## 16
@@ -1256,7 +1225,10 @@ socket.onmessage = (event) => {
 `public/script.js` should assign a function to `socket.onmessage`.
 
 ```js
-const __script = await __helpers.getFile(project.dashedName, "public/script.js");
+const __script = await __helpers.getFile(
+  project.dashedName,
+  "public/script.js",
+);
 assert.match(
   __script,
   /socket\.onmessage\s*=/,
@@ -1267,7 +1239,10 @@ assert.match(
 The `onmessage` handler should parse `event.data` with `JSON.parse`.
 
 ```js
-const __script = await __helpers.getFile(project.dashedName, "public/script.js");
+const __script = await __helpers.getFile(
+  project.dashedName,
+  "public/script.js",
+);
 assert.match(
   __script,
   /JSON\.parse\s*\(\s*event\.data\s*\)/,
@@ -1278,7 +1253,10 @@ assert.match(
 The `onmessage` handler should call `updateMetrics` with the parsed data.
 
 ```js
-const __script = await __helpers.getFile(project.dashedName, "public/script.js");
+const __script = await __helpers.getFile(
+  project.dashedName,
+  "public/script.js",
+);
 assert.match(
   __script,
   /updateMetrics\s*\(\s*data\s*\)/,
@@ -1308,10 +1286,10 @@ function setStatus(text) {
 
 // Your code below — create a WebSocket connection and handle events.
 
-const socket = new WebSocket('ws://localhost:3000');
+const socket = new WebSocket("ws://localhost:3000");
 
 socket.onopen = () => {
-  setStatus('Connected');
+  setStatus("Connected");
 };
 ```
 
@@ -1323,7 +1301,7 @@ The `onclose` event fires when the WebSocket connection is closed — either by 
 
 ```js
 socket.onclose = () => {
-  setStatus('Disconnected');
+  setStatus("Disconnected");
 };
 ```
 
@@ -1332,7 +1310,10 @@ socket.onclose = () => {
 `public/script.js` should assign a function to `socket.onclose`.
 
 ```js
-const __script = await __helpers.getFile(project.dashedName, "public/script.js");
+const __script = await __helpers.getFile(
+  project.dashedName,
+  "public/script.js",
+);
 assert.match(
   __script,
   /socket\.onclose\s*=/,
@@ -1343,7 +1324,10 @@ assert.match(
 The `onclose` handler should call `setStatus('Disconnected')`.
 
 ```js
-const __script = await __helpers.getFile(project.dashedName, "public/script.js");
+const __script = await __helpers.getFile(
+  project.dashedName,
+  "public/script.js",
+);
 assert.match(
   __script,
   /socket\.onclose\s*=[\s\S]*?setStatus\s*\(\s*['"]Disconnected['"]\s*\)/,
@@ -1373,10 +1357,10 @@ function setStatus(text) {
 
 // Your code below — create a WebSocket connection and handle events.
 
-const socket = new WebSocket('ws://localhost:3000');
+const socket = new WebSocket("ws://localhost:3000");
 
 socket.onopen = () => {
-  setStatus('Connected');
+  setStatus("Connected");
 };
 
 socket.onmessage = (event) => {
@@ -1393,7 +1377,7 @@ The `onerror` event fires when the connection encounters an error before it can 
 
 ```js
 socket.onerror = (err) => {
-  console.error('WebSocket error:', err);
+  console.error("WebSocket error:", err);
 };
 ```
 
@@ -1404,7 +1388,10 @@ The resource monitor is now complete. Run `npm start` to start the server, then 
 `public/script.js` should assign a function to `socket.onerror`.
 
 ```js
-const __script = await __helpers.getFile(project.dashedName, "public/script.js");
+const __script = await __helpers.getFile(
+  project.dashedName,
+  "public/script.js",
+);
 assert.match(
   __script,
   /socket\.onerror\s*=/,
@@ -1415,7 +1402,10 @@ assert.match(
 The `onerror` handler should call `console.error`.
 
 ```js
-const __script = await __helpers.getFile(project.dashedName, "public/script.js");
+const __script = await __helpers.getFile(
+  project.dashedName,
+  "public/script.js",
+);
 assert.match(
   __script,
   /socket\.onerror\s*=[\s\S]*?console\.error\s*\(/,
@@ -1445,10 +1435,10 @@ function setStatus(text) {
 
 // Your code below — create a WebSocket connection and handle events.
 
-const socket = new WebSocket('ws://localhost:3000');
+const socket = new WebSocket("ws://localhost:3000");
 
 socket.onopen = () => {
-  setStatus('Connected');
+  setStatus("Connected");
 };
 
 socket.onmessage = (event) => {
@@ -1457,7 +1447,7 @@ socket.onmessage = (event) => {
 };
 
 socket.onclose = () => {
-  setStatus('Disconnected');
+  setStatus("Disconnected");
 };
 ```
 
