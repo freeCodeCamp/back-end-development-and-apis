@@ -54,7 +54,7 @@ assert.property(
 );
 ```
 
-## 1
+## 2
 
 ### --description--
 
@@ -89,7 +89,7 @@ assert.equal(
 );
 ```
 
-## 2
+## 3
 
 ### --description--
 
@@ -104,13 +104,15 @@ const __exists = await __helpers.fileExists(`${project.dashedName}/server.js`);
 assert.isTrue(__exists, "server.js does not exist — create the file first.");
 ```
 
-## 3
+## 4
 
 ### --description--
 
-Node.js ships with a built-in <dfn title="Hypertext Transfer Protocol">`http`</dfn> module for creating web servers and an `fs` module for reading files from disk. Import both at the top of `server.js` using ESM syntax, then declare a constant `PORT` set to `3000`.
+Use Nodejs' built-in `http` and `fs` modules to create an HTTP server using `http.createServer()` and store it in a variable named `server`. The request handler should read `./public/index.html` with `fs.readFile` and write the file contents back to the response with a `200` status and a `Content-Type` of `text/html`.
 
-Next, create an HTTP server using `http.createServer()` and store it in a variable named `server`. The request handler should read `./public/index.html` with `fs.readFile` and write the file contents back to the response with a `200` status and a `Content-Type` of `text/html`:
+### --hints--
+
+#### 0
 
 ```js
 const server = http.createServer((req, res) => {
@@ -148,15 +150,6 @@ assert.match(
 );
 ```
 
-`server.js` should declare a `const PORT` equal to `3000`.
-
-```js
-const __t = new __helpers.Tower(__file);
-const __port = __t.getVariable("PORT");
-assert.isDefined(__port, "A variable named PORT should be declared.");
-assert.match(__port.compact, /PORT=3000/, "PORT should be set to 3000.");
-```
-
 `server.js` should declare a `const server` initialised by calling `http.createServer()`.
 
 ```js
@@ -184,11 +177,11 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ```
 
-## 4
+## 5
 
 ### --description--
 
-Start the HTTP server by calling `server.listen` with `PORT` as the first argument and a callback as the second. The callback should log the server URL to the console.
+Declare a constant `PORT` set to `3000`, then start the HTTP server by calling `server.listen(PORT, callback)`. The callback should log the server URL to the console.
 
 **NOTE:** Once your server is running, open `http://localhost:3000` in a browser to confirm the resource monitor page loads.
 
@@ -215,9 +208,20 @@ assert.equal(
 The `server.listen` callback should log a message containing the server URL.
 
 ```js
+const __t = new __helpers.Tower(__file);
+const __listenCalls = __t.getCalls("server.listen");
+assert.isAbove(__listenCalls.length, 0, "server.listen() should be called.");
+const __listenCb = __listenCalls.at(0).ast.expression.arguments.at(1);
+const __listenT = new __helpers.Tower(__listenCb);
+const __logCalls = __listenT.getCalls("console.log");
+assert.isAbove(
+  __logCalls.length,
+  0,
+  "The server.listen callback should log a message.",
+);
 assert.match(
-  __file,
-  /console\.log\(.*localhost.*\$\{PORT\}|console\.log\(.*localhost.*3000/s,
+  __logCalls.at(0).compact,
+  /localhost/,
   "The server.listen callback should log the server URL.",
 );
 ```
@@ -236,8 +240,6 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 import http from "http";
 import fs from "fs";
 
-const PORT = 3000;
-
 const server = http.createServer((req, res) => {
   fs.readFile("./public/index.html", (err, data) => {
     if (err) {
@@ -251,7 +253,7 @@ const server = http.createServer((req, res) => {
 });
 ```
 
-## 5
+## 6
 
 ### --description--
 
@@ -268,9 +270,17 @@ import { WebSocketServer } from "ws";
 `server.js` should import `WebSocketServer` from `'ws'`.
 
 ```js
-assert.match(
-  __file,
-  /import\s*\{\s*WebSocketServer\s*\}\s*from\s*['"]ws['"]/,
+const __t = new __helpers.Tower(__file);
+const __wsImport = __t.ast.body.find(
+  (n) =>
+    n.type === "ImportDeclaration" &&
+    n.source.value === "ws" &&
+    n.specifiers.some(
+      (s) => s.type === "ImportSpecifier" && s.imported.name === "WebSocketServer",
+    ),
+);
+assert.isDefined(
+  __wsImport,
   'server.js should have: import { WebSocketServer } from "ws"',
 );
 ```
@@ -308,7 +318,7 @@ server.listen(PORT, () => {
 });
 ```
 
-## 6
+## 7
 
 ### --description--
 
@@ -338,9 +348,13 @@ assert.match(
 The `WebSocketServer` should be passed `{ server }` as its argument.
 
 ```js
-assert.match(
-  __file,
-  /new\s+WebSocketServer\s*\(\s*\{\s*server\s*\}\s*\)/,
+const __t = new __helpers.Tower(__file);
+const __wss = __t.getVariable("wss");
+const __newExpr = __wss.ast.declarations[0].init;
+const __arg = __newExpr?.arguments?.at(0);
+const __serverProp = __arg?.properties?.find((p) => p.key?.name === "server");
+assert.isDefined(
+  __serverProp,
   "Pass { server } to new WebSocketServer() to share the HTTP port.",
 );
 ```
@@ -379,7 +393,7 @@ server.listen(PORT, () => {
 });
 ```
 
-## 7
+## 8
 
 ### --description--
 
@@ -414,9 +428,13 @@ assert.equal(
 The `'connection'` callback should accept a `socket` parameter.
 
 ```js
-assert.match(
-  __file,
-  /wss\.on\s*\(\s*['"]connection['"]\s*,\s*\(\s*socket\s*\)/,
+const __t = new __helpers.Tower(__file);
+const __wssOnCalls = __t.getCalls("wss.on");
+assert.isAbove(__wssOnCalls.length, 0, "wss.on() should be called.");
+const __connCb = __wssOnCalls.at(0).ast.expression.arguments.at(1);
+assert.equal(
+  __connCb?.params?.at(0)?.name,
+  "socket",
   "The connection callback should accept a socket parameter.",
 );
 ```
@@ -457,7 +475,7 @@ server.listen(PORT, () => {
 });
 ```
 
-## 8
+## 9
 
 ### --description--
 
@@ -476,9 +494,15 @@ socket.on("message", (data) => {
 `server.js` should call `socket.on` with `'message'` as the first argument inside the connection handler.
 
 ```js
-assert.match(
-  __file,
-  /socket\.on\s*\(\s*['"]message['"]/,
+const __t = new __helpers.Tower(__file);
+const __connCb = __t.getCalls("wss.on").at(0).ast.expression.arguments.at(1);
+const __connT = new __helpers.Tower(__connCb);
+const __msgCalls = __connT
+  .getCalls("socket.on")
+  .filter((c) => c.ast.expression.arguments.at(0)?.value === "message");
+assert.isAbove(
+  __msgCalls.length,
+  0,
   "socket.on('message', ...) should be called inside the connection handler.",
 );
 ```
@@ -486,9 +510,23 @@ assert.match(
 The `'message'` callback should log the received data as a string.
 
 ```js
-assert.match(
-  __file,
-  /data\.toString\(\)/,
+const __t = new __helpers.Tower(__file);
+const __connCb = __t.getCalls("wss.on").at(0).ast.expression.arguments.at(1);
+const __connT = new __helpers.Tower(__connCb);
+const __msgCalls = __connT
+  .getCalls("socket.on")
+  .filter((c) => c.ast.expression.arguments.at(0)?.value === "message");
+assert.isAbove(
+  __msgCalls.length,
+  0,
+  "socket.on('message', ...) should be called.",
+);
+const __msgCb = __msgCalls.at(0).ast.expression.arguments.at(1);
+const __msgT = new __helpers.Tower(__msgCb);
+const __toStringCalls = __msgT.getCalls("data.toString");
+assert.isAbove(
+  __toStringCalls.length,
+  0,
   "The message handler should call data.toString() to read the message.",
 );
 ```
@@ -533,7 +571,7 @@ server.listen(PORT, () => {
 });
 ```
 
-## 9
+## 10
 
 ### --description--
 
@@ -550,9 +588,15 @@ socket.on("close", () => {
 `server.js` should call `socket.on` with `'close'` as the first argument inside the connection handler.
 
 ```js
-assert.match(
-  __file,
-  /socket\.on\s*\(\s*['"]close['"]/,
+const __t = new __helpers.Tower(__file);
+const __connCb = __t.getCalls("wss.on").at(0).ast.expression.arguments.at(1);
+const __connT = new __helpers.Tower(__connCb);
+const __closeCalls = __connT
+  .getCalls("socket.on")
+  .filter((c) => c.ast.expression.arguments.at(0)?.value === "close");
+assert.isAbove(
+  __closeCalls.length,
+  0,
   "socket.on('close', ...) should be called inside the connection handler.",
 );
 ```
@@ -560,9 +604,28 @@ assert.match(
 The `'close'` callback should log `'Client disconnected'`.
 
 ```js
-assert.match(
-  __file,
-  /console\.log\s*\(\s*['"]Client disconnected['"]\s*\)/,
+const __t = new __helpers.Tower(__file);
+const __connCb = __t.getCalls("wss.on").at(0).ast.expression.arguments.at(1);
+const __connT = new __helpers.Tower(__connCb);
+const __closeCalls = __connT
+  .getCalls("socket.on")
+  .filter((c) => c.ast.expression.arguments.at(0)?.value === "close");
+assert.isAbove(
+  __closeCalls.length,
+  0,
+  "socket.on('close', ...) should be called.",
+);
+const __closeCb = __closeCalls.at(0).ast.expression.arguments.at(1);
+const __closeT = new __helpers.Tower(__closeCb);
+const __logCalls = __closeT.getCalls("console.log");
+assert.isAbove(
+  __logCalls.length,
+  0,
+  "The close handler should log 'Client disconnected'.",
+);
+assert.equal(
+  __logCalls.at(0).ast.expression.arguments.at(0)?.value,
+  "Client disconnected",
   "The close handler should log 'Client disconnected'.",
 );
 ```
@@ -611,7 +674,7 @@ server.listen(PORT, () => {
 });
 ```
 
-## 10
+## 11
 
 ### --description--
 
@@ -628,9 +691,15 @@ socket.on("error", (err) => {
 `server.js` should call `socket.on` with `'error'` as the first argument inside the connection handler.
 
 ```js
-assert.match(
-  __file,
-  /socket\.on\s*\(\s*['"]error['"]/,
+const __t = new __helpers.Tower(__file);
+const __connCb = __t.getCalls("wss.on").at(0).ast.expression.arguments.at(1);
+const __connT = new __helpers.Tower(__connCb);
+const __errCalls = __connT
+  .getCalls("socket.on")
+  .filter((c) => c.ast.expression.arguments.at(0)?.value === "error");
+assert.isAbove(
+  __errCalls.length,
+  0,
   "socket.on('error', ...) should be called inside the connection handler.",
 );
 ```
@@ -638,9 +707,23 @@ assert.match(
 The `'error'` callback should call `console.error`.
 
 ```js
-assert.match(
-  __file,
-  /socket\.on\s*\(\s*['"]error['"][\s\S]*?console\.error/,
+const __t = new __helpers.Tower(__file);
+const __connCb = __t.getCalls("wss.on").at(0).ast.expression.arguments.at(1);
+const __connT = new __helpers.Tower(__connCb);
+const __errCalls = __connT
+  .getCalls("socket.on")
+  .filter((c) => c.ast.expression.arguments.at(0)?.value === "error");
+assert.isAbove(
+  __errCalls.length,
+  0,
+  "socket.on('error', ...) should be called.",
+);
+const __errCb = __errCalls.at(0).ast.expression.arguments.at(1);
+const __errT = new __helpers.Tower(__errCb);
+const __consoleErrCalls = __errT.getCalls("console.error");
+assert.isAbove(
+  __consoleErrCalls.length,
+  0,
   "The error handler should call console.error.",
 );
 ```
@@ -693,7 +776,7 @@ server.listen(PORT, () => {
 });
 ```
 
-## 11
+## 12
 
 ### --description--
 
@@ -749,9 +832,11 @@ assert.isDefined(__fn, "A function named getMetrics should be declared.");
 `getMetrics` should return an object with a `loadAvg` property sourced from `os.loadavg()`.
 
 ```js
+const __t = new __helpers.Tower(__file);
+const __fn = __t.getFunction("getMetrics");
 assert.match(
-  __file,
-  /loadAvg\s*:\s*os\.loadavg\(\)/,
+  __fn.compact,
+  /loadAvg:os\.loadavg\(\)/,
   "getMetrics should return { loadAvg: os.loadavg(), ... }.",
 );
 ```
@@ -759,9 +844,19 @@ assert.match(
 `getMetrics` should return `freeMemMB`, `totalMemMB`, and `memUsagePct` properties.
 
 ```js
-assert.match(__file, /freeMemMB/, "getMetrics should include freeMemMB.");
-assert.match(__file, /totalMemMB/, "getMetrics should include totalMemMB.");
-assert.match(__file, /memUsagePct/, "getMetrics should include memUsagePct.");
+const __t = new __helpers.Tower(__file);
+const __fn = __t.getFunction("getMetrics");
+assert.match(__fn.compact, /freeMemMB/, "getMetrics should include freeMemMB.");
+assert.match(
+  __fn.compact,
+  /totalMemMB/,
+  "getMetrics should include totalMemMB.",
+);
+assert.match(
+  __fn.compact,
+  /memUsagePct/,
+  "getMetrics should include memUsagePct.",
+);
 ```
 
 ### --before-each--
@@ -816,40 +911,53 @@ server.listen(PORT, () => {
 });
 ```
 
-## 12
+## 13
 
 ### --description--
 
 WebSocket messages are always strings (or binary buffers). To send a JavaScript object, you must first <dfn title="converting a data structure into a string for transmission">serialize</dfn> it. Use `JSON.stringify` to convert the object to a JSON string before calling `socket.send`.
 
-Inside the `'connection'` callback, use `setInterval` to send fresh metrics to the client every `1000` milliseconds. Store the return value in a `const` named `interval`:
-
-```js
-const interval = setInterval(() => {
-  socket.send(JSON.stringify(getMetrics()));
-}, 1000);
-```
-
-Place this at the top of the `'connection'` callback, before the event listeners.
+Inside the `'connection'` callback, use `setInterval` to call `socket.send` with the serialized result of `getMetrics()` every `1000` milliseconds. Store the interval ID in a `const` named `interval`. Place this at the top of the callback, before the event listeners.
 
 ### --tests--
 
 `server.js` should call `setInterval` inside the `'connection'` callback and store the result in a variable named `interval`.
 
 ```js
-assert.match(
-  __file,
-  /const\s+interval\s*=\s*setInterval\s*\(/,
+const __t = new __helpers.Tower(__file);
+const __connCb = __t.getCalls("wss.on").at(0).ast.expression.arguments.at(1);
+const __connT = new __helpers.Tower(__connCb);
+const __interval = __connT.getVariable("interval");
+assert.isDefined(
+  __interval,
   "setInterval should be stored in a const named interval.",
+);
+assert.match(
+  __interval.compact,
+  /setInterval\(/,
+  "interval should be initialized with setInterval().",
 );
 ```
 
 The `setInterval` callback should call `socket.send` with `JSON.stringify(getMetrics())`.
 
 ```js
+const __t = new __helpers.Tower(__file);
+const __connCb = __t.getCalls("wss.on").at(0).ast.expression.arguments.at(1);
+const __connT = new __helpers.Tower(__connCb);
+const __interval = __connT.getVariable("interval");
+const __setIntervalInit = __interval.ast.declarations[0].init;
+const __intervalCb = __setIntervalInit?.arguments?.at(0);
+const __intervalT = new __helpers.Tower(__intervalCb);
+const __sendCalls = __intervalT.getCalls("socket.send");
+assert.isAbove(
+  __sendCalls.length,
+  0,
+  "socket.send() should be called inside setInterval.",
+);
 assert.match(
-  __file,
-  /socket\.send\s*\(\s*JSON\.stringify\s*\(\s*getMetrics\s*\(\s*\)\s*\)\s*\)/,
+  __sendCalls.at(0).compact,
+  /JSON\.stringify\(getMetrics\(\)\)/,
   "socket.send(JSON.stringify(getMetrics())) should be called inside setInterval.",
 );
 ```
@@ -857,11 +965,13 @@ assert.match(
 The interval delay should be `1000` milliseconds.
 
 ```js
-assert.match(
-  __file,
-  /setInterval\s*\([^,]+,\s*1000\s*\)/,
-  "The setInterval delay should be 1000ms.",
-);
+const __t = new __helpers.Tower(__file);
+const __connCb = __t.getCalls("wss.on").at(0).ast.expression.arguments.at(1);
+const __connT = new __helpers.Tower(__connCb);
+const __interval = __connT.getVariable("interval");
+const __setIntervalInit = __interval.ast.declarations[0].init;
+const __delay = __setIntervalInit?.arguments?.at(1);
+assert.equal(__delay?.value, 1000, "The setInterval delay should be 1000ms.");
 ```
 
 ### --before-each--
@@ -929,30 +1039,42 @@ server.listen(PORT, () => {
 });
 ```
 
-## 13
+## 14
 
 ### --description--
 
 `setInterval` schedules a callback to run repeatedly on Node.js's <dfn title="the mechanism that allows Node.js to perform non-blocking I/O by offloading operations and processing callbacks in a queue">event loop</dfn>. If you never cancel it, the interval keeps firing even after the client has gone — holding a reference to the closed socket and leaking memory.
 
-Call `clearInterval(interval)` at the top of the `'close'` handler to cancel the interval as soon as the client disconnects:
-
-```js
-socket.on("close", () => {
-  clearInterval(interval);
-  console.log("Client disconnected");
-});
-```
+Update the `'close'` handler to cancel the interval as soon as the client disconnects. Call `clearInterval` with the `interval` ID before logging the disconnect message.
 
 ### --tests--
 
 `server.js` should call `clearInterval(interval)` inside the `'close'` handler.
 
 ```js
-assert.match(
-  __file,
-  /socket\.on\s*\(\s*['"]close['"][\s\S]*?clearInterval\s*\(\s*interval\s*\)/,
+const __t = new __helpers.Tower(__file);
+const __connCb = __t.getCalls("wss.on").at(0).ast.expression.arguments.at(1);
+const __connT = new __helpers.Tower(__connCb);
+const __closeCalls = __connT
+  .getCalls("socket.on")
+  .filter((c) => c.ast.expression.arguments.at(0)?.value === "close");
+assert.isAbove(
+  __closeCalls.length,
+  0,
+  "socket.on('close', ...) should be called.",
+);
+const __closeCb = __closeCalls.at(0).ast.expression.arguments.at(1);
+const __closeT = new __helpers.Tower(__closeCb);
+const __clearCalls = __closeT.getCalls("clearInterval");
+assert.isAbove(
+  __clearCalls.length,
+  0,
   "clearInterval(interval) should be called inside the socket 'close' handler.",
+);
+assert.equal(
+  __clearCalls.at(0).ast.expression.arguments.at(0)?.name,
+  "interval",
+  "clearInterval should be called with interval.",
 );
 ```
 
@@ -1025,7 +1147,7 @@ server.listen(PORT, () => {
 });
 ```
 
-## 14
+## 15
 
 ### --description--
 
@@ -1044,14 +1166,28 @@ const socket = new WebSocket("ws://localhost:3000");
 `public/script.js` should create a `WebSocket` connection to `ws://localhost:3000` stored in a variable named `socket`.
 
 ```js
+const __t = new __helpers.Tower(__script);
+const __socket = __t.getVariable("socket");
+assert.isDefined(__socket, "A variable named socket should be declared.");
+const __init = __socket.ast.declarations[0].init;
+assert.equal(
+  __init?.callee?.name,
+  "WebSocket",
+  "socket should be initialized with new WebSocket().",
+);
+assert.equal(
+  __init?.arguments?.at(0)?.value,
+  "ws://localhost:3000",
+  "WebSocket should connect to ws://localhost:3000.",
+);
+```
+
+### --before-each--
+
+```js
 const __script = await __helpers.getFile(
   project.dashedName,
   "public/script.js",
-);
-assert.match(
-  __script,
-  /const\s+socket\s*=\s*new\s+WebSocket\s*\(\s*['"]ws:\/\/localhost:3000['"]\s*\)/,
-  "public/script.js should have: const socket = new WebSocket('ws://localhost:3000')",
 );
 ```
 
@@ -1140,7 +1276,7 @@ function setStatus(text) {
 // Your code below — create a WebSocket connection and handle events.
 ```
 
-## 15
+## 16
 
 ### --description--
 
@@ -1157,13 +1293,16 @@ socket.onopen = () => {
 `public/script.js` should assign a function to `socket.onopen`.
 
 ```js
-const __script = await __helpers.getFile(
-  project.dashedName,
-  "public/script.js",
+const __t = new __helpers.Tower(__script);
+const __onopenStmt = __t.ast.body.find(
+  (n) =>
+    n.type === "ExpressionStatement" &&
+    n.expression.type === "AssignmentExpression" &&
+    n.expression.left?.object?.name === "socket" &&
+    n.expression.left?.property?.name === "onopen",
 );
-assert.match(
-  __script,
-  /socket\.onopen\s*=/,
+assert.isDefined(
+  __onopenStmt,
   "socket.onopen should be assigned in public/script.js.",
 );
 ```
@@ -1171,14 +1310,35 @@ assert.match(
 The `onopen` handler should call `setStatus('Connected')`.
 
 ```js
+const __t = new __helpers.Tower(__script);
+const __onopenStmt = __t.ast.body.find(
+  (n) =>
+    n.type === "ExpressionStatement" &&
+    n.expression.type === "AssignmentExpression" &&
+    n.expression.left?.object?.name === "socket" &&
+    n.expression.left?.property?.name === "onopen",
+);
+assert.isDefined(__onopenStmt, "socket.onopen should be assigned.");
+const __onopenT = new __helpers.Tower(__onopenStmt.expression.right);
+const __setStatusCalls = __onopenT.getCalls("setStatus");
+assert.isAbove(
+  __setStatusCalls.length,
+  0,
+  "The onopen handler should call setStatus.",
+);
+assert.equal(
+  __setStatusCalls.at(0).ast.expression.arguments.at(0)?.value,
+  "Connected",
+  "The onopen handler should call setStatus('Connected').",
+);
+```
+
+### --before-each--
+
+```js
 const __script = await __helpers.getFile(
   project.dashedName,
   "public/script.js",
-);
-assert.match(
-  __script,
-  /socket\.onopen\s*=[\s\S]*?setStatus\s*\(\s*['"]Connected['"]\s*\)/,
-  "The onopen handler should call setStatus('Connected').",
 );
 ```
 
@@ -1207,7 +1367,7 @@ function setStatus(text) {
 const socket = new WebSocket("ws://localhost:3000");
 ```
 
-## 16
+## 17
 
 ### --description--
 
@@ -1225,13 +1385,16 @@ socket.onmessage = (event) => {
 `public/script.js` should assign a function to `socket.onmessage`.
 
 ```js
-const __script = await __helpers.getFile(
-  project.dashedName,
-  "public/script.js",
+const __t = new __helpers.Tower(__script);
+const __onmsgStmt = __t.ast.body.find(
+  (n) =>
+    n.type === "ExpressionStatement" &&
+    n.expression.type === "AssignmentExpression" &&
+    n.expression.left?.object?.name === "socket" &&
+    n.expression.left?.property?.name === "onmessage",
 );
-assert.match(
-  __script,
-  /socket\.onmessage\s*=/,
+assert.isDefined(
+  __onmsgStmt,
   "socket.onmessage should be assigned in public/script.js.",
 );
 ```
@@ -1239,13 +1402,20 @@ assert.match(
 The `onmessage` handler should parse `event.data` with `JSON.parse`.
 
 ```js
-const __script = await __helpers.getFile(
-  project.dashedName,
-  "public/script.js",
+const __t = new __helpers.Tower(__script);
+const __onmsgStmt = __t.ast.body.find(
+  (n) =>
+    n.type === "ExpressionStatement" &&
+    n.expression.type === "AssignmentExpression" &&
+    n.expression.left?.object?.name === "socket" &&
+    n.expression.left?.property?.name === "onmessage",
 );
+assert.isDefined(__onmsgStmt, "socket.onmessage should be assigned.");
+const __onmsgT = new __helpers.Tower(__onmsgStmt.expression.right);
+const __dataVar = __onmsgT.getVariable("data");
 assert.match(
-  __script,
-  /JSON\.parse\s*\(\s*event\.data\s*\)/,
+  __dataVar.compact,
+  /JSON\.parse\(event\.data\)/,
   "The onmessage handler should call JSON.parse(event.data).",
 );
 ```
@@ -1253,14 +1423,35 @@ assert.match(
 The `onmessage` handler should call `updateMetrics` with the parsed data.
 
 ```js
+const __t = new __helpers.Tower(__script);
+const __onmsgStmt = __t.ast.body.find(
+  (n) =>
+    n.type === "ExpressionStatement" &&
+    n.expression.type === "AssignmentExpression" &&
+    n.expression.left?.object?.name === "socket" &&
+    n.expression.left?.property?.name === "onmessage",
+);
+assert.isDefined(__onmsgStmt, "socket.onmessage should be assigned.");
+const __onmsgT = new __helpers.Tower(__onmsgStmt.expression.right);
+const __updateCalls = __onmsgT.getCalls("updateMetrics");
+assert.isAbove(
+  __updateCalls.length,
+  0,
+  "The onmessage handler should call updateMetrics.",
+);
+assert.equal(
+  __updateCalls.at(0).ast.expression.arguments.at(0)?.name,
+  "data",
+  "The onmessage handler should call updateMetrics(data).",
+);
+```
+
+### --before-each--
+
+```js
 const __script = await __helpers.getFile(
   project.dashedName,
   "public/script.js",
-);
-assert.match(
-  __script,
-  /updateMetrics\s*\(\s*data\s*\)/,
-  "The onmessage handler should call updateMetrics(data).",
 );
 ```
 
@@ -1293,7 +1484,7 @@ socket.onopen = () => {
 };
 ```
 
-## 17
+## 18
 
 ### --description--
 
@@ -1310,13 +1501,16 @@ socket.onclose = () => {
 `public/script.js` should assign a function to `socket.onclose`.
 
 ```js
-const __script = await __helpers.getFile(
-  project.dashedName,
-  "public/script.js",
+const __t = new __helpers.Tower(__script);
+const __oncloseStmt = __t.ast.body.find(
+  (n) =>
+    n.type === "ExpressionStatement" &&
+    n.expression.type === "AssignmentExpression" &&
+    n.expression.left?.object?.name === "socket" &&
+    n.expression.left?.property?.name === "onclose",
 );
-assert.match(
-  __script,
-  /socket\.onclose\s*=/,
+assert.isDefined(
+  __oncloseStmt,
   "socket.onclose should be assigned in public/script.js.",
 );
 ```
@@ -1324,14 +1518,35 @@ assert.match(
 The `onclose` handler should call `setStatus('Disconnected')`.
 
 ```js
+const __t = new __helpers.Tower(__script);
+const __oncloseStmt = __t.ast.body.find(
+  (n) =>
+    n.type === "ExpressionStatement" &&
+    n.expression.type === "AssignmentExpression" &&
+    n.expression.left?.object?.name === "socket" &&
+    n.expression.left?.property?.name === "onclose",
+);
+assert.isDefined(__oncloseStmt, "socket.onclose should be assigned.");
+const __oncloseT = new __helpers.Tower(__oncloseStmt.expression.right);
+const __setStatusCalls = __oncloseT.getCalls("setStatus");
+assert.isAbove(
+  __setStatusCalls.length,
+  0,
+  "The onclose handler should call setStatus.",
+);
+assert.equal(
+  __setStatusCalls.at(0).ast.expression.arguments.at(0)?.value,
+  "Disconnected",
+  "The onclose handler should call setStatus('Disconnected').",
+);
+```
+
+### --before-each--
+
+```js
 const __script = await __helpers.getFile(
   project.dashedName,
   "public/script.js",
-);
-assert.match(
-  __script,
-  /socket\.onclose\s*=[\s\S]*?setStatus\s*\(\s*['"]Disconnected['"]\s*\)/,
-  "The onclose handler should call setStatus('Disconnected').",
 );
 ```
 
@@ -1369,7 +1584,7 @@ socket.onmessage = (event) => {
 };
 ```
 
-## 18
+## 19
 
 ### --description--
 
@@ -1388,13 +1603,16 @@ The resource monitor is now complete. Run `npm start` to start the server, then 
 `public/script.js` should assign a function to `socket.onerror`.
 
 ```js
-const __script = await __helpers.getFile(
-  project.dashedName,
-  "public/script.js",
+const __t = new __helpers.Tower(__script);
+const __onerrorStmt = __t.ast.body.find(
+  (n) =>
+    n.type === "ExpressionStatement" &&
+    n.expression.type === "AssignmentExpression" &&
+    n.expression.left?.object?.name === "socket" &&
+    n.expression.left?.property?.name === "onerror",
 );
-assert.match(
-  __script,
-  /socket\.onerror\s*=/,
+assert.isDefined(
+  __onerrorStmt,
   "socket.onerror should be assigned in public/script.js.",
 );
 ```
@@ -1402,14 +1620,30 @@ assert.match(
 The `onerror` handler should call `console.error`.
 
 ```js
+const __t = new __helpers.Tower(__script);
+const __onerrorStmt = __t.ast.body.find(
+  (n) =>
+    n.type === "ExpressionStatement" &&
+    n.expression.type === "AssignmentExpression" &&
+    n.expression.left?.object?.name === "socket" &&
+    n.expression.left?.property?.name === "onerror",
+);
+assert.isDefined(__onerrorStmt, "socket.onerror should be assigned.");
+const __onerrorT = new __helpers.Tower(__onerrorStmt.expression.right);
+const __consoleErrCalls = __onerrorT.getCalls("console.error");
+assert.isAbove(
+  __consoleErrCalls.length,
+  0,
+  "The onerror handler should call console.error.",
+);
+```
+
+### --before-each--
+
+```js
 const __script = await __helpers.getFile(
   project.dashedName,
   "public/script.js",
-);
-assert.match(
-  __script,
-  /socket\.onerror\s*=[\s\S]*?console\.error\s*\(/,
-  "The onerror handler should call console.error.",
 );
 ```
 
