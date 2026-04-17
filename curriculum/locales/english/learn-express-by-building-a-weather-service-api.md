@@ -1,14 +1,14 @@
 # Learn Express by Building a Weather Service API
 
-You will learn route parameters and modular routing with express.Router by building a weather service API.
+You will learn route parameters and modular routing with `express.Router` by building a weather service API.
 
 ## 0
 
 ### --description--
 
-Open a new terminal and run `cd learn-express-by-building-a-weather-service-api` to navigate into the project directory.
-
 In this project, you will build a weather service API with <dfn title="Express.js is a minimal and flexible Node.js web application framework">Express</dfn>. Along the way you will learn routing, route parameters, response methods, chainable route handlers, modular routing with `express.Router`, and serving static files.
+
+Open a new terminal and run `cd learn-express-by-building-a-weather-service-api` to navigate into the project directory.
 
 ### --tests--
 
@@ -17,7 +17,11 @@ You should be in the `learn-express-by-building-a-weather-service-api` directory
 ```js
 const __cwd = await __helpers.getLastCWD();
 const __dirRegex = new RegExp(`${project.dashedName}/?$`);
-assert.match(__cwd, __dirRegex, "You should be in the 'learn-express-by-building-a-weather-service-api' directory.");
+assert.match(
+  __cwd,
+  __dirRegex,
+  "You should be in the 'learn-express-by-building-a-weather-service-api' directory.",
+);
 ```
 
 ## 1
@@ -26,72 +30,59 @@ assert.match(__cwd, __dirRegex, "You should be in the 'learn-express-by-building
 
 Create a new file called `index.js` in the project directory. This is where you will write your server code.
 
-Express is imported using `require()` and initialised by calling it as a function. Here is an example:
-
-```js
-const express = require('express');
-const app = express();
-```
-
-In `index.js`, import Express and assign it to a variable called `express`. Then create an Express application by calling `express()` and storing the result in a variable called `app`. Finally, declare a `PORT` variable set to `3000`.
+In `index.js`, import Express using ESM syntax and assign it to a variable called `express`. Then create an Express application by calling `express()` and storing the result in a variable called `app`. Finally, declare a `PORT` variable set to `3000`.
 
 ### --tests--
 
-`index.js` should require `express` and assign it to an `express` variable.
+`index.js` should import `express` using ESM syntax.
 
 ```js
-const __t = new __helpers.Tower(global.__file);
-const __expressVar = __t.getVariable('express');
-assert.exists(__expressVar, "You should create a variable named 'express'.");
-assert.match(__helpers.generate(__expressVar.ast.declarations[0].init).code, /require\(['"]express['"]\)/, "The 'express' variable should be set to require('express').");
+assert.match(
+  __file,
+  /import\s+express\s+from\s+['"]express['"]/, 
+  'You should import express using ESM syntax.',
+);
 ```
-
 `index.js` should call `express()` and assign the result to an `app` variable.
 
 ```js
-const __t = new __helpers.Tower(global.__file);
-const __appVar = __t.getVariable('app');
+const __t = new __helpers.Tower(__file);
+const __appVar = __t.getVariable("app");
 assert.exists(__appVar, "You should create a variable named 'app'.");
 const __init = __appVar.ast.declarations[0].init;
-assert.equal(__init.callee.name, 'express', "The 'app' variable should be set to 'express()'.");
-assert.equal(__init.arguments.length, 0, "The 'express()' call should take no arguments.");
+assert.equal(
+  __init.callee.name,
+  "express",
+  "The 'app' variable should be set to 'express()'.",
+);
+assert.equal(
+  __init.arguments.length,
+  0,
+  "The 'express()' call should take no arguments.",
+);
 ```
 
 `index.js` should declare a `PORT` variable set to `3000`.
 
 ```js
-const __t = new __helpers.Tower(global.__file);
-const __portVar = __t.getVariable('PORT');
+const __t = new __helpers.Tower(__file);
+const __portVar = __t.getVariable("PORT");
 assert.exists(__portVar, "You should create a variable named 'PORT'.");
 const __val = __portVar.ast.declarations[0].init.value;
 assert.equal(__val, 3000, "The 'PORT' variable should be set to 3000.");
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
-global.__file = await __helpers.getFile(project.dashedName, 'index.js');
-```
-
-### --after-all--
-
-```js
-delete global.__file;
+const __file = await __helpers.getFile(project.dashedName, "index.js");
 ```
 
 ## 2
 
 ### --description--
 
-Now that you have an Express app, you need to tell it to start listening for incoming requests. Use `app.listen()` to bind the server to a port:
-
-```js
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-});
-```
-
-In `index.js`, call `app.listen()` with `PORT` as the first argument and a callback that logs a message to the console. Then run `node index.js` in the terminal to start your server.
+Now that you have an Express app, tell it to start listening for incoming requests by calling `app.listen()` with `PORT` and a startup callback. Then run `node index.js` in the terminal to start your server.
 
 **NOTE:** Once your server is running, click _Run Tests_.
 
@@ -100,30 +91,35 @@ In `index.js`, call `app.listen()` with `PORT` as the first argument and a callb
 `index.js` should call `app.listen()` with `PORT` as the first argument.
 
 ```js
-const __t = new __helpers.Tower(global.__file);
-const __calls = __t.getCalls('app.listen');
-assert.isAbove(__calls.length, 0, "You should call 'app.listen()' in 'index.js'.");
+const __t = new __helpers.Tower(__file);
+const __calls = __t.getCalls("app.listen");
+assert.isAbove(
+  __calls.length,
+  0,
+  "You should call 'app.listen()' in 'index.js'.",
+);
 const __firstArg = __calls.at(0).ast.expression.arguments.at(0);
-assert.equal(__firstArg?.name, 'PORT', "The first argument to 'app.listen()' should be 'PORT'.");
+assert.equal(
+  __firstArg?.name,
+  "PORT",
+  "The first argument to 'app.listen()' should be 'PORT'.",
+);
 ```
 
 Your server should be listening on port `3000`.
 
 ```js
 const __isListening = await __helpers.isServerListening(3000);
-assert.isTrue(__isListening, 'Your server should be listening on port 3000. Run `node index.js` to start it.');
+assert.isTrue(
+  __isListening,
+  "Your server should be listening on port 3000. Run `node index.js` to start it.",
+);
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
-global.__file = await __helpers.getFile(project.dashedName, 'index.js');
-```
-
-### --after-all--
-
-```js
-delete global.__file;
+const __file = await __helpers.getFile(project.dashedName, "index.js");
 ```
 
 ### --seed--
@@ -131,7 +127,7 @@ delete global.__file;
 #### --"learn-express-by-building-a-weather-service-api/index.js"--
 
 ```js
-const express = require('express');
+import express from "express";
 
 const app = express();
 const PORT = 3000;
@@ -141,13 +137,7 @@ const PORT = 3000;
 
 ### --description--
 
-Your server is running but not handling any requests yet. In Express, you define a <dfn title="A route matches an HTTP method and URL path to a handler function">route</dfn> using methods like `app.get()`. The handler receives `req` (the request) and `res` (the response). Use `res.json()` to send a JSON response:
-
-```js
-app.get('/example', (req, res) => {
-  res.json({ message: 'Hello!' });
-});
-```
+Your server is running but not handling any requests yet. In Express, a route matches an HTTP method and URL path to a handler function. The handler receives `req` and `res`; use `res.json()` to send JSON from a route.
 
 In `index.js`, add a `GET /api/info` route. Inside the handler, use `res.json()` to respond with an object that has at least a `name` property describing your API.
 
@@ -158,18 +148,30 @@ In `index.js`, add a `GET /api/info` route. Inside the handler, use `res.json()`
 Your server should respond to `GET /api/info` with a `200` status code.
 
 ```js
-const __res = await fetch('http://localhost:3000/api/info');
-assert.equal(__res.status, 200, "GET /api/info should return a 200 status code.");
+const __res = await fetch("http://localhost:3000/api/info");
+assert.equal(
+  __res.status,
+  200,
+  "GET /api/info should return a 200 status code.",
+);
 ```
 
 `GET /api/info` should respond with JSON that has at least a `name` property.
 
 ```js
-const __res = await fetch('http://localhost:3000/api/info');
-const __contentType = __res.headers.get('content-type') ?? '';
-assert.include(__contentType, 'application/json', "GET /api/info should respond with a JSON content-type header.");
+const __res = await fetch("http://localhost:3000/api/info");
+const __contentType = __res.headers.get("content-type") ?? "";
+assert.include(
+  __contentType,
+  "application/json",
+  "GET /api/info should respond with a JSON content-type header.",
+);
 const __data = await __res.json();
-assert.property(__data, 'name', "The JSON response from GET /api/info should have a 'name' property.");
+assert.property(
+  __data,
+  "name",
+  "The JSON response from GET /api/info should have a 'name' property.",
+);
 ```
 
 ### --seed--
@@ -177,7 +179,7 @@ assert.property(__data, 'name', "The JSON response from GET /api/info should hav
 #### --"learn-express-by-building-a-weather-service-api/index.js"--
 
 ```js
-const express = require('express');
+import express from "express";
 
 const app = express();
 const PORT = 3000;
@@ -191,13 +193,7 @@ app.listen(PORT, () => {
 
 ### --description--
 
-Previously, you used `res.json()` to send a structured JSON response. For plain text or HTML, Express provides `res.send()` instead:
-
-```js
-app.get('/', (req, res) => {
-  res.send('Welcome to my API!');
-});
-```
+Previously, you used `res.json()` to send structured JSON. For plain text or HTML, Express provides `res.send()` instead.
 
 In `index.js`, add a `GET /` route that uses `res.send()` to respond with a plain-text welcome message of your choice.
 
@@ -208,18 +204,26 @@ In `index.js`, add a `GET /` route that uses `res.send()` to respond with a plai
 Your server should respond to `GET /` with a `200` status code.
 
 ```js
-const __res = await fetch('http://localhost:3000/');
+const __res = await fetch("http://localhost:3000/");
 assert.equal(__res.status, 200, "GET / should return a 200 status code.");
 ```
 
 `GET /` should respond with plain text, not JSON.
 
 ```js
-const __res = await fetch('http://localhost:3000/');
-const __contentType = __res.headers.get('content-type') ?? '';
-assert.notInclude(__contentType, 'application/json', "GET / should use res.send() to respond with plain text, not res.json().");
+const __res = await fetch("http://localhost:3000/");
+const __contentType = __res.headers.get("content-type") ?? "";
+assert.notInclude(
+  __contentType,
+  "application/json",
+  "GET / should use res.send() to respond with plain text, not res.json().",
+);
 const __body = await __res.text();
-assert.isAbove(__body.trim().length, 0, "GET / should respond with a non-empty body.");
+assert.isAbove(
+  __body.trim().length,
+  0,
+  "GET / should respond with a non-empty body.",
+);
 ```
 
 ### --seed--
@@ -227,13 +231,13 @@ assert.isAbove(__body.trim().length, 0, "GET / should respond with a non-empty b
 #### --"learn-express-by-building-a-weather-service-api/index.js"--
 
 ```js
-const express = require('express');
+import express from "express";
 
 const app = express();
 const PORT = 3000;
 
-app.get('/api/info', (req, res) => {
-  res.json({ name: 'Weather Service API', version: '1.0.0' });
+app.get("/api/info", (req, res) => {
+  res.json({ name: "Weather Service API", version: "1.0.0" });
 });
 
 app.listen(PORT, () => {
@@ -245,13 +249,7 @@ app.listen(PORT, () => {
 
 ### --description--
 
-So far you have used `res.json()` and `res.send()` to respond to requests. Express also lets you explicitly set the <dfn title="A three-digit code indicating the result of an HTTP request">HTTP status code</dfn> by chaining `res.status()` before a response method:
-
-```js
-app.get('/api/status', (req, res) => {
-  res.status(200).json({ status: 'ok' });
-});
-```
+So far you have used `res.json()` and `res.send()` to respond to requests. Express also lets you explicitly set the HTTP status code by chaining `res.status()` before a response method.
 
 In `index.js`, add a `GET /api/status` route that uses `res.status(200).json()` to respond with a JSON object containing a `status` property.
 
@@ -262,16 +260,24 @@ In `index.js`, add a `GET /api/status` route that uses `res.status(200).json()` 
 Your server should respond to `GET /api/status` with a `200` status code.
 
 ```js
-const __res = await fetch('http://localhost:3000/api/status');
-assert.equal(__res.status, 200, "GET /api/status should return a 200 status code.");
+const __res = await fetch("http://localhost:3000/api/status");
+assert.equal(
+  __res.status,
+  200,
+  "GET /api/status should return a 200 status code.",
+);
 ```
 
 `GET /api/status` should respond with a JSON object that has a `status` property.
 
 ```js
-const __res = await fetch('http://localhost:3000/api/status');
+const __res = await fetch("http://localhost:3000/api/status");
 const __data = await __res.json();
-assert.property(__data, 'status', "The response from GET /api/status should have a 'status' property.");
+assert.property(
+  __data,
+  "status",
+  "The response from GET /api/status should have a 'status' property.",
+);
 ```
 
 ### --seed--
@@ -279,17 +285,17 @@ assert.property(__data, 'status', "The response from GET /api/status should have
 #### --"learn-express-by-building-a-weather-service-api/index.js"--
 
 ```js
-const express = require('express');
+import express from "express";
 
 const app = express();
 const PORT = 3000;
 
-app.get('/', (req, res) => {
-  res.send('Welcome to the Weather Service API!');
+app.get("/", (req, res) => {
+  res.send("Welcome to the Weather Service API!");
 });
 
-app.get('/api/info', (req, res) => {
-  res.json({ name: 'Weather Service API', version: '1.0.0' });
+app.get("/api/info", (req, res) => {
+  res.json({ name: "Weather Service API", version: "1.0.0" });
 });
 
 app.listen(PORT, () => {
@@ -301,13 +307,7 @@ app.listen(PORT, () => {
 
 ### --description--
 
-Another useful response method is `res.redirect()`, which sends the client to a different URL. This is handy for renaming routes without breaking old links:
-
-```js
-app.get('/old-path', (req, res) => {
-  res.redirect('/new-path');
-});
-```
+Another useful response method is `res.redirect()`, which sends the client to a different URL. This is handy for renaming routes without breaking old links.
 
 In `index.js`, add a `GET /docs` route that redirects to `/api/info`.
 
@@ -318,18 +318,34 @@ In `index.js`, add a `GET /docs` route that redirects to `/api/info`.
 `index.js` should contain a `GET /docs` route that calls `res.redirect`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'index.js');
-assert.match(__file, /res\.redirect\s*\(/, "Your 'GET /docs' handler should call 'res.redirect()'.");
-assert.match(__file, /['"]\/api\/info['"]/, "You should redirect to '/api/info'.");
+const __file = await __helpers.getFile(project.dashedName, "index.js");
+assert.match(
+  __file,
+  /res\.redirect\s*\(/,
+  "Your 'GET /docs' handler should call 'res.redirect()'.",
+);
+assert.match(
+  __file,
+  /['"]\/api\/info['"]/,
+  "You should redirect to '/api/info'.",
+);
 ```
 
 `GET /docs` should ultimately respond with the same JSON as `GET /api/info`.
 
 ```js
-const __docsRes = await fetch('http://localhost:3000/docs');
-assert.equal(__docsRes.status, 200, "GET /docs should eventually resolve to a 200 response after redirecting.");
+const __docsRes = await fetch("http://localhost:3000/docs");
+assert.equal(
+  __docsRes.status,
+  200,
+  "GET /docs should eventually resolve to a 200 response after redirecting.",
+);
 const __data = await __docsRes.json();
-assert.property(__data, 'name', "Following the redirect from GET /docs should return the /api/info JSON.");
+assert.property(
+  __data,
+  "name",
+  "Following the redirect from GET /docs should return the /api/info JSON.",
+);
 ```
 
 ### --seed--
@@ -337,21 +353,21 @@ assert.property(__data, 'name', "Following the redirect from GET /docs should re
 #### --"learn-express-by-building-a-weather-service-api/index.js"--
 
 ```js
-const express = require('express');
+import express from "express";
 
 const app = express();
 const PORT = 3000;
 
-app.get('/', (req, res) => {
-  res.send('Welcome to the Weather Service API!');
+app.get("/", (req, res) => {
+  res.send("Welcome to the Weather Service API!");
 });
 
-app.get('/api/info', (req, res) => {
-  res.json({ name: 'Weather Service API', version: '1.0.0' });
+app.get("/api/info", (req, res) => {
+  res.json({ name: "Weather Service API", version: "1.0.0" });
 });
 
-app.get('/api/status', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+app.get("/api/status", (req, res) => {
+  res.status(200).json({ status: "ok" });
 });
 
 app.listen(PORT, () => {
@@ -363,14 +379,7 @@ app.listen(PORT, () => {
 
 ### --description--
 
-So far all your route paths have been static strings. Express also supports <dfn title="Named URL segments that capture values from the request path">route parameters</dfn> — placeholders prefixed with `:` that are captured and made available on `req.params`:
-
-```js
-app.get('/api/greet/:name', (req, res) => {
-  const { name } = req.params;
-  res.json({ greeting: `Hello, ${name}!` });
-});
-```
+So far all your route paths have been static strings. Express also supports route parameters — placeholders prefixed with `:` that are captured and made available on `req.params`.
 
 In `index.js`, add a `GET /api/greet/:name` route that reads the `:name` parameter from `req.params` and includes it somewhere in a JSON response.
 
@@ -381,20 +390,32 @@ In `index.js`, add a `GET /api/greet/:name` route that reads the `:name` paramet
 `GET /api/greet/:name` should respond with a `200` status code.
 
 ```js
-const __res = await fetch('http://localhost:3000/api/greet/Alice');
-assert.equal(__res.status, 200, "GET /api/greet/:name should return a 200 status code.");
+const __res = await fetch("http://localhost:3000/api/greet/Alice");
+assert.equal(
+  __res.status,
+  200,
+  "GET /api/greet/:name should return a 200 status code.",
+);
 ```
 
 `GET /api/greet/:name` should reflect the `:name` parameter in the JSON response.
 
 ```js
-const __resAlice = await fetch('http://localhost:3000/api/greet/Alice');
+const __resAlice = await fetch("http://localhost:3000/api/greet/Alice");
 const __dataAlice = await __resAlice.json();
-assert.match(JSON.stringify(__dataAlice), /Alice/, "The response for GET /api/greet/Alice should include 'Alice'.");
+assert.match(
+  JSON.stringify(__dataAlice),
+  /Alice/,
+  "The response for GET /api/greet/Alice should include 'Alice'.",
+);
 
-const __resBob = await fetch('http://localhost:3000/api/greet/Bob');
+const __resBob = await fetch("http://localhost:3000/api/greet/Bob");
 const __dataBob = await __resBob.json();
-assert.match(JSON.stringify(__dataBob), /Bob/, "The response for GET /api/greet/Bob should include 'Bob'.");
+assert.match(
+  JSON.stringify(__dataBob),
+  /Bob/,
+  "The response for GET /api/greet/Bob should include 'Bob'.",
+);
 ```
 
 ### --seed--
@@ -402,25 +423,25 @@ assert.match(JSON.stringify(__dataBob), /Bob/, "The response for GET /api/greet/
 #### --"learn-express-by-building-a-weather-service-api/index.js"--
 
 ```js
-const express = require('express');
+import express from "express";
 
 const app = express();
 const PORT = 3000;
 
-app.get('/', (req, res) => {
-  res.send('Welcome to the Weather Service API!');
+app.get("/", (req, res) => {
+  res.send("Welcome to the Weather Service API!");
 });
 
-app.get('/api/info', (req, res) => {
-  res.json({ name: 'Weather Service API', version: '1.0.0' });
+app.get("/api/info", (req, res) => {
+  res.json({ name: "Weather Service API", version: "1.0.0" });
 });
 
-app.get('/api/status', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+app.get("/api/status", (req, res) => {
+  res.status(200).json({ status: "ok" });
 });
 
-app.get('/docs', (req, res) => {
-  res.redirect('/api/info');
+app.get("/docs", (req, res) => {
+  res.redirect("/api/info");
 });
 
 app.listen(PORT, () => {
@@ -432,14 +453,7 @@ app.listen(PORT, () => {
 
 ### --description--
 
-When multiple HTTP methods share the same path, you can use `app.route()` to attach them all in one place — this is called a <dfn title="Chaining multiple HTTP method handlers onto a single route path">chainable route handler</dfn>:
-
-```js
-app.route('/api/data')
-  .get((req, res) => {
-    res.json({ message: 'GET /api/data' });
-  });
-```
+When multiple HTTP methods share the same path, use `app.route()` to attach handlers in one place. This keeps related routes together.
 
 In `index.js`, use `app.route('/api/data')` and chain a `.get()` handler onto it that responds with a JSON body.
 
@@ -450,17 +464,29 @@ In `index.js`, use `app.route('/api/data')` and chain a `.get()` handler onto it
 `index.js` should use `app.route()` to define the `/api/data` route.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'index.js');
-assert.match(__file, /app\.route\s*\(\s*['"]\/api\/data['"]\s*\)/, "You should use 'app.route('/api/data')' in 'index.js'.");
+const __file = await __helpers.getFile(project.dashedName, "index.js");
+assert.match(
+  __file,
+  /app\.route\s*\(\s*['"]\/api\/data['"]\s*\)/,
+  "You should use 'app.route('/api/data')' in 'index.js'.",
+);
 ```
 
 `GET /api/data` should respond with a `200` status and a JSON body.
 
 ```js
-const __res = await fetch('http://localhost:3000/api/data');
-assert.equal(__res.status, 200, "GET /api/data should return a 200 status code.");
-const __contentType = __res.headers.get('content-type') ?? '';
-assert.include(__contentType, 'application/json', "GET /api/data should respond with JSON.");
+const __res = await fetch("http://localhost:3000/api/data");
+assert.equal(
+  __res.status,
+  200,
+  "GET /api/data should return a 200 status code.",
+);
+const __contentType = __res.headers.get("content-type") ?? "";
+assert.include(
+  __contentType,
+  "application/json",
+  "GET /api/data should respond with JSON.",
+);
 ```
 
 ### --seed--
@@ -468,28 +494,28 @@ assert.include(__contentType, 'application/json', "GET /api/data should respond 
 #### --"learn-express-by-building-a-weather-service-api/index.js"--
 
 ```js
-const express = require('express');
+import express from "express";
 
 const app = express();
 const PORT = 3000;
 
-app.get('/', (req, res) => {
-  res.send('Welcome to the Weather Service API!');
+app.get("/", (req, res) => {
+  res.send("Welcome to the Weather Service API!");
 });
 
-app.get('/api/info', (req, res) => {
-  res.json({ name: 'Weather Service API', version: '1.0.0' });
+app.get("/api/info", (req, res) => {
+  res.json({ name: "Weather Service API", version: "1.0.0" });
 });
 
-app.get('/api/status', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+app.get("/api/status", (req, res) => {
+  res.status(200).json({ status: "ok" });
 });
 
-app.get('/docs', (req, res) => {
-  res.redirect('/api/info');
+app.get("/docs", (req, res) => {
+  res.redirect("/api/info");
 });
 
-app.get('/api/greet/:name', (req, res) => {
+app.get("/api/greet/:name", (req, res) => {
   const { name } = req.params;
   res.json({ greeting: `Hello, ${name}!` });
 });
@@ -503,17 +529,7 @@ app.listen(PORT, () => {
 
 ### --description--
 
-The real power of `app.route()` is that you can keep chaining additional HTTP method handlers for the same path, keeping related code together:
-
-```js
-app.route('/api/data')
-  .get((req, res) => {
-    res.json({ message: 'GET /api/data' });
-  })
-  .post((req, res) => {
-    res.status(201).json({ message: 'POST /api/data', created: true });
-  });
-```
+The real power of `app.route()` is that you can keep chaining additional HTTP method handlers for the same path, keeping related code together.
 
 In `index.js`, chain a `.post()` handler onto your existing `app.route('/api/data')` call. The handler should respond with a `201` status code and a JSON body.
 
@@ -524,17 +540,29 @@ In `index.js`, chain a `.post()` handler onto your existing `app.route('/api/dat
 `index.js` should chain a `.post()` handler onto `app.route('/api/data')`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'index.js');
-assert.match(__file, /app\.route\s*\(\s*['"]\/api\/data['"]\s*\)[\s\S]*?\.post\s*\(/, "You should chain a '.post()' handler onto 'app.route('/api/data')'.");
+const __file = await __helpers.getFile(project.dashedName, "index.js");
+assert.match(
+  __file,
+  /app\.route\s*\(\s*['"]\/api\/data['"]\s*\)[\s\S]*?\.post\s*\(/,
+  "You should chain a '.post()' handler onto 'app.route('/api/data')'.",
+);
 ```
 
 `POST /api/data` should respond with a `201` status code and a JSON body.
 
 ```js
-const __res = await fetch('http://localhost:3000/api/data', { method: 'POST' });
-assert.equal(__res.status, 201, "POST /api/data should return a 201 status code.");
-const __contentType = __res.headers.get('content-type') ?? '';
-assert.include(__contentType, 'application/json', "POST /api/data should respond with JSON.");
+const __res = await fetch("http://localhost:3000/api/data", { method: "POST" });
+assert.equal(
+  __res.status,
+  201,
+  "POST /api/data should return a 201 status code.",
+);
+const __contentType = __res.headers.get("content-type") ?? "";
+assert.include(
+  __contentType,
+  "application/json",
+  "POST /api/data should respond with JSON.",
+);
 ```
 
 ### --seed--
@@ -542,36 +570,35 @@ assert.include(__contentType, 'application/json', "POST /api/data should respond
 #### --"learn-express-by-building-a-weather-service-api/index.js"--
 
 ```js
-const express = require('express');
+import express from "express";
 
 const app = express();
 const PORT = 3000;
 
-app.get('/', (req, res) => {
-  res.send('Welcome to the Weather Service API!');
+app.get("/", (req, res) => {
+  res.send("Welcome to the Weather Service API!");
 });
 
-app.get('/api/info', (req, res) => {
-  res.json({ name: 'Weather Service API', version: '1.0.0' });
+app.get("/api/info", (req, res) => {
+  res.json({ name: "Weather Service API", version: "1.0.0" });
 });
 
-app.get('/api/status', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+app.get("/api/status", (req, res) => {
+  res.status(200).json({ status: "ok" });
 });
 
-app.get('/docs', (req, res) => {
-  res.redirect('/api/info');
+app.get("/docs", (req, res) => {
+  res.redirect("/api/info");
 });
 
-app.get('/api/greet/:name', (req, res) => {
+app.get("/api/greet/:name", (req, res) => {
   const { name } = req.params;
   res.json({ greeting: `Hello, ${name}!` });
 });
 
-app.route('/api/data')
-  .get((req, res) => {
-    res.json({ message: 'GET /api/data', data: [] });
-  });
+app.route("/api/data").get((req, res) => {
+  res.json({ message: "GET /api/data", data: [] });
+});
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
@@ -582,42 +609,42 @@ app.listen(PORT, () => {
 
 ### --description--
 
-As your API grows, keeping all routes in `index.js` becomes unwieldy. Express provides `express.Router()` to create <dfn title="A mini Express application that handles a subset of routes and can be mounted at a path">modular routers</dfn> — self-contained route handlers that can be organised in separate files:
+As your API grows, keeping all routes in `index.js` becomes unwieldy. Express provides `express.Router()` to create <dfn title="A mini Express application that handles a subset of routes and can be mounted at a path">modular routers</dfn> — self-contained route handlers that can be organised in separate files.
 
-```js
-const express = require('express');
-const router = express.Router();
-```
-
-Create a new file called `weather.js` in the project directory. In it, require `express` and create a router by calling `express.Router()`, storing the result in a variable called `router`.
+Create a new file called `weather.js` in the project directory. In it, import Express using ESM syntax and create a router by calling `express.Router()`, storing the result in a variable called `router`.
 
 ### --tests--
 
-`weather.js` should require `express`.
+`weather.js` should import `express` using ESM syntax.
 
 ```js
-assert.match(global.__file, /require\s*\(\s*['"]express['"]\s*\)/, "weather.js should require 'express'.");
+assert.match(
+  __file,
+  /import\s+express\s+from\s+['"]express['"]/, 
+  "weather.js should import express using ESM syntax.",
+);
 ```
 
 `weather.js` should call `express.Router()` and assign the result to a `router` variable.
 
 ```js
-const __t = new __helpers.Tower(global.__file);
-const __routerVar = __t.getVariable('router');
-assert.exists(__routerVar, "You should create a variable named 'router' in weather.js.");
-assert.match(__helpers.generate(__routerVar.ast.declarations[0].init).code, /express\.Router\s*\(\s*\)/, "The 'router' variable should be set to 'express.Router()'.");
+const __t = new __helpers.Tower(__file);
+const __routerVar = __t.getVariable("router");
+assert.exists(
+  __routerVar,
+  "You should create a variable named 'router' in weather.js.",
+);
+assert.match(
+  __helpers.generate(__routerVar.ast.declarations[0].init).code,
+  /express\.Router\s*\(\s*\)/,
+  "The 'router' variable should be set to 'express.Router()'.",
+);
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
-global.__file = await __helpers.getFile(project.dashedName, 'weather.js');
-```
-
-### --after-all--
-
-```js
-delete global.__file;
+const __file = await __helpers.getFile(project.dashedName, "weather.js");
 ```
 
 ## 11
@@ -633,33 +660,39 @@ In `weather.js`, first define a `SUPPORTED_CITIES` array containing a list of ci
 `weather.js` should define a `SUPPORTED_CITIES` array.
 
 ```js
-assert.match(global.__file, /SUPPORTED_CITIES/, "weather.js should define a 'SUPPORTED_CITIES' variable.");
-assert.match(global.__file, /\[[\s\S]*?['"](?:New York|London|Tokyo|Chicago|Los Angeles)['"][\s\S]*?\]/, "SUPPORTED_CITIES should be an array containing at least one city string.");
+assert.match(
+  __file,
+  /SUPPORTED_CITIES/,
+  "weather.js should define a 'SUPPORTED_CITIES' variable.",
+);
+assert.match(
+  __file,
+  /\[[\s\S]*?['"](?:New York|London|Tokyo|Chicago|Los Angeles)['"][\s\S]*?\]/,
+  "SUPPORTED_CITIES should be an array containing at least one city string.",
+);
 ```
 
 `weather.js` should add a `GET /` route on the router that responds with the cities list.
 
 ```js
-const __t = new __helpers.Tower(global.__file);
-const __calls = __t.getCalls('router.get');
-assert.isAbove(__calls.length, 0, "You should call 'router.get()' in weather.js.");
-const __rootCall = __calls.find(c => {
+const __t = new __helpers.Tower(__file);
+const __calls = __t.getCalls("router.get");
+assert.isAbove(
+  __calls.length,
+  0,
+  "You should call 'router.get()' in weather.js.",
+);
+const __rootCall = __calls.find((c) => {
   const __arg = c.ast?.expression?.arguments?.[0];
-  return __arg?.value === '/';
+  return __arg?.value === "/";
 });
 assert.exists(__rootCall, "You should define a 'router.get('/')' route.");
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
-global.__file = await __helpers.getFile(project.dashedName, 'weather.js');
-```
-
-### --after-all--
-
-```js
-delete global.__file;
+const __file = await __helpers.getFile(project.dashedName, "weather.js");
 ```
 
 ### --seed--
@@ -667,7 +700,7 @@ delete global.__file;
 #### --"learn-express-by-building-a-weather-service-api/weather.js"--
 
 ```js
-const express = require('express');
+import express from "express";
 const router = express.Router();
 ```
 
@@ -675,21 +708,21 @@ const router = express.Router();
 
 ### --description--
 
-For another file to use your router, you need to export it. In Node.js, `module.exports` is used to expose values from a module:
+For another file to use your router, export it using ESM syntax.
 
-```js
-module.exports = router;
-```
-
-At the bottom of `weather.js`, export the `router` using `module.exports`.
+At the bottom of `weather.js`, export the `router` using `export default router`.
 
 ### --tests--
 
-`weather.js` should export the `router` using `module.exports`.
+`weather.js` should export the `router` using ESM syntax.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'weather.js');
-assert.match(__file, /module\.exports\s*=\s*router/, "weather.js should contain 'module.exports = router'.");
+const __file = await __helpers.getFile(project.dashedName, "weather.js");
+assert.match(
+  __file,
+  /export\s+default\s+router/,
+  "weather.js should contain 'export default router'.",
+);
 ```
 
 ### --seed--
@@ -697,12 +730,18 @@ assert.match(__file, /module\.exports\s*=\s*router/, "weather.js should contain 
 #### --"learn-express-by-building-a-weather-service-api/weather.js"--
 
 ```js
-const express = require('express');
+import express from "express";
 const router = express.Router();
 
-const SUPPORTED_CITIES = ['New York', 'Chicago', 'Los Angeles', 'Tokyo', 'London'];
+const SUPPORTED_CITIES = [
+  "New York",
+  "Chicago",
+  "Los Angeles",
+  "Tokyo",
+  "London",
+];
 
-router.get('/', (req, res) => {
+router.get("/", (req, res) => {
   res.json({ supportedCities: SUPPORTED_CITIES });
 });
 ```
@@ -711,50 +750,52 @@ router.get('/', (req, res) => {
 
 ### --description--
 
-With `weather.js` exporting its router, you can now import and <dfn title="Attaching a router to the main Express app at a specific base path">mount</dfn> it in `index.js`. Use `app.use()` with a base path to forward all matching requests to the router:
+With `weather.js` exporting its router, you can now import and <dfn title="Attaching a router to the main Express app at a specific base path">mount</dfn> it in `index.js`. Use `app.use()` with a base path to forward all matching requests to the router.
 
-```js
-const weatherRouter = require('./weather');
-app.use('/api/weather', weatherRouter);
-```
-
-Any route defined on `weatherRouter` will be prefixed with `/api/weather` — so a `router.get('/')` inside `weather.js` becomes `GET /api/weather` on the main app.
-
-In `index.js`, require `./weather` and mount it at `/api/weather` using `app.use()`. Then restart the server and click _Run Tests_.
+In `index.js`, import the router from `./weather.js` and mount it at `/api/weather` using `app.use()`. Then restart the server and click _Run Tests_.
 
 ### --tests--
 
-`index.js` should require `./weather` and assign it to a variable.
+`index.js` should import `./weather.js` and assign it to a variable.
 
 ```js
-assert.match(global.__indexFile, /require\s*\(\s*['"]\.\/weather['"]\s*\)/, "index.js should require './weather'.");
+assert.match(
+  __indexFile,
+  /import\s+weatherRouter\s+from\s+['"]\.\/weather\.js['"]/, 
+  "index.js should import './weather.js'.",
+);
 ```
 
 `index.js` should mount the weather router at `/api/weather` using `app.use()`.
 
 ```js
-assert.match(global.__indexFile, /app\.use\s*\(\s*['"]\/api\/weather['"]/, "index.js should call 'app.use('/api/weather', ...)' to mount the weather router.");
+assert.match(
+  __indexFile,
+  /app\.use\s*\(\s*['"]\/api\/weather['"]/,
+  "index.js should call 'app.use('/api/weather', ...)' to mount the weather router.",
+);
 ```
 
 `GET /api/weather` should respond with a `200` status and a JSON body containing the cities list.
 
 ```js
-const __res = await fetch('http://localhost:3000/api/weather');
-assert.equal(__res.status, 200, "GET /api/weather should return a 200 status code.");
+const __res = await fetch("http://localhost:3000/api/weather");
+assert.equal(
+  __res.status,
+  200,
+  "GET /api/weather should return a 200 status code.",
+);
 const __data = await __res.json();
-assert.isArray(Object.values(__data)[0], "GET /api/weather should respond with a JSON object containing an array of cities.");
+assert.isArray(
+  Object.values(__data)[0],
+  "GET /api/weather should respond with a JSON object containing an array of cities.",
+);
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
-global.__indexFile = await __helpers.getFile(project.dashedName, 'index.js');
-```
-
-### --after-all--
-
-```js
-delete global.__indexFile;
+const __indexFile = await __helpers.getFile(project.dashedName, "index.js");
 ```
 
 ### --seed--
@@ -762,53 +803,60 @@ delete global.__indexFile;
 #### --"learn-express-by-building-a-weather-service-api/weather.js"--
 
 ```js
-const express = require('express');
+import express from "express";
 const router = express.Router();
 
-const SUPPORTED_CITIES = ['New York', 'Chicago', 'Los Angeles', 'Tokyo', 'London'];
+const SUPPORTED_CITIES = [
+  "New York",
+  "Chicago",
+  "Los Angeles",
+  "Tokyo",
+  "London",
+];
 
-router.get('/', (req, res) => {
+router.get("/", (req, res) => {
   res.json({ supportedCities: SUPPORTED_CITIES });
 });
 
-module.exports = router;
+export default router;
 ```
 
 #### --"learn-express-by-building-a-weather-service-api/index.js"--
 
 ```js
-const express = require('express');
+import express from "express";
 
 const app = express();
 const PORT = 3000;
 
-app.get('/', (req, res) => {
-  res.send('Welcome to the Weather Service API!');
+app.get("/", (req, res) => {
+  res.send("Welcome to the Weather Service API!");
 });
 
-app.get('/api/info', (req, res) => {
-  res.json({ name: 'Weather Service API', version: '1.0.0' });
+app.get("/api/info", (req, res) => {
+  res.json({ name: "Weather Service API", version: "1.0.0" });
 });
 
-app.get('/api/status', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+app.get("/api/status", (req, res) => {
+  res.status(200).json({ status: "ok" });
 });
 
-app.get('/docs', (req, res) => {
-  res.redirect('/api/info');
+app.get("/docs", (req, res) => {
+  res.redirect("/api/info");
 });
 
-app.get('/api/greet/:name', (req, res) => {
+app.get("/api/greet/:name", (req, res) => {
   const { name } = req.params;
   res.json({ greeting: `Hello, ${name}!` });
 });
 
-app.route('/api/data')
+app
+  .route("/api/data")
   .get((req, res) => {
-    res.json({ message: 'GET /api/data', data: [] });
+    res.json({ message: "GET /api/data", data: [] });
   })
   .post((req, res) => {
-    res.status(201).json({ message: 'POST /api/data', created: true });
+    res.status(201).json({ message: "POST /api/data", created: true });
   });
 
 app.listen(PORT, () => {
@@ -823,9 +871,9 @@ app.listen(PORT, () => {
 The weather router is mounted and working. Now add a second route to it for fetching weather by city name. Route parameters work the same on a router as they do on `app` — prefix the segment with `:`:
 
 ```js
-router.get('/:city', (req, res) => {
+router.get("/:city", (req, res) => {
   const { city } = req.params;
-  res.json({ city, temperature: 20, description: 'placeholder' });
+  res.json({ city, temperature: 20, description: "placeholder" });
 });
 ```
 
@@ -838,34 +886,39 @@ In `weather.js`, add a `GET /:city` route on the router. For now, respond with a
 `weather.js` should define a `router.get('/:city')` route.
 
 ```js
-const __t = new __helpers.Tower(global.__file);
-const __calls = __t.getCalls('router.get');
-const __cityRoute = __calls.find(c => {
+const __t = new __helpers.Tower(__file);
+const __calls = __t.getCalls("router.get");
+const __cityRoute = __calls.find((c) => {
   const __arg = c.ast?.expression?.arguments?.[0];
-  return __arg?.value === '/:city';
+  return __arg?.value === "/:city";
 });
-assert.exists(__cityRoute, "You should define a 'router.get('/:city')' route in weather.js.");
+assert.exists(
+  __cityRoute,
+  "You should define a 'router.get('/:city')' route in weather.js.",
+);
 ```
 
 `GET /api/weather/London` should respond with a `200` status and a JSON body.
 
 ```js
-const __res = await fetch('http://localhost:3000/api/weather/London');
-assert.equal(__res.status, 200, "GET /api/weather/London should return a 200 status code.");
-const __contentType = __res.headers.get('content-type') ?? '';
-assert.include(__contentType, 'application/json', "GET /api/weather/London should respond with JSON.");
+const __res = await fetch("http://localhost:3000/api/weather/London");
+assert.equal(
+  __res.status,
+  200,
+  "GET /api/weather/London should return a 200 status code.",
+);
+const __contentType = __res.headers.get("content-type") ?? "";
+assert.include(
+  __contentType,
+  "application/json",
+  "GET /api/weather/London should respond with JSON.",
+);
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
-global.__file = await __helpers.getFile(project.dashedName, 'weather.js');
-```
-
-### --after-all--
-
-```js
-delete global.__file;
+const __file = await __helpers.getFile(project.dashedName, "weather.js");
 ```
 
 ### --seed--
@@ -873,41 +926,42 @@ delete global.__file;
 #### --"learn-express-by-building-a-weather-service-api/index.js"--
 
 ```js
-const express = require('express');
-const weatherRouter = require('./weather');
+import express from "express";
+import weatherRouter from "./weather.js";
 
 const app = express();
 const PORT = 3000;
 
-app.use('/api/weather', weatherRouter);
+app.use("/api/weather", weatherRouter);
 
-app.get('/', (req, res) => {
-  res.send('Welcome to the Weather Service API!');
+app.get("/", (req, res) => {
+  res.send("Welcome to the Weather Service API!");
 });
 
-app.get('/api/info', (req, res) => {
-  res.json({ name: 'Weather Service API', version: '1.0.0' });
+app.get("/api/info", (req, res) => {
+  res.json({ name: "Weather Service API", version: "1.0.0" });
 });
 
-app.get('/api/status', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+app.get("/api/status", (req, res) => {
+  res.status(200).json({ status: "ok" });
 });
 
-app.get('/docs', (req, res) => {
-  res.redirect('/api/info');
+app.get("/docs", (req, res) => {
+  res.redirect("/api/info");
 });
 
-app.get('/api/greet/:name', (req, res) => {
+app.get("/api/greet/:name", (req, res) => {
   const { name } = req.params;
   res.json({ greeting: `Hello, ${name}!` });
 });
 
-app.route('/api/data')
+app
+  .route("/api/data")
   .get((req, res) => {
-    res.json({ message: 'GET /api/data', data: [] });
+    res.json({ message: "GET /api/data", data: [] });
   })
   .post((req, res) => {
-    res.status(201).json({ message: 'POST /api/data', created: true });
+    res.status(201).json({ message: "POST /api/data", created: true });
   });
 
 app.listen(PORT, () => {
@@ -922,9 +976,11 @@ app.listen(PORT, () => {
 Now replace the placeholder response in the `/:city` handler with a real <dfn title="A server-to-server HTTP request made from within your application">machine-to-machine fetch call</dfn>. Node.js has a built-in `fetch()` — mark the handler `async` and `await` the response:
 
 ```js
-router.get('/:city', async (req, res) => {
+router.get("/:city", async (req, res) => {
   const { city } = req.params;
-  const response = await fetch(`https://weather-proxy.freecodecamp.rocks/api/city/${city}`);
+  const response = await fetch(
+    `https://weather-proxy.freecodecamp.rocks/api/city/${city}`,
+  );
   const data = await response.json();
   res.json({
     city: data.name,
@@ -943,20 +999,40 @@ In `weather.js`, update the `/:city` handler to `async`, call `fetch()` against 
 `weather.js` should use `fetch()` to call an external API inside the `/:city` handler.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'weather.js');
-assert.match(__file, /fetch\s*\(/, "The '/:city' handler in weather.js should call 'fetch()' to get weather data.");
-assert.match(__file, /async/, "The '/:city' handler should be an async function.");
+const __file = await __helpers.getFile(project.dashedName, "weather.js");
+assert.match(
+  __file,
+  /fetch\s*\(/,
+  "The '/:city' handler in weather.js should call 'fetch()' to get weather data.",
+);
+assert.match(
+  __file,
+  /async/,
+  "The '/:city' handler should be an async function.",
+);
 ```
 
 `GET /api/weather/London` should respond with a JSON body containing `city`, `temperature`, and `description` fields.
 
 ```js
-const __res = await fetch('http://localhost:3000/api/weather/London');
-assert.equal(__res.status, 200, "GET /api/weather/London should return a 200 status code.");
+const __res = await fetch("http://localhost:3000/api/weather/London");
+assert.equal(
+  __res.status,
+  200,
+  "GET /api/weather/London should return a 200 status code.",
+);
 const __data = await __res.json();
-assert.property(__data, 'city', "The response should have a 'city' property.");
-assert.property(__data, 'temperature', "The response should have a 'temperature' property.");
-assert.property(__data, 'description', "The response should have a 'description' property.");
+assert.property(__data, "city", "The response should have a 'city' property.");
+assert.property(
+  __data,
+  "temperature",
+  "The response should have a 'temperature' property.",
+);
+assert.property(
+  __data,
+  "description",
+  "The response should have a 'description' property.",
+);
 ```
 
 ### --seed--
@@ -964,21 +1040,27 @@ assert.property(__data, 'description', "The response should have a 'description'
 #### --"learn-express-by-building-a-weather-service-api/weather.js"--
 
 ```js
-const express = require('express');
+import express from "express";
 const router = express.Router();
 
-const SUPPORTED_CITIES = ['New York', 'Chicago', 'Los Angeles', 'Tokyo', 'London'];
+const SUPPORTED_CITIES = [
+  "New York",
+  "Chicago",
+  "Los Angeles",
+  "Tokyo",
+  "London",
+];
 
-router.get('/', (req, res) => {
+router.get("/", (req, res) => {
   res.json({ supportedCities: SUPPORTED_CITIES });
 });
 
-router.get('/:city', (req, res) => {
+router.get("/:city", (req, res) => {
   const { city } = req.params;
-  res.json({ city, temperature: 20, description: 'placeholder' });
+  res.json({ city, temperature: 20, description: "placeholder" });
 });
 
-module.exports = router;
+export default router;
 ```
 
 ## 16
@@ -988,15 +1070,23 @@ module.exports = router;
 Right now, if the external API fails or an unsupported city is requested, the unhandled error will crash the request. Wrap the fetch logic in a `try/catch` and use `res.status(404).json()` to send a helpful error response:
 
 ```js
-router.get('/:city', async (req, res) => {
+router.get("/:city", async (req, res) => {
   const { city } = req.params;
   try {
-    const response = await fetch(`https://weather-proxy.freecodecamp.rocks/api/city/${city}`);
+    const response = await fetch(
+      `https://weather-proxy.freecodecamp.rocks/api/city/${city}`,
+    );
     if (!response.ok) throw new Error(`Status ${response.status}`);
     const data = await response.json();
-    res.json({ city: data.name, temperature: data.main.temp, description: data.weather[0].description });
+    res.json({
+      city: data.name,
+      temperature: data.main.temp,
+      description: data.weather[0].description,
+    });
   } catch (error) {
-    res.status(404).json({ error: `Could not fetch weather data for "${city}".` });
+    res
+      .status(404)
+      .json({ error: `Could not fetch weather data for "${city}".` });
   }
 });
 ```
@@ -1010,18 +1100,34 @@ In `weather.js`, wrap the entire `fetch()` logic in a `try/catch`. In the `catch
 `weather.js` should wrap the `fetch()` call in a `try/catch` block.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'weather.js');
-assert.match(__file, /try\s*\{/, "The '/:city' handler should use a try/catch block.");
-assert.match(__file, /catch\s*\(/, "The '/:city' handler should have a catch block to handle errors.");
+const __file = await __helpers.getFile(project.dashedName, "weather.js");
+assert.match(
+  __file,
+  /try\s*\{/,
+  "The '/:city' handler should use a try/catch block.",
+);
+assert.match(
+  __file,
+  /catch\s*\(/,
+  "The '/:city' handler should have a catch block to handle errors.",
+);
 ```
 
 `GET /api/weather/NotARealCity` should respond with a `404` status and a JSON body containing an `error` property.
 
 ```js
-const __res = await fetch('http://localhost:3000/api/weather/NotARealCity');
-assert.equal(__res.status, 404, "GET /api/weather/NotARealCity should return a 404 status code.");
+const __res = await fetch("http://localhost:3000/api/weather/NotARealCity");
+assert.equal(
+  __res.status,
+  404,
+  "GET /api/weather/NotARealCity should return a 404 status code.",
+);
 const __data = await __res.json();
-assert.property(__data, 'error', "The error response should have an 'error' property.");
+assert.property(
+  __data,
+  "error",
+  "The error response should have an 'error' property.",
+);
 ```
 
 ### --seed--
@@ -1029,17 +1135,23 @@ assert.property(__data, 'error', "The error response should have an 'error' prop
 #### --"learn-express-by-building-a-weather-service-api/weather.js"--
 
 ```js
-const express = require('express');
+import express from "express";
 const router = express.Router();
 
-const BASE_URL = 'https://weather-proxy.freecodecamp.rocks/api/city';
-const SUPPORTED_CITIES = ['New York', 'Chicago', 'Los Angeles', 'Tokyo', 'London'];
+const BASE_URL = "https://weather-proxy.freecodecamp.rocks/api/city";
+const SUPPORTED_CITIES = [
+  "New York",
+  "Chicago",
+  "Los Angeles",
+  "Tokyo",
+  "London",
+];
 
-router.get('/', (req, res) => {
+router.get("/", (req, res) => {
   res.json({ supportedCities: SUPPORTED_CITIES });
 });
 
-router.get('/:city', async (req, res) => {
+router.get("/:city", async (req, res) => {
   const { city } = req.params;
   const response = await fetch(`${BASE_URL}/${city}`);
   const data = await response.json();
@@ -1048,11 +1160,11 @@ router.get('/:city', async (req, res) => {
     country: data.sys.country,
     temperature: data.main.temp,
     description: data.weather[0].description,
-    iconUrl: data.weather[0].icon
+    iconUrl: data.weather[0].icon,
   });
 });
 
-module.exports = router;
+export default router;
 ```
 
 ## 17
@@ -1062,32 +1174,51 @@ module.exports = router;
 Your API handles data routes well. Now let's serve the front-end UI. Express's built-in `express.static()` <dfn title="A function that runs on every request before route handlers, used for cross-cutting concerns like logging or serving files">middleware</dfn> automatically serves any file found in a directory you specify:
 
 ```js
-const path = require('path');
+import path from "path";
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, "public")));
 ```
 
 `path.join(__dirname, 'public')` builds an absolute path to your `public/` folder regardless of where the process is started from. Place this `app.use()` call **before** your route definitions.
 
-In `index.js`, require `path`, then add the `express.static` middleware pointing at the `public` directory. Restart the server and click _Run Tests_.
+In `index.js`, import `path` from `path` and use `fileURLToPath(import.meta.url)` to recreate `__dirname`. Then add the `express.static` middleware pointing at the `public` directory. Restart the server and click _Run Tests_.
 
 ### --tests--
 
 `index.js` should call `express.static` to serve files from the `public` directory.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'index.js');
-assert.match(__file, /express\.static\s*\(/, "index.js should call 'express.static()' to serve static files.");
-assert.match(__file, /public/, "The static middleware should point to the 'public' directory.");
+const __file = await __helpers.getFile(project.dashedName, "index.js");
+assert.match(
+  __file,
+  /express\.static\s*\(/,
+  "index.js should call 'express.static()' to serve static files.",
+);
+assert.match(
+  __file,
+  /public/,
+  "The static middleware should point to the 'public' directory.",
+);
 ```
 
 Static files in `public/` should be served — `GET /index.html` should return a `200` with an HTML content-type.
 
 ```js
-const __res = await fetch('http://localhost:3000/index.html');
-assert.equal(__res.status, 200, "GET /index.html should return a 200 status code when static middleware is set up.");
-const __contentType = __res.headers.get('content-type') ?? '';
-assert.include(__contentType, 'text/html', "GET /index.html should be served as HTML.");
+const __res = await fetch("http://localhost:3000/index.html");
+assert.equal(
+  __res.status,
+  200,
+  "GET /index.html should return a 200 status code when static middleware is set up.",
+);
+const __contentType = __res.headers.get("content-type") ?? "";
+assert.include(
+  __contentType,
+  "text/html",
+  "GET /index.html should be served as HTML.",
+);
 ```
 
 ### --seed--
@@ -1095,41 +1226,42 @@ assert.include(__contentType, 'text/html', "GET /index.html should be served as 
 #### --"learn-express-by-building-a-weather-service-api/index.js"--
 
 ```js
-const express = require('express');
-const weatherRouter = require('./weather');
+import express from "express";
+import weatherRouter from "./weather.js";
 
 const app = express();
 const PORT = 3000;
 
-app.use('/api/weather', weatherRouter);
+app.use("/api/weather", weatherRouter);
 
-app.get('/', (req, res) => {
-  res.send('Welcome to the Weather Service API!');
+app.get("/", (req, res) => {
+  res.send("Welcome to the Weather Service API!");
 });
 
-app.get('/api/info', (req, res) => {
-  res.json({ name: 'Weather Service API', version: '1.0.0' });
+app.get("/api/info", (req, res) => {
+  res.json({ name: "Weather Service API", version: "1.0.0" });
 });
 
-app.get('/api/status', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+app.get("/api/status", (req, res) => {
+  res.status(200).json({ status: "ok" });
 });
 
-app.get('/docs', (req, res) => {
-  res.redirect('/api/info');
+app.get("/docs", (req, res) => {
+  res.redirect("/api/info");
 });
 
-app.get('/api/greet/:name', (req, res) => {
+app.get("/api/greet/:name", (req, res) => {
   const { name } = req.params;
   res.json({ greeting: `Hello, ${name}!` });
 });
 
-app.route('/api/data')
+app
+  .route("/api/data")
   .get((req, res) => {
-    res.json({ message: 'GET /api/data', data: [] });
+    res.json({ message: "GET /api/data", data: [] });
   })
   .post((req, res) => {
-    res.status(201).json({ message: 'POST /api/data', created: true });
+    res.status(201).json({ message: "POST /api/data", created: true });
   });
 
 app.listen(PORT, () => {
@@ -1141,13 +1273,9 @@ app.listen(PORT, () => {
 
 ### --description--
 
-Previously, `GET /` responded with a plain-text string via `res.send()`. Now that you have `express.static` in place and an HTML file ready in `public/`, update the route to send the file directly using `res.sendFile()`:
+Previously, `GET /` responded with a plain-text string via `res.send()`. Now that you have `express.static` in place and an HTML file ready in `public/`, update the route to send the file directly using `res.sendFile()`.
 
-```js
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-```
+In ESM, use `fileURLToPath(import.meta.url)` along with `path.dirname()` to recreate `__dirname`. Then call `res.sendFile(path.join(__dirname, "public", "index.html"));`.
 
 `res.sendFile()` sends a file as the HTTP response and automatically sets the correct `Content-Type` header.
 
@@ -1158,18 +1286,30 @@ In `index.js`, update the `GET /` handler to use `res.sendFile()` to serve `publ
 `index.js` should use `res.sendFile()` in the `GET /` route handler.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, 'index.js');
-assert.match(__file, /res\.sendFile\s*\(/, "The 'GET /' handler should use 'res.sendFile()' to serve the HTML file.");
-assert.match(__file, /index\.html/, "You should send 'public/index.html' using 'res.sendFile()'.");
+const __file = await __helpers.getFile(project.dashedName, "index.js");
+assert.match(
+  __file,
+  /res\.sendFile\s*\(/,
+  "The 'GET /' handler should use 'res.sendFile()' to serve the HTML file.",
+);
+assert.match(
+  __file,
+  /index\.html/,
+  "You should send 'public/index.html' using 'res.sendFile()'.",
+);
 ```
 
 `GET /` should respond with a `200` status and an HTML content-type.
 
 ```js
-const __res = await fetch('http://localhost:3000/');
+const __res = await fetch("http://localhost:3000/");
 assert.equal(__res.status, 200, "GET / should return a 200 status code.");
-const __contentType = __res.headers.get('content-type') ?? '';
-assert.include(__contentType, 'text/html', "GET / should now respond with HTML, not plain text.");
+const __contentType = __res.headers.get("content-type") ?? "";
+assert.include(
+  __contentType,
+  "text/html",
+  "GET / should now respond with HTML, not plain text.",
+);
 ```
 
 ### --seed--
@@ -1177,43 +1317,47 @@ assert.include(__contentType, 'text/html', "GET / should now respond with HTML, 
 #### --"learn-express-by-building-a-weather-service-api/index.js"--
 
 ```js
-const express = require('express');
-const path = require('path');
-const weatherRouter = require('./weather');
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+import weatherRouter from "./weather.js";
 
 const app = express();
 const PORT = 3000;
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/api/weather', weatherRouter);
+app.use(express.static(path.join(__dirname, "public")));
+app.use("/api/weather", weatherRouter);
 
-app.get('/', (req, res) => {
-  res.send('Welcome to the Weather Service API!');
+app.get("/", (req, res) => {
+  res.send("Welcome to the Weather Service API!");
 });
 
-app.get('/api/info', (req, res) => {
-  res.json({ name: 'Weather Service API', version: '1.0.0' });
+app.get("/api/info", (req, res) => {
+  res.json({ name: "Weather Service API", version: "1.0.0" });
 });
 
-app.get('/api/status', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+app.get("/api/status", (req, res) => {
+  res.status(200).json({ status: "ok" });
 });
 
-app.get('/docs', (req, res) => {
-  res.redirect('/api/info');
+app.get("/docs", (req, res) => {
+  res.redirect("/api/info");
 });
 
-app.get('/api/greet/:name', (req, res) => {
+app.get("/api/greet/:name", (req, res) => {
   const { name } = req.params;
   res.json({ greeting: `Hello, ${name}!` });
 });
 
-app.route('/api/data')
+app
+  .route("/api/data")
   .get((req, res) => {
-    res.json({ message: 'GET /api/data', data: [] });
+    res.json({ message: "GET /api/data", data: [] });
   })
   .post((req, res) => {
-    res.status(201).json({ message: 'POST /api/data', created: true });
+    res.status(201).json({ message: "POST /api/data", created: true });
   });
 
 app.listen(PORT, () => {
@@ -1228,11 +1372,11 @@ app.listen(PORT, () => {
 Your weather service API is almost complete! As a finishing touch, update the `GET /api/info` route to include an `endpoints` array in its response — a self-documenting list of the routes your API exposes:
 
 ```js
-app.get('/api/info', (req, res) => {
+app.get("/api/info", (req, res) => {
   res.json({
-    name: 'Weather Service API',
-    version: '1.0.0',
-    endpoints: ['/api/weather/:city', '/api/greet/:name', '/api/data']
+    name: "Weather Service API",
+    version: "1.0.0",
+    endpoints: ["/api/weather/:city", "/api/greet/:name", "/api/data"],
   });
 });
 ```
@@ -1244,23 +1388,54 @@ In `index.js`, update the `GET /api/info` handler to include an `endpoints` arra
 `GET /api/info` should respond with a JSON body that includes an `endpoints` array.
 
 ```js
-const __res = await fetch('http://localhost:3000/api/info');
-assert.equal(__res.status, 200, "GET /api/info should return a 200 status code.");
+const __res = await fetch("http://localhost:3000/api/info");
+assert.equal(
+  __res.status,
+  200,
+  "GET /api/info should return a 200 status code.",
+);
 const __data = await __res.json();
-assert.property(__data, 'endpoints', "The /api/info response should include an 'endpoints' property.");
-assert.isArray(__data.endpoints, "The 'endpoints' property should be an array.");
-assert.isAbove(__data.endpoints.length, 0, "The 'endpoints' array should contain at least one entry.");
+assert.property(
+  __data,
+  "endpoints",
+  "The /api/info response should include an 'endpoints' property.",
+);
+assert.isArray(
+  __data.endpoints,
+  "The 'endpoints' property should be an array.",
+);
+assert.isAbove(
+  __data.endpoints.length,
+  0,
+  "The 'endpoints' array should contain at least one entry.",
+);
 ```
 
 The complete API should still serve weather data correctly — `GET /api/weather/London` should return `city`, `temperature`, and `description`.
 
 ```js
-const __res = await fetch('http://localhost:3000/api/weather/London');
-assert.equal(__res.status, 200, "GET /api/weather/London should still return 200.");
+const __res = await fetch("http://localhost:3000/api/weather/London");
+assert.equal(
+  __res.status,
+  200,
+  "GET /api/weather/London should still return 200.",
+);
 const __data = await __res.json();
-assert.property(__data, 'city', "The weather response should still have a 'city' property.");
-assert.property(__data, 'temperature', "The weather response should still have a 'temperature' property.");
-assert.property(__data, 'description', "The weather response should still have a 'description' property.");
+assert.property(
+  __data,
+  "city",
+  "The weather response should still have a 'city' property.",
+);
+assert.property(
+  __data,
+  "temperature",
+  "The weather response should still have a 'temperature' property.",
+);
+assert.property(
+  __data,
+  "description",
+  "The weather response should still have a 'description' property.",
+);
 ```
 
 ### --seed--
@@ -1268,43 +1443,47 @@ assert.property(__data, 'description', "The weather response should still have a
 #### --"learn-express-by-building-a-weather-service-api/index.js"--
 
 ```js
-const express = require('express');
-const path = require('path');
-const weatherRouter = require('./weather');
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+import weatherRouter from "./weather.js";
 
 const app = express();
 const PORT = 3000;
 
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/api/weather', weatherRouter);
+app.use(express.static(path.join(__dirname, "public")));
+app.use("/api/weather", weatherRouter);
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-app.get('/api/info', (req, res) => {
-  res.json({ name: 'Weather Service API', version: '1.0.0' });
+app.get("/api/info", (req, res) => {
+  res.json({ name: "Weather Service API", version: "1.0.0" });
 });
 
-app.get('/api/status', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+app.get("/api/status", (req, res) => {
+  res.status(200).json({ status: "ok" });
 });
 
-app.get('/docs', (req, res) => {
-  res.redirect('/api/info');
+app.get("/docs", (req, res) => {
+  res.redirect("/api/info");
 });
 
-app.get('/api/greet/:name', (req, res) => {
+app.get("/api/greet/:name", (req, res) => {
   const { name } = req.params;
   res.json({ greeting: `Hello, ${name}!` });
 });
 
-app.route('/api/data')
+app
+  .route("/api/data")
   .get((req, res) => {
-    res.json({ message: 'GET /api/data', data: [] });
+    res.json({ message: "GET /api/data", data: [] });
   })
   .post((req, res) => {
-    res.status(201).json({ message: 'POST /api/data', created: true });
+    res.status(201).json({ message: "POST /api/data", created: true });
   });
 
 app.listen(PORT, () => {
