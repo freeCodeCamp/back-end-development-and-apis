@@ -12,40 +12,31 @@ Practice creating custom Express middleware by building a data sanitizer and val
 
 Install your project dependencies by entering `npm i` from the `build-a-data-sanitizer/` folder in the terminal.
 
-Work within the `server.js` and `middleware.js` files.
-
-After that, start your server by running `node server.js`. Do not forget to restart your server for your code changes to take effect.
-
 **Objective:** Fulfill the user stories below and get all the tests to pass to complete the lab.
 
 **User Stories:**
 
-1. You should create a `middleware.js` file that exports an `inputCleaner` function and an `inputValidator` function using `module.exports`.
+1. You should create a `middleware.js` file that exports an `inputCleaner` middleware function and an `inputValidator` middleware function.
 
 2. `inputCleaner` should convert `req.body.username` to lowercase if it exists, strip HTML tags from `req.body.comment` if it exists, then call `next()`.
 
 3. `inputValidator` should call `next()` if `req.body.username` is at least 3 characters long. Otherwise, it should redirect to `/form?error=Username must be at least 3 characters.` without calling `next()`.
 
-4. In `server.js`, you should import `inputCleaner` and `inputValidator` from `./middleware`.
+4. You should have an HTTP server listening on port `3000`.
 
-5. Your server should listen on port `3000`.
+5. A `GET` request to `/` should redirect to `/form`.
 
-6. A `GET` request to `/` should redirect to `/form`.
+6. A `GET` request to `/form` should serve the static HTML form from the `public` directory.
 
-7. A `GET` request to `/form` should serve the static HTML form from the `public` directory.
+7. A `POST` request to `/submit` should apply `inputCleaner` then `inputValidator` as route-level middleware, before a final handler that responds with the sanitised `username` and `comment`.
 
-8. A `POST` request to `/submit` should apply `inputCleaner` then `inputValidator` as route-level middleware, before a final handler that responds with the sanitised `username` and `comment`.
+**NOTE:** The server must be running for the tests to work.
 
 ### --tests--
 
-Running `node build-a-data-sanitizer/server.js` should start a server listening on port `3000`.
+An HTTP server should be listening on port `3000`.
 
 ```js
-const { stdout } = await __helpers.awaitExecution(
-  ["node", "build-a-data-sanitizer/server.js"],
-  "http://localhost:3000",
-  {},
-);
 const __listening = await __helpers.isServerListening(3000);
 assert.isTrue(__listening, "Your server should be listening on port 3000");
 ```
