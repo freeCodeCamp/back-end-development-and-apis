@@ -15,9 +15,20 @@
     "package-lock.json": false,
     "package.json": false,
     "README.md": false,
-    "learn-npm-by-building-an-npm-module": false,
     "build-a-timestamp-microservice": false,
-    "learn-nodejs-by-building-a-web-server": false
+    "learn-nodejs-by-building-a-web-server": false,
+    "learn-nodejs-repl": false,
+    "learn-how-to-build-an-npm-module": false,
+    "build-a-prime-number-checker-module": false,
+    "learn-nodejs-common-modules": false,
+    "learn-express-by-building-a-random-joke-app": false,
+    "build-a-personal-profile-app": false,
+    "learn-express-middleware-by-building-a-submission-form": false,
+    "build-a-data-sanitizer": false,
+    "learn-express-by-building-a-weather-service-api": false,
+    "learn-error-handling-in-express-by-building-a-bank-api": false,
+    "learn-websockets-by-building-a-resource-monitor": false,
+    "build-a-chat-app": false
   },
   "freecodecamp-courses.autoStart": true,
   "freecodecamp-courses.prepare": "sed -i \"s#WD=.*#WD=$(pwd)#g\" ./bash/.bashrc",
@@ -34,10 +45,7 @@
   "terminal.integrated.defaultProfile.linux": "bash",
   "terminal.integrated.profiles.linux": {
     "bash": {
-      "args": [
-        "--init-file",
-        "./bash/sourcerer.sh"
-      ],
+      "args": ["--init-file", "./bash/sourcerer.sh"],
       "icon": "terminal-bash",
       "path": "bash"
     }
