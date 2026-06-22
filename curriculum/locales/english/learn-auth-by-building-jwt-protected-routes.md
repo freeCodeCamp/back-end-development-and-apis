@@ -132,26 +132,31 @@ assert.isTrue(__exists, "utils/db.js does not exist - create the file first.");
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "utils/db.js");
-assert.match(
-  __file,
-  /import\s+fs\s+from\s+["']fs["']/,
-  'utils/db.js should have: import fs from "fs"',
-);
-assert.match(
-  __file,
-  /import\s+path\s+from\s+["']path["']/,
-  'utils/db.js should have: import path from "path"',
-);
+const __b = new __helpers.Babeliser(__file);
+const __sources = __b.getImportDeclarations().map((i) => i.source.value);
+assert.include(__sources, "fs", 'Import the "fs" module.');
+assert.include(__sources, "path", 'Import the "path" module.');
 ```
 
-`utils/db.js` should declare `DB_PATH` joining `import.meta.dirname` with `"../data/users.json"`.
+`utils/db.js` should build a path to `../data/users.json` using `path.join` and `import.meta.dirname`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "utils/db.js");
-assert.match(
-  __file,
-  /const\s+DB_PATH\s*=\s*path\.join\(\s*import\.meta\.dirname\s*,\s*["']\.\.\/data\/users\.json["']\s*\)/,
-  'DB_PATH should be path.join(import.meta.dirname, "../data/users.json").',
+const __b = new __helpers.Babeliser(__file);
+const __join = __b.getType("CallExpression").find((c) => {
+  const __code = __b.generateCode(c.callee);
+  return __code.endsWith(".join") || __code === "join";
+});
+assert.exists(__join, "Build the path with path.join(...).");
+assert.isTrue(
+  __join.arguments.some((a) =>
+    __b.generateCode(a).includes("import.meta.dirname"),
+  ),
+  "Use import.meta.dirname to resolve the path.",
+);
+assert.isTrue(
+  __join.arguments.some((a) => a.value && a.value.includes("data/users.json")),
+  "Point the path at ../data/users.json.",
 );
 ```
 
@@ -173,35 +178,44 @@ if (!data) return [];
 `utils/db.js` should export a `readUsers` function.
 
 ```js
-assert.match(
-  __file,
-  /export\s+function\s+readUsers\s*\(\s*\)/,
-  "utils/db.js should export a function named readUsers.",
+const __fn = __b.getFunctionDeclarations().find((f) => f.id?.name === "readUsers");
+assert.exists(__fn, "Export a function named readUsers.");
+assert.lengthOf(__fn.params, 0, "readUsers should take no parameters.");
+assert.isTrue(
+  __b
+    .getType("ExportNamedDeclaration")
+    .some((e) => e.declaration?.id?.name === "readUsers"),
+  "readUsers should be exported.",
 );
 ```
 
-`readUsers` should read `DB_PATH` with `fs.readFileSync`.
+`readUsers` should read the file synchronously with `fs.readFileSync`.
 
 ```js
-assert.match(
-  __file,
-  /fs\.readFileSync\(\s*DB_PATH\s*,\s*["']utf-8["']\s*\)/,
-  'readUsers should call fs.readFileSync(DB_PATH, "utf-8").',
+const __fs = __b
+  .getImportDeclarations()
+  .find((i) => i.source.value === "fs")
+  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
+assert.isTrue(
+  __b
+    .getType("CallExpression")
+    .some((c) => __b.generateCode(c.callee).includes(`${__fs}.readFileSync`)),
+  "readUsers should call fs.readFileSync(...).",
 );
 ```
 
-`readUsers` should return an empty array when the file is empty and parse the JSON otherwise.
+`readUsers` should parse the JSON, returning an empty array when the file is empty.
 
 ```js
-assert.match(
-  __file,
-  /if\s*\(\s*!\s*data\s*\)\s*return\s*\[\s*\]/,
-  "readUsers should return [] when there is no data.",
+assert.isTrue(
+  __b
+    .getType("CallExpression")
+    .some((c) => __b.generateCode(c.callee) === "JSON.parse"),
+  "Parse the file contents with JSON.parse.",
 );
-assert.match(
-  __file,
-  /return\s+JSON\.parse\(\s*data\s*\)/,
-  "readUsers should return JSON.parse(data).",
+assert.isTrue(
+  __b.getType("ArrayExpression").some((a) => a.elements.length === 0),
+  "Return an empty array when the file has no data.",
 );
 ```
 
@@ -209,6 +223,7 @@ assert.match(
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "utils/db.js");
+const __b = new __helpers.Babeliser(__file);
 ```
 
 ### --hints--
@@ -237,23 +252,40 @@ Use `fs.writeFileSync` with `JSON.stringify(users, null, 2)` so the file stays h
 
 ### --tests--
 
-`utils/db.js` should export a `writeUsers` function that accepts `users`.
+`utils/db.js` should export a `writeUsers` function that accepts one argument.
 
 ```js
-assert.match(
-  __file,
-  /export\s+function\s+writeUsers\s*\(\s*users\s*\)/,
-  "utils/db.js should export a function writeUsers(users).",
+const __fn = __b
+  .getFunctionDeclarations()
+  .find((f) => f.id?.name === "writeUsers");
+assert.exists(__fn, "Export a function named writeUsers.");
+assert.lengthOf(__fn.params, 1, "writeUsers should accept the users array.");
+assert.isTrue(
+  __b
+    .getType("ExportNamedDeclaration")
+    .some((e) => e.declaration?.id?.name === "writeUsers"),
+  "writeUsers should be exported.",
 );
 ```
 
-`writeUsers` should write `JSON.stringify(users, null, 2)` to `DB_PATH`.
+`writeUsers` should serialise the users with `JSON.stringify` and write them with `fs.writeFileSync`.
 
 ```js
-assert.match(
-  __file,
-  /fs\.writeFileSync\(\s*DB_PATH\s*,\s*JSON\.stringify\(\s*users\s*,\s*null\s*,\s*2\s*\)\s*\)/,
-  "writeUsers should call fs.writeFileSync(DB_PATH, JSON.stringify(users, null, 2)).",
+const __fs = __b
+  .getImportDeclarations()
+  .find((i) => i.source.value === "fs")
+  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
+assert.isTrue(
+  __b
+    .getType("CallExpression")
+    .some((c) => __b.generateCode(c.callee) === `${__fs}.writeFileSync`),
+  "writeUsers should call fs.writeFileSync(...).",
+);
+assert.isTrue(
+  __b
+    .getType("CallExpression")
+    .some((c) => __b.generateCode(c.callee) === "JSON.stringify"),
+  "Serialise the users with JSON.stringify before writing.",
 );
 ```
 
@@ -261,6 +293,7 @@ assert.match(
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "utils/db.js");
+const __b = new __helpers.Babeliser(__file);
 ```
 
 ## 6
@@ -280,44 +313,52 @@ return readUsers().find((u) => u.email === email) || null;
 
 ### --tests--
 
-`utils/db.js` should export a `findByEmail` function that finds a user by `email`.
+`utils/db.js` should export a `findByEmail` function that accepts one argument.
 
 ```js
-assert.match(
-  __file,
-  /export\s+function\s+findByEmail\s*\(\s*email\s*\)/,
-  "utils/db.js should export a function findByEmail(email).",
-);
-assert.match(
-  __file,
-  /readUsers\(\s*\)\.find\(\s*\(?\s*u\s*\)?\s*=>\s*u\.email\s*===\s*email\s*\)/,
-  "findByEmail should use readUsers().find((u) => u.email === email).",
+const __fn = __b
+  .getFunctionDeclarations()
+  .find((f) => f.id?.name === "findByEmail");
+assert.exists(__fn, "Export a function named findByEmail.");
+assert.lengthOf(__fn.params, 1, "findByEmail should accept an email argument.");
+assert.isTrue(
+  __b
+    .getType("ExportNamedDeclaration")
+    .some((e) => e.declaration?.id?.name === "findByEmail"),
+  "findByEmail should be exported.",
 );
 ```
 
-`utils/db.js` should export a `findById` function that finds a user by `id`.
+`utils/db.js` should export a `findById` function that accepts one argument.
 
 ```js
-assert.match(
-  __file,
-  /export\s+function\s+findById\s*\(\s*id\s*\)/,
-  "utils/db.js should export a function findById(id).",
-);
-assert.match(
-  __file,
-  /readUsers\(\s*\)\.find\(\s*\(?\s*u\s*\)?\s*=>\s*u\.id\s*===\s*id\s*\)/,
-  "findById should use readUsers().find((u) => u.id === id).",
+const __fn = __b
+  .getFunctionDeclarations()
+  .find((f) => f.id?.name === "findById");
+assert.exists(__fn, "Export a function named findById.");
+assert.lengthOf(__fn.params, 1, "findById should accept an id argument.");
+assert.isTrue(
+  __b
+    .getType("ExportNamedDeclaration")
+    .some((e) => e.declaration?.id?.name === "findById"),
+  "findById should be exported.",
 );
 ```
 
-Both lookups should fall back to `null` when no user matches.
+Both lookups should use `.find` and fall back to `null` when no user matches.
 
 ```js
-const __matches = __file.match(/\|\|\s*null/g) || [];
+assert.isTrue(
+  __b.getType("CallExpression").some((c) => c.callee?.property?.name === "find"),
+  "Use Array.prototype.find to locate the user.",
+);
+const __nullFallbacks = __b
+  .getType("LogicalExpression")
+  .filter((e) => e.operator === "||" && e.right?.type === "NullLiteral");
 assert.isAtLeast(
-  __matches.length,
+  __nullFallbacks.length,
   2,
-  "Both findByEmail and findById should return null when no user is found.",
+  "Both lookups should fall back to null when no user matches.",
 );
 ```
 
@@ -325,6 +366,7 @@ assert.isAtLeast(
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "utils/db.js");
+const __b = new __helpers.Babeliser(__file);
 ```
 
 ## 7
@@ -345,10 +387,20 @@ JWT_SECRET=replace_with_a_long_random_string
 
 ```js
 const __env = await __helpers.getFile(project.dashedName, ".env");
-assert.match(
-  __env,
-  /^\s*JWT_SECRET\s*=\s*\S+/m,
-  ".env should define JWT_SECRET with a non-empty value.",
+const __vars = Object.fromEntries(
+  __env
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l && !l.startsWith("#"))
+    .map((l) => {
+      const __i = l.indexOf("=");
+      return [l.slice(0, __i).trim(), l.slice(__i + 1).trim()];
+    }),
+);
+assert.property(__vars, "JWT_SECRET", "Add a JWT_SECRET variable to .env.");
+assert.isNotEmpty(
+  __vars.JWT_SECRET,
+  "JWT_SECRET should have a non-empty value.",
 );
 ```
 
@@ -377,30 +429,51 @@ const __exists = await __helpers.fileExists(
 assert.isTrue(__exists, "utils/jwt.js does not exist - create the file first.");
 ```
 
-`utils/jwt.js` should import the default export of `jsonwebtoken` as `jwt`.
+`utils/jwt.js` should import `jsonwebtoken` and export a `signToken` function.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "utils/jwt.js");
-assert.match(
-  __file,
-  /import\s+jwt\s+from\s+["']jsonwebtoken["']/,
-  'utils/jwt.js should have: import jwt from "jsonwebtoken"',
+const __b = new __helpers.Babeliser(__file);
+const __jwt = __b
+  .getImportDeclarations()
+  .find((i) => i.source.value === "jsonwebtoken")
+  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
+assert.exists(__jwt, 'Import the default export of "jsonwebtoken".');
+assert.exists(
+  __b.getFunctionDeclarations().find((f) => f.id?.name === "signToken"),
+  "Export a signToken(payload) function.",
+);
+assert.isTrue(
+  __b
+    .getType("ExportNamedDeclaration")
+    .some((e) => e.declaration?.id?.name === "signToken"),
+  "signToken should be exported.",
 );
 ```
 
-`utils/jwt.js` should export `signToken(payload)` that signs with the secret and a `"1d"` expiry.
+`signToken` should call `jwt.sign` with the secret and an `expiresIn` option.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "utils/jwt.js");
-assert.match(
-  __file,
-  /export\s+function\s+signToken\s*\(\s*payload\s*\)/,
-  "utils/jwt.js should export a function signToken(payload).",
+const __b = new __helpers.Babeliser(__file);
+const __jwt = __b
+  .getImportDeclarations()
+  .find((i) => i.source.value === "jsonwebtoken")
+  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
+const __sign = __b
+  .getType("CallExpression")
+  .find((c) => __b.generateCode(c.callee) === `${__jwt}.sign`);
+assert.exists(__sign, "signToken should call jwt.sign(...).");
+assert.include(
+  __b.generateCode(__sign.arguments?.[1] ?? {}),
+  "process.env",
+  "Sign the token with your secret from process.env.",
 );
-assert.match(
-  __file,
-  /jwt\.sign\(\s*payload\s*,\s*process\.env\.JWT_SECRET\s*,\s*\{\s*expiresIn\s*:\s*["']1d["']\s*\}\s*\)/,
-  'signToken should call jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "1d" }).',
+const __opts = __sign.arguments?.[2];
+assert.isTrue(
+  __opts?.type === "ObjectExpression" &&
+    __opts.properties.some((p) => p.key?.name === "expiresIn"),
+  "Pass an { expiresIn } option to jwt.sign so the token expires.",
 );
 ```
 
@@ -436,33 +509,55 @@ try {
 
 ### --tests--
 
-`utils/jwt.js` should export a `verifyToken(token)` function.
+`utils/jwt.js` should export a `verifyToken(token)` function that calls `jwt.verify`.
 
 ```js
-assert.match(
-  __file,
-  /export\s+function\s+verifyToken\s*\(\s*token\s*\)/,
-  "utils/jwt.js should export a function verifyToken(token).",
+const __jwt = __b
+  .getImportDeclarations()
+  .find((i) => i.source.value === "jsonwebtoken")
+  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
+const __fn = __b
+  .getFunctionDeclarations()
+  .find((f) => f.id?.name === "verifyToken");
+assert.exists(__fn, "Export a verifyToken(token) function.");
+assert.lengthOf(__fn.params, 1, "verifyToken should accept a token argument.");
+assert.isTrue(
+  __b
+    .getType("ExportNamedDeclaration")
+    .some((e) => e.declaration?.id?.name === "verifyToken"),
+  "verifyToken should be exported.",
+);
+assert.isTrue(
+  __b
+    .getType("CallExpression")
+    .some((c) => __b.generateCode(c.callee) === `${__jwt}.verify`),
+  "verifyToken should call jwt.verify(...).",
 );
 ```
 
-`verifyToken` should verify the token with `jwt.verify` and the secret.
+`verifyToken` should return `null` from a `catch` block when verification throws.
 
 ```js
-assert.match(
-  __file,
-  /jwt\.verify\(\s*token\s*,\s*process\.env\.JWT_SECRET\s*\)/,
-  "verifyToken should call jwt.verify(token, process.env.JWT_SECRET).",
-);
-```
-
-`verifyToken` should return `null` when verification throws.
-
-```js
-assert.match(
-  __file,
-  /catch\s*(\([^)]*\))?\s*\{[\s\S]*?return\s+null/,
-  "verifyToken should catch the error and return null.",
+const __try = __b.getType("TryStatement")[0];
+assert.exists(__try, "Wrap jwt.verify in a try/catch.");
+const __returnsNull = (node) => {
+  let __found = false;
+  const __walk = (n) => {
+    if (!n || typeof n !== "object") return;
+    if (Array.isArray(n)) return n.forEach(__walk);
+    if (n.type === "ReturnStatement" && n.argument?.type === "NullLiteral")
+      __found = true;
+    for (const k in n) {
+      if (["scope", "loc", "start", "end"].includes(k)) continue;
+      __walk(n[k]);
+    }
+  };
+  __walk(node);
+  return __found;
+};
+assert.isTrue(
+  __try.handler != null && __returnsNull(__try.handler),
+  "Return null inside the catch block.",
 );
 ```
 
@@ -470,6 +565,7 @@ assert.match(
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "utils/jwt.js");
+const __b = new __helpers.Babeliser(__file);
 ```
 
 ## 10
@@ -502,32 +598,44 @@ assert.isTrue(
 );
 ```
 
-`routes/auth.js` should import `express` and create a `router` with `express.Router()`.
+`routes/auth.js` should import `express` and create a router with `express.Router()`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "routes/auth.js");
-assert.match(
-  __file,
-  /import\s+express\s+from\s+["']express["']/,
-  'routes/auth.js should have: import express from "express"',
+const __b = new __helpers.Babeliser(__file);
+assert.isTrue(
+  __b.getImportDeclarations().some((i) => i.source.value === "express"),
+  "Import express.",
 );
-const __t = new __helpers.Tower(__file);
-const __router = __t.getVariable("router");
-assert.match(
-  __router.compact,
-  /router=express\.Router\(\)/,
-  "router should be initialised with express.Router().",
-);
+const __routerDecl = __b.getVariableDeclarations().find((v) => {
+  const __init = v.declarations[0]?.init;
+  return (
+    __init?.type === "CallExpression" &&
+    __b.generateCode(__init.callee).endsWith("Router")
+  );
+});
+assert.exists(__routerDecl, "Create a router with express.Router().");
 ```
 
-`routes/auth.js` should export `router` as the default export.
+`routes/auth.js` should export the router as the default export.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "routes/auth.js");
-assert.match(
-  __file,
-  /export\s+default\s+router/,
-  "routes/auth.js should have: export default router",
+const __b = new __helpers.Babeliser(__file);
+const __routerDecl = __b.getVariableDeclarations().find((v) => {
+  const __init = v.declarations[0]?.init;
+  return (
+    __init?.type === "CallExpression" &&
+    __b.generateCode(__init.callee).endsWith("Router")
+  );
+});
+const __routerName = __routerDecl?.declarations[0]?.id?.name;
+const __def = __b.getType("ExportDefaultDeclaration")[0];
+assert.exists(__def, "Add a default export.");
+assert.equal(
+  __b.generateCode(__def.declaration),
+  __routerName,
+  "Export the router as the default export.",
 );
 ```
 
@@ -537,7 +645,7 @@ assert.match(
 
 Add a `POST /register` route to the router. Make the handler `async`, since hashing the password later will be asynchronous.
 
-The handler should read `email` and `password` from `req.body`. If either is missing, respond with status `400` and the JSON message `"Email and password are required"`. If a user with that email already exists, respond with status `409` and the message `"Email already in use"`.
+The handler should read `email` and `password` from `req.body`. If either is missing, respond with status `400` and a JSON message such as `"Email and password are required"`. If a user with that email already exists, respond with status `409` and a message such as `"Email already in use"`.
 
 Import `findByEmail` from `../utils/db.js` to perform the lookup.
 
@@ -546,65 +654,73 @@ Import `findByEmail` from `../utils/db.js` to perform the lookup.
 `routes/auth.js` should import `findByEmail` from `../utils/db.js`.
 
 ```js
-assert.match(
-  __file,
-  /import\s*\{[^}]*\bfindByEmail\b[^}]*\}\s*from\s*["']\.\.\/utils\/db\.js["']/,
-  'routes/auth.js should import { findByEmail } from "../utils/db.js".',
+assert.isTrue(
+  __b
+    .getImportDeclarations()
+    .some(
+      (i) =>
+        i.source.value === "../utils/db.js" &&
+        i.specifiers.some(
+          (s) => (s.imported?.name ?? s.local.name) === "findByEmail",
+        ),
+    ),
+  "Import findByEmail from ../utils/db.js.",
 );
 ```
 
 `routes/auth.js` should define an `async` `POST /register` route that reads `email` and `password` from `req.body`.
 
 ```js
-assert.match(
-  __file,
-  /router\.post\(\s*["']\/register["']\s*,\s*async/,
-  'routes/auth.js should define router.post("/register", async ...).',
+const __route = __b
+  .getType("CallExpression")
+  .find(
+    (c) =>
+      c.callee?.property?.name === "post" &&
+      c.arguments?.[0]?.value === "/register",
+  );
+assert.exists(__route, 'Define a router.post("/register", ...) route.');
+const __handler = __route.arguments.find(
+  (a) =>
+    a.type === "ArrowFunctionExpression" || a.type === "FunctionExpression",
 );
-assert.match(
-  __file,
-  /const\s*\{\s*email\s*,\s*password\s*\}\s*=\s*req\.body/,
-  "The handler should destructure email and password from req.body.",
-);
-```
-
-A missing `email` or `password` should respond with status `400`.
-
-```js
-assert.match(
-  __file,
-  /if\s*\(\s*!\s*email\s*\|\|\s*!\s*password\s*\)/,
-  "The handler should check if (!email || !password).",
-);
-assert.match(
-  __file,
-  /\.status\(\s*400\s*\)/,
-  "A missing field should respond with status 400.",
-);
-assert.match(
-  __file,
-  /Email and password are required/,
-  'The 400 response should include the message "Email and password are required".',
+assert.isTrue(__handler?.async === true, "Make the /register handler async.");
+const __destructures = __b.getVariableDeclarations().some((v) => {
+  const __d = v.declarations[0];
+  return (
+    __d?.id?.type === "ObjectPattern" &&
+    __d.id.properties.some((p) => p.key?.name === "email") &&
+    __d.id.properties.some((p) => p.key?.name === "password") &&
+    __b.generateCode(__d.init) === "req.body"
+  );
+});
+assert.isTrue(
+  __destructures,
+  "Read email and password from req.body.",
 );
 ```
 
-A duplicate email should respond with status `409`.
+A missing field should respond with `400`, and a duplicate email should respond with `409`.
 
 ```js
-assert.match(
-  __file,
-  /findByEmail\(\s*email\s*\)/,
-  "The handler should call findByEmail(email).",
+const __statuses = __b
+  .getType("CallExpression")
+  .filter((c) => c.callee?.property?.name === "status")
+  .map((c) => c.arguments?.[0]?.value);
+assert.include(
+  __statuses,
+  400,
+  "Respond with status 400 when email or password is missing.",
 );
-assert.match(
-  __file,
-  /\.status\(\s*409\s*\)/,
-  "A duplicate email should respond with status 409.",
+assert.isTrue(
+  __b
+    .getType("CallExpression")
+    .some((c) => __b.generateCode(c.callee) === "findByEmail"),
+  "Call findByEmail to check for an existing user.",
 );
-assert.match(
-  __file,
-  /Email already in use/,
-  'The 409 response should include the message "Email already in use".',
+assert.include(
+  __statuses,
+  409,
+  "Respond with status 409 when the email is already in use.",
 );
 ```
 
@@ -612,6 +728,7 @@ assert.match(
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "routes/auth.js");
+const __b = new __helpers.Babeliser(__file);
 ```
 
 ### --hints--
@@ -663,77 +780,84 @@ Import `bcrypt` from `bcryptjs`, `randomUUID` from `crypto`, and add `readUsers`
 `routes/auth.js` should import `bcrypt` from `bcryptjs` and `randomUUID` from `crypto`.
 
 ```js
-assert.match(
-  __file,
-  /import\s+bcrypt\s+from\s+["']bcryptjs["']/,
-  'routes/auth.js should have: import bcrypt from "bcryptjs"',
+assert.isTrue(
+  __b.getImportDeclarations().some((i) => i.source.value === "bcryptjs"),
+  'Import bcrypt from "bcryptjs".',
 );
-assert.match(
-  __file,
-  /import\s*\{\s*randomUUID\s*\}\s*from\s*["']crypto["']/,
-  'routes/auth.js should have: import { randomUUID } from "crypto"',
+assert.isTrue(
+  __b
+    .getImportDeclarations()
+    .some(
+      (i) =>
+        i.source.value === "crypto" &&
+        i.specifiers.some(
+          (s) => (s.imported?.name ?? s.local.name) === "randomUUID",
+        ),
+    ),
+  'Import randomUUID from "crypto".',
 );
 ```
 
 `routes/auth.js` should import `readUsers` and `writeUsers` from `../utils/db.js`.
 
 ```js
-assert.match(
-  __file,
-  /import\s*\{[^}]*\breadUsers\b[^}]*\}\s*from\s*["']\.\.\/utils\/db\.js["']/,
-  "routes/auth.js should import readUsers from ../utils/db.js.",
+const __db = __b
+  .getImportDeclarations()
+  .find((i) => i.source.value === "../utils/db.js");
+const __names = __db
+  ? __db.specifiers.map((s) => s.imported?.name ?? s.local.name)
+  : [];
+assert.include(__names, "readUsers", "Import readUsers from ../utils/db.js.");
+assert.include(__names, "writeUsers", "Import writeUsers from ../utils/db.js.");
+```
+
+The handler should hash the password with `bcrypt.hash` and persist the user with `writeUsers`.
+
+```js
+const __bcrypt = __b
+  .getImportDeclarations()
+  .find((i) => i.source.value === "bcryptjs")
+  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
+assert.isTrue(
+  __b
+    .getType("CallExpression")
+    .some((c) => __b.generateCode(c.callee) === `${__bcrypt}.hash`),
+  "Hash the password with bcrypt.hash(...).",
 );
-assert.match(
-  __file,
-  /import\s*\{[^}]*\bwriteUsers\b[^}]*\}\s*from\s*["']\.\.\/utils\/db\.js["']/,
-  "routes/auth.js should import writeUsers from ../utils/db.js.",
+assert.isTrue(
+  __b
+    .getType("CallExpression")
+    .some((c) => __b.generateCode(c.callee) === "writeUsers"),
+  "Persist the new user with writeUsers(...).",
 );
 ```
 
-The handler should hash the password with `bcrypt.hash(password, 10)`.
+The new user object should set `id` to `randomUUID()`, `role` to `"user"`, and include a `provider`.
 
 ```js
-assert.match(
-  __file,
-  /await\s+bcrypt\.hash\(\s*password\s*,\s*10\s*\)/,
-  "The handler should await bcrypt.hash(password, 10).",
+const __user = __b
+  .getType("ObjectExpression")
+  .find(
+    (o) =>
+      o.properties.some((p) => p.key?.name === "role") &&
+      o.properties.some((p) => p.key?.name === "provider"),
+  );
+assert.exists(__user, "Build a user object with role and provider properties.");
+const __id = __user.properties.find((p) => p.key?.name === "id");
+assert.equal(
+  __b.generateCode(__id?.value ?? {}),
+  "randomUUID()",
+  "Generate the id with randomUUID().",
 );
-```
-
-The new user should use `randomUUID()` for `id`, and set `provider` to `"local"` and `role` to `"user"`.
-
-```js
-assert.match(
-  __file,
-  /id\s*:\s*randomUUID\(\s*\)/,
-  "The new user's id should be randomUUID().",
-);
-assert.match(
-  __file,
-  /provider\s*:\s*["']local["']/,
-  'The new user should have provider: "local".',
-);
-assert.match(
-  __file,
-  /role\s*:\s*["']user["']/,
-  'The new user should have role: "user".',
-);
-```
-
-The handler should persist the user with `writeUsers`.
-
-```js
-assert.match(
-  __file,
-  /writeUsers\(/,
-  "The handler should call writeUsers to save the new user.",
-);
+const __role = __user.properties.find((p) => p.key?.name === "role");
+assert.equal(__role?.value?.value, "user", 'New users should have role "user".');
 ```
 
 ### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "routes/auth.js");
+const __b = new __helpers.Babeliser(__file);
 ```
 
 ### --hints--
@@ -766,55 +890,72 @@ Once the user is saved, issue a token so they are logged in immediately after re
 
 Import `signToken` from `../utils/jwt.js`. Sign a token whose payload contains the new user's `id`, `email`, and `role`, then respond with status `201` and a JSON body containing a `message` and the `token`.
 
-Finally, wrap the whole handler body in a `try`/`catch`. In the `catch`, respond with status `500` and the JSON message `err.message`.
+Finally, wrap the whole handler body in a `try`/`catch`. In the `catch`, respond with status `500` and the error message.
 
 ### --tests--
 
 `routes/auth.js` should import `signToken` from `../utils/jwt.js`.
 
 ```js
-assert.match(
-  __file,
-  /import\s*\{\s*signToken\s*\}\s*from\s*["']\.\.\/utils\/jwt\.js["']/,
-  'routes/auth.js should import { signToken } from "../utils/jwt.js".',
+assert.isTrue(
+  __b
+    .getImportDeclarations()
+    .some(
+      (i) =>
+        i.source.value === "../utils/jwt.js" &&
+        i.specifiers.some(
+          (s) => (s.imported?.name ?? s.local.name) === "signToken",
+        ),
+    ),
+  "Import signToken from ../utils/jwt.js.",
 );
 ```
 
-The handler should sign a token and respond with status `201` and the token.
+The handler should call `signToken`, respond with status `201`, and include the `token` in the response.
 
 ```js
-assert.match(
-  __file,
-  /signToken\(\s*\{[\s\S]*?role[\s\S]*?\}\s*\)/,
-  "The handler should call signToken with a payload containing the user's role.",
+assert.isTrue(
+  __b
+    .getType("CallExpression")
+    .some((c) => __b.generateCode(c.callee) === "signToken"),
+  "Call signToken to issue a token.",
 );
-assert.match(
-  __file,
-  /\.status\(\s*201\s*\)\.json\(\s*\{[\s\S]*?token[\s\S]*?\}\s*\)/,
-  "The handler should respond with res.status(201).json({ ..., token }).",
-);
+const __statuses = __b
+  .getType("CallExpression")
+  .filter((c) => c.callee?.property?.name === "status")
+  .map((c) => c.arguments?.[0]?.value);
+assert.include(__statuses, 201, "Respond with status 201 after registering.");
+const __jsonWithToken = __b
+  .getType("CallExpression")
+  .some(
+    (c) =>
+      c.callee?.property?.name === "json" &&
+      c.arguments?.[0]?.type === "ObjectExpression" &&
+      c.arguments[0].properties.some((p) => p.key?.name === "token"),
+  );
+assert.isTrue(__jsonWithToken, "Include the token in the JSON response.");
 ```
 
-The handler should be wrapped in `try`/`catch` and respond with status `500` on error.
+The handler body should be wrapped in a `try`/`catch` that responds with status `500`.
 
 ```js
-assert.match(__file, /try\s*\{/, "The handler should use a try block.");
-assert.match(
-  __file,
-  /catch\s*\([^)]*\)\s*\{[\s\S]*?\.status\(\s*500\s*\)/,
-  "The catch block should respond with status 500.",
+assert.isAtLeast(
+  __b.getType("TryStatement").length,
+  1,
+  "Wrap the handler body in a try/catch.",
 );
-assert.match(
-  __file,
-  /err\.message/,
-  "The 500 response should send err.message.",
-);
+const __statuses = __b
+  .getType("CallExpression")
+  .filter((c) => c.callee?.property?.name === "status")
+  .map((c) => c.arguments?.[0]?.value);
+assert.include(__statuses, 500, "Respond with status 500 from the catch block.");
 ```
 
 ### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "routes/auth.js");
+const __b = new __helpers.Babeliser(__file);
 ```
 
 ### --hints--
@@ -842,11 +983,11 @@ Wrap everything from reading `req.body` to sending the response in `try { ... } 
 
 ### --description--
 
-Add a `POST /login` route. Like `/register`, make the handler `async` and wrap its body in `try`/`catch` (respond with `500` and `err.message` on error).
+Add a `POST /login` route. Like `/register`, make the handler `async` and wrap its body in `try`/`catch` (respond with `500` on error).
 
-Read `email` and `password` from `req.body`, and respond with status `400` and `"Email and password are required"` if either is missing.
+Read `email` and `password` from `req.body`, and respond with status `400` if either is missing.
 
-Then look up the user with `findByEmail(email)`. If no user is found, respond with status `401` and the JSON message `"Invalid credentials"`.
+Then look up the user with `findByEmail(email)`. If no user is found, respond with status `401` and a JSON message such as `"Invalid credentials"`.
 
 > **NOTE:** Use the same generic `"Invalid credentials"` message whether the email or the password is wrong, so an attacker cannot tell which emails are registered.
 
@@ -855,42 +996,42 @@ Then look up the user with `findByEmail(email)`. If no user is found, respond wi
 `routes/auth.js` should define an `async` `POST /login` route.
 
 ```js
-assert.match(
-  __file,
-  /router\.post\(\s*["']\/login["']\s*,\s*async/,
-  'routes/auth.js should define router.post("/login", async ...).',
+const __route = __b
+  .getType("CallExpression")
+  .find(
+    (c) =>
+      c.callee?.property?.name === "post" &&
+      c.arguments?.[0]?.value === "/login",
+  );
+assert.exists(__route, 'Define a router.post("/login", ...) route.');
+const __handler = __route.arguments.find(
+  (a) =>
+    a.type === "ArrowFunctionExpression" || a.type === "FunctionExpression",
 );
+assert.isTrue(__handler?.async === true, "Make the /login handler async.");
 ```
 
-The login handler should look up the user with `findByEmail`.
+The login handler should look up the user with `findByEmail` and respond with status `401` when none is found.
 
 ```js
-assert.match(
-  __file,
-  /findByEmail\(\s*email\s*\)/,
-  "The login handler should call findByEmail(email).",
+assert.isTrue(
+  __b
+    .getType("CallExpression")
+    .some((c) => __b.generateCode(c.callee) === "findByEmail"),
+  "Look up the user with findByEmail.",
 );
-```
-
-A missing user should respond with status `401` and `"Invalid credentials"`.
-
-```js
-assert.match(
-  __file,
-  /\.status\(\s*401\s*\)/,
-  "An unknown user should respond with status 401.",
-);
-assert.match(
-  __file,
-  /Invalid credentials/,
-  'The 401 response should include the message "Invalid credentials".',
-);
+const __statuses = __b
+  .getType("CallExpression")
+  .filter((c) => c.callee?.property?.name === "status")
+  .map((c) => c.arguments?.[0]?.value);
+assert.include(__statuses, 401, "Respond with status 401 for invalid credentials.");
 ```
 
 ### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "routes/auth.js");
+const __b = new __helpers.Babeliser(__file);
 ```
 
 ## 15
@@ -903,34 +1044,47 @@ Now verify the password. `bcrypt.compare(plainText, hash)` returns a promise tha
 const match = await bcrypt.compare(password, user.passwordHash);
 ```
 
-In the `/login` handler, compare the submitted `password` with the stored `user.passwordHash`. If they do not match, respond with status `401` and `"Invalid credentials"`.
+In the `/login` handler, compare the submitted `password` with the stored `user.passwordHash`. If they do not match, respond with status `401`.
 
-When they match, sign a token containing the user's `id`, `email`, and `role`, then respond with a JSON body containing a `message` of `"Login successful"` and the `token`.
+When they match, sign a token containing the user's `id`, `email`, and `role`, then respond with a JSON body containing a `message` and the `token`.
 
 ### --tests--
 
-The login handler should compare the password with `bcrypt.compare(password, user.passwordHash)`.
+The login handler should compare the password with `bcrypt.compare`.
 
 ```js
-assert.match(
-  __file,
-  /await\s+bcrypt\.compare\(\s*password\s*,\s*user\.passwordHash\s*\)/,
-  "The login handler should await bcrypt.compare(password, user.passwordHash).",
+const __bcrypt = __b
+  .getImportDeclarations()
+  .find((i) => i.source.value === "bcryptjs")
+  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
+assert.isTrue(
+  __b
+    .getType("CallExpression")
+    .some((c) => __b.generateCode(c.callee) === `${__bcrypt}.compare`),
+  "Compare the password with bcrypt.compare(...).",
 );
 ```
 
-On success, the handler should sign a token and respond with `"Login successful"` and the `token`.
+On success, the handler should sign a token and respond with a JSON body containing the `token`.
 
 ```js
-assert.match(
-  __file,
-  /Login successful/,
-  'The success response should include the message "Login successful".',
+assert.isTrue(
+  __b
+    .getType("CallExpression")
+    .some((c) => __b.generateCode(c.callee) === "signToken"),
+  "Issue a token with signToken on success.",
 );
-assert.match(
-  __file,
-  /res\.json\(\s*\{[\s\S]*?token[\s\S]*?\}\s*\)/,
-  "The success response should send a JSON body containing the token.",
+const __jsonWithToken = __b
+  .getType("CallExpression")
+  .some(
+    (c) =>
+      c.callee?.property?.name === "json" &&
+      c.arguments?.[0]?.type === "ObjectExpression" &&
+      c.arguments[0].properties.some((p) => p.key?.name === "token"),
+  );
+assert.isTrue(
+  __jsonWithToken,
+  "Respond with a JSON body containing the token.",
 );
 ```
 
@@ -938,6 +1092,7 @@ assert.match(
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "routes/auth.js");
+const __b = new __helpers.Babeliser(__file);
 ```
 
 ### --hints--
@@ -971,30 +1126,36 @@ In `index.js`, import the default export of `./routes/auth.js` as `authRoutes`, 
 
 ### --tests--
 
-`index.js` should import `authRoutes` from `./routes/auth.js`.
+`index.js` should import the default export of `./routes/auth.js`.
 
 ```js
-assert.match(
-  __file,
-  /import\s+authRoutes\s+from\s+["']\.\/routes\/auth\.js["']/,
-  'index.js should have: import authRoutes from "./routes/auth.js"',
-);
+const __local = __b
+  .getImportDeclarations()
+  .find((i) => i.source.value === "./routes/auth.js")
+  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
+assert.exists(__local, 'Import the default export of "./routes/auth.js".');
 ```
 
-`index.js` should mount `authRoutes` at the `/api/auth` path.
+`index.js` should mount the auth router at the `/api/auth` path with `app.use`.
 
 ```js
-const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls("app.use");
-const __mounted = __calls.find((c) => {
-  const __args = c.ast?.expression?.arguments;
-  return (
-    __args?.[0]?.value === "/api/auth" && __args?.[1]?.name === "authRoutes"
+const __local = __b
+  .getImportDeclarations()
+  .find((i) => i.source.value === "./routes/auth.js")
+  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
+const __mount = __b
+  .getType("CallExpression")
+  .find(
+    (c) =>
+      c.callee?.property?.name === "use" &&
+      c.callee?.object?.name === "app" &&
+      c.arguments?.[0]?.value === "/api/auth",
   );
-});
-assert.isDefined(
-  __mounted,
-  'index.js should call app.use("/api/auth", authRoutes).',
+assert.exists(__mount, 'Mount the router at "/api/auth" with app.use.');
+assert.equal(
+  __mount.arguments?.[1]?.name,
+  __local,
+  "Pass the imported auth router to app.use.",
 );
 ```
 
@@ -1002,6 +1163,7 @@ assert.isDefined(
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "index.js");
+const __b = new __helpers.Babeliser(__file);
 ```
 
 ## 17
@@ -1016,7 +1178,7 @@ Clients send their token in the `Authorization` header using the `Bearer` scheme
 Authorization: Bearer <token>
 ```
 
-In the middleware, read `req.headers.authorization`. If it is missing or does not start with `"Bearer "`, respond with status `401` and the JSON message `"No token provided"`. Otherwise, extract the token by splitting the header on the space and taking the second part.
+In the middleware, read `req.headers.authorization`. If it is missing or does not start with `"Bearer "`, respond with status `401` and a JSON message such as `"No token provided"`. Otherwise, extract the token by splitting the header on the space and taking the second part.
 
 ### --tests--
 
@@ -1039,53 +1201,70 @@ const __file = await __helpers.getFile(
   project.dashedName,
   "middleware/authenticate.js",
 );
-assert.match(
-  __file,
-  /export\s+default\s+function\s+authenticate\s*\(\s*req\s*,\s*res\s*,\s*next\s*\)/,
-  "middleware/authenticate.js should export default function authenticate(req, res, next).",
+const __b = new __helpers.Babeliser(__file);
+const __fn = __b
+  .getFunctionDeclarations()
+  .find((f) => f.id?.name === "authenticate");
+assert.exists(__fn, "Define a function named authenticate.");
+assert.lengthOf(
+  __fn.params,
+  3,
+  "authenticate should take three parameters: (req, res, next).",
+);
+const __def = __b.getType("ExportDefaultDeclaration")[0];
+assert.isTrue(
+  __def != null &&
+    (__def.declaration?.id?.name === "authenticate" ||
+      __b.generateCode(__def.declaration) === "authenticate"),
+  "Export authenticate as the default export.",
 );
 ```
 
-A missing or non-`Bearer` `Authorization` header should respond with status `401`.
+`authenticate` should read the `Authorization` header, check the `Bearer` scheme, and respond with `401` when no token is present.
 
 ```js
 const __file = await __helpers.getFile(
   project.dashedName,
   "middleware/authenticate.js",
 );
-assert.match(
-  __file,
-  /req\.headers\.authorization/,
-  "authenticate should read req.headers.authorization.",
+const __b = new __helpers.Babeliser(__file);
+assert.isTrue(
+  __b
+    .getType("MemberExpression")
+    .some((m) => __b.generateCode(m) === "req.headers.authorization"),
+  "Read the token from req.headers.authorization.",
 );
-assert.match(
-  __file,
-  /startsWith\(\s*["']Bearer ["']\s*\)/,
-  'authenticate should check authHeader.startsWith("Bearer ").',
+const __startsWith = __b
+  .getType("CallExpression")
+  .find((c) => c.callee?.property?.name === "startsWith");
+assert.exists(
+  __startsWith,
+  'Check the header begins with the "Bearer " scheme using startsWith.',
 );
-assert.match(
-  __file,
-  /\.status\(\s*401\s*\)/,
-  "A missing token should respond with status 401.",
+assert.isTrue(
+  (__startsWith.arguments?.[0]?.value ?? "").includes("Bearer"),
+  'Pass the "Bearer " scheme to startsWith.',
 );
-assert.match(
-  __file,
-  /No token provided/,
-  'The 401 response should include the message "No token provided".',
-);
+const __statuses = __b
+  .getType("CallExpression")
+  .filter((c) => c.callee?.property?.name === "status")
+  .map((c) => c.arguments?.[0]?.value);
+assert.include(__statuses, 401, "Respond with status 401 when no token is provided.");
 ```
 
-`authenticate` should extract the token from the header.
+`authenticate` should extract the token by splitting the header.
 
 ```js
 const __file = await __helpers.getFile(
   project.dashedName,
   "middleware/authenticate.js",
 );
-assert.match(
-  __file,
-  /\.split\(\s*["'] ["']\s*\)\s*\[\s*1\s*\]/,
-  'authenticate should extract the token with authHeader.split(" ")[1].',
+const __b = new __helpers.Babeliser(__file);
+assert.isTrue(
+  __b
+    .getType("CallExpression")
+    .some((c) => c.callee?.property?.name === "split"),
+  "Extract the token by splitting the header on the space.",
 );
 ```
 
@@ -1114,47 +1293,57 @@ export default function authenticate(req, res, next) {
 
 Now verify the extracted token. Import `verifyToken` from `../utils/jwt.js`.
 
-In `authenticate`, pass the token to `verifyToken`. If it returns a falsy value, the token is invalid or expired - respond with status `401` and the JSON message `"Invalid or expired token"`. Otherwise, attach the decoded payload to `req.user` and call `next()` to continue to the route handler.
+In `authenticate`, pass the token to `verifyToken`. If it returns a falsy value, the token is invalid or expired - respond with status `401` and a JSON message such as `"Invalid or expired token"`. Otherwise, attach the decoded payload to `req.user` and call `next()` to continue to the route handler.
 
 ### --tests--
 
 `middleware/authenticate.js` should import `verifyToken` from `../utils/jwt.js`.
 
 ```js
-assert.match(
-  __file,
-  /import\s*\{\s*verifyToken\s*\}\s*from\s*["']\.\.\/utils\/jwt\.js["']/,
-  'authenticate.js should import { verifyToken } from "../utils/jwt.js".',
+assert.isTrue(
+  __b
+    .getImportDeclarations()
+    .some(
+      (i) =>
+        i.source.value === "../utils/jwt.js" &&
+        i.specifiers.some(
+          (s) => (s.imported?.name ?? s.local.name) === "verifyToken",
+        ),
+    ),
+  "Import verifyToken from ../utils/jwt.js.",
 );
 ```
 
-`authenticate` should verify the token and respond with `401` when it is invalid.
+`authenticate` should call `verifyToken` and respond with `401` when the token is invalid.
 
 ```js
-assert.match(
-  __file,
-  /verifyToken\(\s*token\s*\)/,
-  "authenticate should call verifyToken(token).",
+assert.isTrue(
+  __b
+    .getType("CallExpression")
+    .some((c) => __b.generateCode(c.callee) === "verifyToken"),
+  "Verify the token with verifyToken(token).",
 );
-assert.match(
-  __file,
-  /Invalid or expired token/,
-  'An invalid token should respond with the message "Invalid or expired token".',
-);
+const __statuses = __b
+  .getType("CallExpression")
+  .filter((c) => c.callee?.property?.name === "status")
+  .map((c) => c.arguments?.[0]?.value);
+assert.include(__statuses, 401, "Respond with status 401 when the token is invalid.");
 ```
 
-`authenticate` should set `req.user` to the decoded payload and call `next()`.
+`authenticate` should attach the decoded payload to `req.user` and call `next()`.
 
 ```js
-assert.match(
-  __file,
-  /req\.user\s*=\s*decoded/,
-  "authenticate should assign the decoded payload to req.user.",
+assert.isTrue(
+  __b
+    .getType("AssignmentExpression")
+    .some((a) => __b.generateCode(a.left) === "req.user"),
+  "Attach the decoded payload to req.user.",
 );
-assert.match(
-  __file,
-  /next\(\s*\)/,
-  "authenticate should call next() when the token is valid.",
+assert.isTrue(
+  __b
+    .getType("CallExpression")
+    .some((c) => c.callee?.type === "Identifier" && c.callee.name === "next"),
+  "Call next() when the token is valid.",
 );
 ```
 
@@ -1165,6 +1354,7 @@ const __file = await __helpers.getFile(
   project.dashedName,
   "middleware/authenticate.js",
 );
+const __b = new __helpers.Babeliser(__file);
 ```
 
 ### --hints--
@@ -1201,37 +1391,54 @@ In `routes/auth.js`, import the default export of `../middleware/authenticate.js
 `routes/auth.js` should import `authenticate` from `../middleware/authenticate.js`.
 
 ```js
-assert.match(
-  __file,
-  /import\s+authenticate\s+from\s+["']\.\.\/middleware\/authenticate\.js["']/,
-  'routes/auth.js should import authenticate from "../middleware/authenticate.js".',
+const __authLocal = __b
+  .getImportDeclarations()
+  .find((i) => i.source.value === "../middleware/authenticate.js")
+  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
+assert.exists(
+  __authLocal,
+  "Import authenticate from ../middleware/authenticate.js.",
 );
 ```
 
 `routes/auth.js` should define a `GET /profile` route protected by `authenticate`.
 
 ```js
-const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls("router.get");
-const __profile = __calls.find((c) => {
-  const __args = c.ast?.expression?.arguments;
-  return (
-    __args?.[0]?.value === "/profile" && __args?.[1]?.name === "authenticate"
+const __authLocal = __b
+  .getImportDeclarations()
+  .find((i) => i.source.value === "../middleware/authenticate.js")
+  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
+const __route = __b
+  .getType("CallExpression")
+  .find(
+    (c) =>
+      c.callee?.property?.name === "get" &&
+      c.arguments?.[0]?.value === "/profile",
   );
-});
-assert.isDefined(
-  __profile,
-  'routes/auth.js should define router.get("/profile", authenticate, ...).',
+assert.exists(__route, 'Define a router.get("/profile", ...) route.');
+assert.isTrue(
+  __route.arguments.some(
+    (a) => a.type === "Identifier" && a.name === __authLocal,
+  ),
+  "Protect /profile with the authenticate middleware.",
 );
 ```
 
 The `/profile` handler should respond with `{ user: req.user }`.
 
 ```js
-assert.match(
-  __file,
-  /res\.json\(\s*\{\s*user\s*:\s*req\.user\s*\}\s*\)/,
-  "The /profile handler should respond with res.json({ user: req.user }).",
+const __userResp = __b.getType("CallExpression").some(
+  (c) =>
+    c.callee?.property?.name === "json" &&
+    c.arguments?.[0]?.type === "ObjectExpression" &&
+    c.arguments[0].properties.some(
+      (p) =>
+        p.key?.name === "user" && __b.generateCode(p.value) === "req.user",
+    ),
+);
+assert.isTrue(
+  __userResp,
+  "Respond with res.json({ user: req.user }).",
 );
 ```
 
@@ -1239,6 +1446,7 @@ assert.match(
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "routes/auth.js");
+const __b = new __helpers.Babeliser(__file);
 ```
 
 ## 20
@@ -1266,55 +1474,56 @@ assert.isTrue(
 );
 ```
 
-`utils/token-blacklist.js` should declare a `blacklist` backed by a `Set`.
+`utils/token-blacklist.js` should declare a `Set` and export a `blacklistToken` function that adds to it.
 
 ```js
 const __file = await __helpers.getFile(
   project.dashedName,
   "utils/token-blacklist.js",
 );
-assert.match(
-  __file,
-  /const\s+blacklist\s*=\s*new\s+Set\(\s*\)/,
-  "token-blacklist.js should declare const blacklist = new Set().",
+const __b = new __helpers.Babeliser(__file);
+const __set = __b.getVariableDeclarations().find((v) => {
+  const __init = v.declarations[0]?.init;
+  return __init?.type === "NewExpression" && __init.callee?.name === "Set";
+});
+assert.exists(__set, "Create a Set to hold blacklisted tokens.");
+assert.exists(
+  __b.getFunctionDeclarations().find((f) => f.id?.name === "blacklistToken"),
+  "Export a blacklistToken(token) function.",
+);
+assert.isTrue(
+  __b
+    .getType("ExportNamedDeclaration")
+    .some((e) => e.declaration?.id?.name === "blacklistToken"),
+  "blacklistToken should be exported.",
+);
+assert.isTrue(
+  __b.getType("CallExpression").some((c) => c.callee?.property?.name === "add"),
+  "blacklistToken should add the token to the set.",
 );
 ```
 
-`utils/token-blacklist.js` should export `blacklistToken(token)` that adds to the set.
+`utils/token-blacklist.js` should export an `isBlacklisted` function that checks the set.
 
 ```js
 const __file = await __helpers.getFile(
   project.dashedName,
   "utils/token-blacklist.js",
 );
-assert.match(
-  __file,
-  /export\s+function\s+blacklistToken\s*\(\s*token\s*\)/,
-  "token-blacklist.js should export function blacklistToken(token).",
+const __b = new __helpers.Babeliser(__file);
+assert.exists(
+  __b.getFunctionDeclarations().find((f) => f.id?.name === "isBlacklisted"),
+  "Export an isBlacklisted(token) function.",
 );
-assert.match(
-  __file,
-  /blacklist\.add\(\s*token\s*\)/,
-  "blacklistToken should call blacklist.add(token).",
+assert.isTrue(
+  __b
+    .getType("ExportNamedDeclaration")
+    .some((e) => e.declaration?.id?.name === "isBlacklisted"),
+  "isBlacklisted should be exported.",
 );
-```
-
-`utils/token-blacklist.js` should export `isBlacklisted(token)` that checks the set.
-
-```js
-const __file = await __helpers.getFile(
-  project.dashedName,
-  "utils/token-blacklist.js",
-);
-assert.match(
-  __file,
-  /export\s+function\s+isBlacklisted\s*\(\s*token\s*\)/,
-  "token-blacklist.js should export function isBlacklisted(token).",
-);
-assert.match(
-  __file,
-  /blacklist\.has\(\s*token\s*\)/,
-  "isBlacklisted should return blacklist.has(token).",
+assert.isTrue(
+  __b.getType("CallExpression").some((c) => c.callee?.property?.name === "has"),
+  "isBlacklisted should check the set with .has(token).",
 );
 ```
 
@@ -1324,33 +1533,41 @@ assert.match(
 
 Wire the blacklist into your authentication check. In `middleware/authenticate.js`, import `isBlacklisted` from `../utils/token-blacklist.js`.
 
-After extracting the token but before verifying it, check `isBlacklisted(token)`. If the token has been blacklisted, respond with status `401` and the JSON message `"Token has been invalidated. Log in again."`.
+After extracting the token but before verifying it, check `isBlacklisted(token)`. If the token has been blacklisted, respond with status `401` and a JSON message such as `"Token has been invalidated. Log in again."`.
 
 ### --tests--
 
 `middleware/authenticate.js` should import `isBlacklisted` from `../utils/token-blacklist.js`.
 
 ```js
-assert.match(
-  __file,
-  /import\s*\{\s*isBlacklisted\s*\}\s*from\s*["']\.\.\/utils\/token-blacklist\.js["']/,
-  'authenticate.js should import { isBlacklisted } from "../utils/token-blacklist.js".',
+assert.isTrue(
+  __b
+    .getImportDeclarations()
+    .some(
+      (i) =>
+        i.source.value === "../utils/token-blacklist.js" &&
+        i.specifiers.some(
+          (s) => (s.imported?.name ?? s.local.name) === "isBlacklisted",
+        ),
+    ),
+  "Import isBlacklisted from ../utils/token-blacklist.js.",
 );
 ```
 
-`authenticate` should reject a blacklisted token with status `401`.
+`authenticate` should call `isBlacklisted` and reject a blacklisted token with status `401`.
 
 ```js
-assert.match(
-  __file,
-  /if\s*\(\s*isBlacklisted\(\s*token\s*\)\s*\)/,
-  "authenticate should check if (isBlacklisted(token)).",
+assert.isTrue(
+  __b
+    .getType("CallExpression")
+    .some((c) => __b.generateCode(c.callee) === "isBlacklisted"),
+  "Check the token with isBlacklisted(token).",
 );
-assert.match(
-  __file,
-  /Token has been invalidated/,
-  'A blacklisted token should respond with "Token has been invalidated. Log in again.".',
-);
+const __statuses = __b
+  .getType("CallExpression")
+  .filter((c) => c.callee?.property?.name === "status")
+  .map((c) => c.arguments?.[0]?.value);
+assert.include(__statuses, 401, "Reject a blacklisted token with status 401.");
 ```
 
 ### --before-each--
@@ -1360,6 +1577,7 @@ const __file = await __helpers.getFile(
   project.dashedName,
   "middleware/authenticate.js",
 );
+const __b = new __helpers.Babeliser(__file);
 ```
 
 ## 22
@@ -1368,49 +1586,58 @@ const __file = await __helpers.getFile(
 
 Add a protected `POST /logout` route to `routes/auth.js`. Import `blacklistToken` from `../utils/token-blacklist.js`.
 
-Protect the route with `authenticate`. In the handler, read the token from the `Authorization` header (split on the space and take the second part), pass it to `blacklistToken`, and respond with the JSON message `"Logged out successfully"`.
+Protect the route with `authenticate`. In the handler, read the token from the `Authorization` header (split on the space and take the second part), pass it to `blacklistToken`, and respond with a JSON message (for example `"Logged out successfully"`).
 
 ### --tests--
 
 `routes/auth.js` should import `blacklistToken` from `../utils/token-blacklist.js`.
 
 ```js
-assert.match(
-  __file,
-  /import\s*\{\s*blacklistToken\s*\}\s*from\s*["']\.\.\/utils\/token-blacklist\.js["']/,
-  'routes/auth.js should import { blacklistToken } from "../utils/token-blacklist.js".',
+assert.isTrue(
+  __b
+    .getImportDeclarations()
+    .some(
+      (i) =>
+        i.source.value === "../utils/token-blacklist.js" &&
+        i.specifiers.some(
+          (s) => (s.imported?.name ?? s.local.name) === "blacklistToken",
+        ),
+    ),
+  "Import blacklistToken from ../utils/token-blacklist.js.",
 );
 ```
 
 `routes/auth.js` should define a `POST /logout` route protected by `authenticate`.
 
 ```js
-const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls("router.post");
-const __logout = __calls.find((c) => {
-  const __args = c.ast?.expression?.arguments;
-  return (
-    __args?.[0]?.value === "/logout" && __args?.[1]?.name === "authenticate"
+const __authLocal = __b
+  .getImportDeclarations()
+  .find((i) => i.source.value === "../middleware/authenticate.js")
+  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
+const __route = __b
+  .getType("CallExpression")
+  .find(
+    (c) =>
+      c.callee?.property?.name === "post" &&
+      c.arguments?.[0]?.value === "/logout",
   );
-});
-assert.isDefined(
-  __logout,
-  'routes/auth.js should define router.post("/logout", authenticate, ...).',
+assert.exists(__route, 'Define a router.post("/logout", ...) route.');
+assert.isTrue(
+  __route.arguments.some(
+    (a) => a.type === "Identifier" && a.name === __authLocal,
+  ),
+  "Protect /logout with the authenticate middleware.",
 );
 ```
 
 The `/logout` handler should blacklist the request's token.
 
 ```js
-assert.match(
-  __file,
-  /blacklistToken\(\s*token\s*\)/,
-  "The /logout handler should call blacklistToken(token).",
-);
-assert.match(
-  __file,
-  /Logged out successfully/,
-  'The /logout response should include the message "Logged out successfully".',
+assert.isTrue(
+  __b
+    .getType("CallExpression")
+    .some((c) => __b.generateCode(c.callee) === "blacklistToken"),
+  "Blacklist the token with blacklistToken(token).",
 );
 ```
 
@@ -1418,6 +1645,7 @@ assert.match(
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "routes/auth.js");
+const __b = new __helpers.Babeliser(__file);
 ```
 
 ### --hints--
@@ -1450,7 +1678,7 @@ export default function requireSomething(value) {
 }
 ```
 
-The returned middleware should respond with status `403` and the JSON message `"Access denied"` when there is no `req.user` or the user's `role` does not match `role`. Otherwise it should call `next()`.
+The returned middleware should respond with status `403` and a JSON message such as `"Access denied"` when there is no `req.user` or the user's `role` does not match `role`. Otherwise it should call `next()`.
 
 ### --tests--
 
@@ -1468,48 +1696,68 @@ const __file = await __helpers.getFile(
   project.dashedName,
   "middleware/authorize.js",
 );
-assert.match(
-  __file,
-  /export\s+default\s+function\s+authorizeRole\s*\(\s*role\s*\)/,
-  "authorize.js should export default function authorizeRole(role).",
+const __b = new __helpers.Babeliser(__file);
+const __fn = __b
+  .getFunctionDeclarations()
+  .find((f) => f.id?.name === "authorizeRole");
+assert.exists(__fn, "Define a function named authorizeRole.");
+assert.lengthOf(__fn.params, 1, "authorizeRole should accept a role argument.");
+const __def = __b.getType("ExportDefaultDeclaration")[0];
+assert.isTrue(
+  __def != null &&
+    (__def.declaration?.id?.name === "authorizeRole" ||
+      __b.generateCode(__def.declaration) === "authorizeRole"),
+  "Export authorizeRole as the default export.",
 );
 ```
 
-`authorizeRole` should return a middleware function.
+`authorizeRole` should return a middleware function with three parameters.
 
 ```js
 const __file = await __helpers.getFile(
   project.dashedName,
   "middleware/authorize.js",
 );
-assert.match(
-  __file,
-  /return\s*\(\s*req\s*,\s*res\s*,\s*next\s*\)\s*=>/,
+const __b = new __helpers.Babeliser(__file);
+const __mw = [
+  ...__b.getArrowFunctionExpressions(),
+  ...__b.getType("FunctionExpression"),
+].find((f) => f.params?.length === 3);
+assert.exists(
+  __mw,
   "authorizeRole should return a (req, res, next) => {} middleware function.",
 );
 ```
 
-The returned middleware should respond with `403` unless `req.user.role` matches `role`.
+The returned middleware should compare `req.user.role` with `role` and respond with `403` on a mismatch, otherwise call `next()`.
 
 ```js
 const __file = await __helpers.getFile(
   project.dashedName,
   "middleware/authorize.js",
 );
-assert.match(
-  __file,
-  /!\s*req\.user\s*\|\|\s*req\.user\.role\s*!==\s*role/,
-  "The middleware should check if (!req.user || req.user.role !== role).",
+const __b = new __helpers.Babeliser(__file);
+const __statuses = __b
+  .getType("CallExpression")
+  .filter((c) => c.callee?.property?.name === "status")
+  .map((c) => c.arguments?.[0]?.value);
+assert.include(__statuses, 403, "Respond with status 403 on a role mismatch.");
+assert.isTrue(
+  __b
+    .getType("BinaryExpression")
+    .some(
+      (e) =>
+        (e.operator === "!==" || e.operator === "===") &&
+        (__b.generateCode(e.left) === "req.user.role" ||
+          __b.generateCode(e.right) === "req.user.role"),
+    ),
+  "Compare req.user.role with the required role.",
 );
-assert.match(
-  __file,
-  /\.status\(\s*403\s*\)/,
-  "A role mismatch should respond with status 403.",
-);
-assert.match(
-  __file,
-  /Access denied/,
-  'The 403 response should include the message "Access denied".',
+assert.isTrue(
+  __b
+    .getType("CallExpression")
+    .some((c) => c.callee?.type === "Identifier" && c.callee.name === "next"),
+  "Call next() when the role matches.",
 );
 ```
 
@@ -1573,20 +1821,25 @@ assert.isTrue(
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "routes/admin.js");
-assert.match(
-  __file,
-  /import\s+authenticate\s+from\s+["']\.\.\/middleware\/authenticate\.js["']/,
-  "routes/admin.js should import authenticate.",
+const __b = new __helpers.Babeliser(__file);
+const __imports = __b.getImportDeclarations();
+assert.isTrue(
+  __imports.some((i) => i.source.value === "../middleware/authenticate.js"),
+  "Import authenticate from ../middleware/authenticate.js.",
 );
-assert.match(
-  __file,
-  /import\s+authorizeRole\s+from\s+["']\.\.\/middleware\/authorize\.js["']/,
-  "routes/admin.js should import authorizeRole.",
+assert.isTrue(
+  __imports.some((i) => i.source.value === "../middleware/authorize.js"),
+  "Import authorizeRole from ../middleware/authorize.js.",
 );
-assert.match(
-  __file,
-  /import\s*\{\s*readUsers\s*\}\s*from\s*["']\.\.\/utils\/db\.js["']/,
-  "routes/admin.js should import { readUsers } from ../utils/db.js.",
+assert.isTrue(
+  __imports.some(
+    (i) =>
+      i.source.value === "../utils/db.js" &&
+      i.specifiers.some(
+        (s) => (s.imported?.name ?? s.local.name) === "readUsers",
+      ),
+  ),
+  "Import readUsers from ../utils/db.js.",
 );
 ```
 
@@ -1594,10 +1847,37 @@ assert.match(
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "routes/admin.js");
-assert.match(
-  __file,
-  /router\.get\(\s*["']\/users["']\s*,\s*authenticate\s*,\s*authorizeRole\(\s*["']admin["']\s*\)/,
-  'routes/admin.js should define router.get("/users", authenticate, authorizeRole("admin"), ...).',
+const __b = new __helpers.Babeliser(__file);
+const __authLocal = __b
+  .getImportDeclarations()
+  .find((i) => i.source.value === "../middleware/authenticate.js")
+  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
+const __roleLocal = __b
+  .getImportDeclarations()
+  .find((i) => i.source.value === "../middleware/authorize.js")
+  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
+const __route = __b
+  .getType("CallExpression")
+  .find(
+    (c) =>
+      c.callee?.property?.name === "get" &&
+      c.arguments?.[0]?.value === "/users",
+  );
+assert.exists(__route, 'Define a router.get("/users", ...) route.');
+assert.isTrue(
+  __route.arguments.some(
+    (a) => a.type === "Identifier" && a.name === __authLocal,
+  ),
+  "Guard /users with the authenticate middleware.",
+);
+assert.isTrue(
+  __route.arguments.some(
+    (a) =>
+      a.type === "CallExpression" &&
+      __b.generateCode(a.callee) === __roleLocal &&
+      a.arguments?.[0]?.value === "admin",
+  ),
+  'Guard /users with authorizeRole("admin").',
 );
 ```
 
@@ -1605,26 +1885,46 @@ The handler should strip `passwordHash` from each user and respond with `{ users
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "routes/admin.js");
-assert.match(
-  __file,
-  /\.map\(\s*\(?\s*\{\s*passwordHash\s*,\s*\.\.\.\s*user\s*\}\s*\)?\s*=>\s*user\s*\)/,
-  "The handler should map readUsers() stripping passwordHash from each user.",
+const __b = new __helpers.Babeliser(__file);
+const __strips = __b.getArrowFunctionExpressions().some((a) => {
+  const __p = a.params?.[0];
+  return (
+    __p?.type === "ObjectPattern" &&
+    __p.properties.some((pr) => pr.key?.name === "passwordHash")
+  );
+});
+assert.isTrue(
+  __strips,
+  "Strip passwordHash from each user by destructuring it out.",
 );
-assert.match(
-  __file,
-  /res\.json\(\s*\{\s*users\s*\}\s*\)/,
-  "The handler should respond with res.json({ users }).",
-);
+const __usersResp = __b
+  .getType("CallExpression")
+  .some(
+    (c) =>
+      c.callee?.property?.name === "json" &&
+      c.arguments?.[0]?.type === "ObjectExpression" &&
+      c.arguments[0].properties.some((p) => p.key?.name === "users"),
+  );
+assert.isTrue(__usersResp, "Respond with res.json({ users }).");
 ```
 
-`routes/admin.js` should export `router` as the default export.
+`routes/admin.js` should export the router as the default export.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "routes/admin.js");
-assert.match(
-  __file,
-  /export\s+default\s+router/,
-  "routes/admin.js should have: export default router",
+const __b = new __helpers.Babeliser(__file);
+const __routerDecl = __b.getVariableDeclarations().find((v) => {
+  const __init = v.declarations[0]?.init;
+  return (
+    __init?.type === "CallExpression" &&
+    __b.generateCode(__init.callee).endsWith("Router")
+  );
+});
+const __routerName = __routerDecl?.declarations[0]?.id?.name;
+const __def = __b.getType("ExportDefaultDeclaration")[0];
+assert.isTrue(
+  __def != null && __b.generateCode(__def.declaration) === __routerName,
+  "Export the router as the default export.",
 );
 ```
 
@@ -1636,30 +1936,36 @@ Mount the admin router. In `index.js`, import the default export of `./routes/ad
 
 ### --tests--
 
-`index.js` should import `adminRoutes` from `./routes/admin.js`.
+`index.js` should import the default export of `./routes/admin.js`.
 
 ```js
-assert.match(
-  __file,
-  /import\s+adminRoutes\s+from\s+["']\.\/routes\/admin\.js["']/,
-  'index.js should have: import adminRoutes from "./routes/admin.js"',
-);
+const __local = __b
+  .getImportDeclarations()
+  .find((i) => i.source.value === "./routes/admin.js")
+  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
+assert.exists(__local, 'Import the default export of "./routes/admin.js".');
 ```
 
-`index.js` should mount `adminRoutes` at the `/api/admin` path.
+`index.js` should mount the admin router at the `/api/admin` path with `app.use`.
 
 ```js
-const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls("app.use");
-const __mounted = __calls.find((c) => {
-  const __args = c.ast?.expression?.arguments;
-  return (
-    __args?.[0]?.value === "/api/admin" && __args?.[1]?.name === "adminRoutes"
+const __local = __b
+  .getImportDeclarations()
+  .find((i) => i.source.value === "./routes/admin.js")
+  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
+const __mount = __b
+  .getType("CallExpression")
+  .find(
+    (c) =>
+      c.callee?.property?.name === "use" &&
+      c.callee?.object?.name === "app" &&
+      c.arguments?.[0]?.value === "/api/admin",
   );
-});
-assert.isDefined(
-  __mounted,
-  'index.js should call app.use("/api/admin", adminRoutes).',
+assert.exists(__mount, 'Mount the router at "/api/admin" with app.use.');
+assert.equal(
+  __mount.arguments?.[1]?.name,
+  __local,
+  "Pass the imported admin router to app.use.",
 );
 ```
 
@@ -1667,6 +1973,7 @@ assert.isDefined(
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "index.js");
+const __b = new __helpers.Babeliser(__file);
 ```
 
 ## 26
@@ -1791,7 +2098,16 @@ const { join } = await import("path");
 const __require = createRequire(join(ROOT, project.dashedName, "package.json"));
 const __jwt = __require("jsonwebtoken");
 const __env = await __helpers.getFile(project.dashedName, ".env");
-const __secret = __env.match(/JWT_SECRET\s*=\s*(.+)/)[1].trim();
+const __secret = Object.fromEntries(
+  __env
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l && !l.startsWith("#"))
+    .map((l) => {
+      const __i = l.indexOf("=");
+      return [l.slice(0, __i).trim(), l.slice(__i + 1).trim()];
+    }),
+).JWT_SECRET;
 const __adminToken = __jwt.sign(
   { id: "admin-test", email: "admin@test.dev", role: "admin" },
   __secret,
