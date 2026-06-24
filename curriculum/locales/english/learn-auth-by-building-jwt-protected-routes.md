@@ -31,8 +31,8 @@ assert.include(
 
 Your API needs two libraries that are not yet installed:
 
-- bcryptjs - to hash and compare passwords.
-- jsonwebtoken - to issue and validate tokens.
+- `bcryptjs` - to hash and compare passwords.
+- `jsonwebtoken` - to issue and validate tokens.
 
 In the terminal, install both packages as dependencies:
 
@@ -178,7 +178,9 @@ if (!data) return [];
 `utils/db.js` should export a `readUsers` function.
 
 ```js
-const __fn = __b.getFunctionDeclarations().find((f) => f.id?.name === "readUsers");
+const __fn = __b
+  .getFunctionDeclarations()
+  .find((f) => f.id?.name === "readUsers");
 assert.exists(__fn, "Export a function named readUsers.");
 assert.lengthOf(__fn.params, 0, "readUsers should take no parameters.");
 assert.isTrue(
@@ -349,7 +351,9 @@ Both lookups should use `.find` and fall back to `null` when no user matches.
 
 ```js
 assert.isTrue(
-  __b.getType("CallExpression").some((c) => c.callee?.property?.name === "find"),
+  __b
+    .getType("CallExpression")
+    .some((c) => c.callee?.property?.name === "find"),
   "Use Array.prototype.find to locate the user.",
 );
 const __nullFallbacks = __b
@@ -693,10 +697,7 @@ const __destructures = __b.getVariableDeclarations().some((v) => {
     __b.generateCode(__d.init) === "req.body"
   );
 });
-assert.isTrue(
-  __destructures,
-  "Read email and password from req.body.",
-);
+assert.isTrue(__destructures, "Read email and password from req.body.");
 ```
 
 A missing field should respond with `400`, and a duplicate email should respond with `409`.
@@ -850,7 +851,11 @@ assert.equal(
   "Generate the id with randomUUID().",
 );
 const __role = __user.properties.find((p) => p.key?.name === "role");
-assert.equal(__role?.value?.value, "user", 'New users should have role "user".');
+assert.equal(
+  __role?.value?.value,
+  "user",
+  'New users should have role "user".',
+);
 ```
 
 ### --before-each--
@@ -948,7 +953,11 @@ const __statuses = __b
   .getType("CallExpression")
   .filter((c) => c.callee?.property?.name === "status")
   .map((c) => c.arguments?.[0]?.value);
-assert.include(__statuses, 500, "Respond with status 500 from the catch block.");
+assert.include(
+  __statuses,
+  500,
+  "Respond with status 500 from the catch block.",
+);
 ```
 
 ### --before-each--
@@ -1024,7 +1033,11 @@ const __statuses = __b
   .getType("CallExpression")
   .filter((c) => c.callee?.property?.name === "status")
   .map((c) => c.arguments?.[0]?.value);
-assert.include(__statuses, 401, "Respond with status 401 for invalid credentials.");
+assert.include(
+  __statuses,
+  401,
+  "Respond with status 401 for invalid credentials.",
+);
 ```
 
 ### --before-each--
@@ -1249,7 +1262,11 @@ const __statuses = __b
   .getType("CallExpression")
   .filter((c) => c.callee?.property?.name === "status")
   .map((c) => c.arguments?.[0]?.value);
-assert.include(__statuses, 401, "Respond with status 401 when no token is provided.");
+assert.include(
+  __statuses,
+  401,
+  "Respond with status 401 when no token is provided.",
+);
 ```
 
 `authenticate` should extract the token by splitting the header.
@@ -1327,7 +1344,11 @@ const __statuses = __b
   .getType("CallExpression")
   .filter((c) => c.callee?.property?.name === "status")
   .map((c) => c.arguments?.[0]?.value);
-assert.include(__statuses, 401, "Respond with status 401 when the token is invalid.");
+assert.include(
+  __statuses,
+  401,
+  "Respond with status 401 when the token is invalid.",
+);
 ```
 
 `authenticate` should attach the decoded payload to `req.user` and call `next()`.
@@ -1427,19 +1448,18 @@ assert.isTrue(
 The `/profile` handler should respond with `{ user: req.user }`.
 
 ```js
-const __userResp = __b.getType("CallExpression").some(
-  (c) =>
-    c.callee?.property?.name === "json" &&
-    c.arguments?.[0]?.type === "ObjectExpression" &&
-    c.arguments[0].properties.some(
-      (p) =>
-        p.key?.name === "user" && __b.generateCode(p.value) === "req.user",
-    ),
-);
-assert.isTrue(
-  __userResp,
-  "Respond with res.json({ user: req.user }).",
-);
+const __userResp = __b
+  .getType("CallExpression")
+  .some(
+    (c) =>
+      c.callee?.property?.name === "json" &&
+      c.arguments?.[0]?.type === "ObjectExpression" &&
+      c.arguments[0].properties.some(
+        (p) =>
+          p.key?.name === "user" && __b.generateCode(p.value) === "req.user",
+      ),
+  );
+assert.isTrue(__userResp, "Respond with res.json({ user: req.user }).");
 ```
 
 ### --before-each--
