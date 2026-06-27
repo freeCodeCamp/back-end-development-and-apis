@@ -50,7 +50,7 @@ const PORT = 9000;
 const __exists = await __helpers.fileExists(`${project.dashedName}/server.js`);
 assert.isTrue(
   __exists,
-  "`server.js` was not found — make sure you created the file in the project directory",
+  "`server.js` was not found - make sure you created the file in the project directory",
 );
 ```
 
@@ -192,7 +192,7 @@ The server should be listening on port `9000`.
 const __listening = await __helpers.isServerListening(9000);
 assert.isTrue(
   __listening,
-  "The server is not listening on port 9000 — make sure you have started it with `node server.js`",
+  "The server is not listening on port 9000 - make sure you have started it with `node server.js`",
 );
 ```
 
@@ -213,7 +213,7 @@ delete global.__file;
 
 ### --description--
 
-Your API needs some data to work with. Create a file called `accounts.json` in the project directory. It will act as your database — a JSON array of three bank accounts, each with an `id`, `owner`, and `balance`:
+Your API needs some data to work with. Create a file called `accounts.json` in the project directory. It will act as your database - a JSON array of three bank accounts, each with an `id`, `owner`, and `balance`:
 
 ```json
 [
@@ -233,7 +233,7 @@ const __exists = await __helpers.fileExists(
 );
 assert.isTrue(
   __exists,
-  "`accounts.json` was not found — make sure you created the file in the project directory",
+  "`accounts.json` was not found - make sure you created the file in the project directory",
 );
 ```
 
@@ -299,7 +299,7 @@ delete global.__accounts;
 
 Create a new file called `db.js`. This module will handle reading and writing `accounts.json` so the rest of your server doesn't have to worry about file I/O.
 
-Import `readFile` and `writeFile` from Node's built-in `fs/promises` module, then export two async functions — `getAccounts` reads and parses `accounts.json`, and `saveAccounts` writes updated data back to it:
+Import `readFile` and `writeFile` from Node's built-in `fs/promises` module, then export two async functions - `getAccounts` reads and parses `accounts.json`, and `saveAccounts` writes updated data back to it:
 
 ```js
 import { readFile, writeFile } from "fs/promises";
@@ -327,7 +327,7 @@ export async function saveAccounts(accounts) {
 const __exists = await __helpers.fileExists(`${project.dashedName}/db.js`);
 assert.isTrue(
   __exists,
-  "`db.js` was not found — make sure you created the file in the project directory",
+  "`db.js` was not found - make sure you created the file in the project directory",
 );
 ```
 
@@ -481,7 +481,7 @@ app.get("/accounts", async (req, res, next) => {
 });
 ```
 
-A successful response automatically sends an <dfn title="a three-digit code that tells the client whether the request succeeded or failed">HTTP status code</dfn> of `200 OK`. Notice the `next(err)` in the catch — this passes any error to Express's error-handling pipeline, which you will build in a later lesson.
+A successful response automatically sends an <dfn title="a three-digit code that tells the client whether the request succeeded or failed">HTTP status code</dfn> of `200 OK`. Notice the `next(err)` in the catch - this passes any error to Express's error-handling pipeline, which you will build in a later lesson.
 
 ### --tests--
 
@@ -541,7 +541,7 @@ delete global.__file;
 
 ### --description--
 
-Add a `GET /accounts/:id` route to `server.js` that looks up a single account by its ID. The `:id` part is a <dfn title="a named segment in the URL path whose value is available on req.params">route parameter</dfn> — Express makes it available as `req.params.id`.
+Add a `GET /accounts/:id` route to `server.js` that looks up a single account by its ID. The `:id` part is a <dfn title="a named segment in the URL path whose value is available on req.params">route parameter</dfn> - Express makes it available as `req.params.id`.
 
 If no account matches the ID, you need to signal a `404 Not Found` error. The pattern is to create a plain `Error`, attach a `status` property to it, and pass it to `next`:
 
@@ -629,7 +629,7 @@ delete global.__file;
 
 ### --description--
 
-Add a `POST /transfer` route to `server.js`. This route will eventually move money between two accounts — but for now, just set up the structure: a `try/catch` block and destructure the three fields you expect from the request body:
+Add a `POST /transfer` route to `server.js`. This route will eventually move money between two accounts - but for now, just set up the structure: a `try/catch` block and destructure the three fields you expect from the request body:
 
 ```js
 app.post("/transfer", async (req, res, next) => {
@@ -706,7 +706,7 @@ if (!fromId || !toId || !amount) {
 }
 ```
 
-`400 Bad Request` tells the client that the problem is on their side — they sent an incomplete or malformed request. Because this `throw` is inside the `try` block, the `catch` will catch it and pass it to `next(err)`.
+`400 Bad Request` tells the client that the problem is on their side - they sent an incomplete or malformed request. Because this `throw` is inside the `try` block, the `catch` will catch it and pass it to `next(err)`.
 
 ### --tests--
 
@@ -917,7 +917,7 @@ delete global.__file;
 
 ### --description--
 
-After finding both accounts, check whether the sender can afford the transfer. If `sender.balance` is less than `amount`, throw a `409 Conflict` error — this status code signals that the request is valid but cannot be completed due to the current state of the resource:
+After finding both accounts, check whether the sender can afford the transfer. If `sender.balance` is less than `amount`, throw a `409 Conflict` error - this status code signals that the request is valid but cannot be completed due to the current state of the resource:
 
 ```js
 if (sender.balance < amount) {
@@ -966,7 +966,7 @@ delete global.__file;
 
 ### --description--
 
-All validations have passed — time to perform the actual transfer. Mutate the balances in place, save the updated accounts, then respond with a summary:
+All validations have passed - time to perform the actual transfer. Mutate the balances in place, save the updated accounts, then respond with a summary:
 
 ```js
 sender.balance -= amount;
@@ -1044,7 +1044,7 @@ Before adding an error handler, see what Express does on its own. Make sure your
 curl http://localhost:9000/does-not-exist
 ```
 
-Express will return an HTML page that says "Cannot GET /does-not-exist". This is Express's built-in fallback — not very useful for an API client expecting JSON. In the next lesson you will replace this behaviour with a proper error-handler middleware.
+Express will return an HTML page that says "Cannot GET /does-not-exist". This is Express's built-in fallback - not very useful for an API client expecting JSON. In the next lesson you will replace this behaviour with a proper error-handler middleware.
 
 ### --tests--
 
@@ -1066,7 +1066,7 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 assert.notMatch(
   __file,
   /app\.use\s*\(\s*\(\s*err\s*,\s*req\s*,\s*res\s*,\s*next\s*\)/,
-  "`server.js` should not have an error-handler middleware yet — you will add it in the next lesson",
+  "`server.js` should not have an error-handler middleware yet - you will add it in the next lesson",
 );
 ```
 
@@ -1074,13 +1074,13 @@ assert.notMatch(
 
 ### --description--
 
-Express recognises an error-handling middleware by its signature: it must have exactly **4 arguments** — `err`, `req`, `res`, `next`. At the bottom of `server.js`, after all your routes but before `app.listen`, add this middleware stub:
+Express recognises an error-handling middleware by its signature: it must have exactly **4 arguments** - `err`, `req`, `res`, `next`. At the bottom of `server.js`, after all your routes but before `app.listen`, add this middleware stub:
 
 ```js
 app.use((err, req, res, next) => {});
 ```
 
-The placement matters — Express only passes errors to this function if it is registered after all routes.
+The placement matters - Express only passes errors to this function if it is registered after all routes.
 
 ### --tests--
 
@@ -1197,7 +1197,7 @@ app.use((err, req, res, next) => {
 });
 ```
 
-Server-side logging is separate from the client response — the client gets clean JSON, while the server log gives you visibility into what went wrong.
+Server-side logging is separate from the client response - the client gets clean JSON, while the server log gives you visibility into what went wrong.
 
 ### --tests--
 
@@ -1274,13 +1274,13 @@ delete global.__file;
 
 ### --description--
 
-Restart your server and use `curl` to hit the `/broken` route. You should receive a `500` JSON response — proof that your error handler is working:
+Restart your server and use `curl` to hit the `/broken` route. You should receive a `500` JSON response - proof that your error handler is working:
 
 ```bash
 curl http://localhost:9000/broken
 ```
 
-Once you've confirmed the response, comment out the entire `/broken` route in `server.js` — it was only needed for testing.
+Once you've confirmed the response, comment out the entire `/broken` route in `server.js` - it was only needed for testing.
 
 ### --tests--
 
@@ -1321,7 +1321,7 @@ Express has a built-in <dfn title="detailed output that shows internal operation
 DEBUG=express:* node server.js
 ```
 
-Watch the output as Express starts up — you will see each route and middleware being registered in order. Send a request with `curl` and observe how Express matches it step by step. When you are done exploring, stop the server with `Ctrl+C`.
+Watch the output as Express starts up - you will see each route and middleware being registered in order. Send a request with `curl` and observe how Express matches it step by step. When you are done exploring, stop the server with `Ctrl+C`.
 
 ### --tests--
 
@@ -1401,7 +1401,7 @@ delete global.__file;
 
 ### --description--
 
-Enhance the `GET /health` route with two more fields — a `timestamp` so callers know exactly when the check ran, and `memoryUsage` so you can spot memory leaks over time:
+Enhance the `GET /health` route with two more fields - a `timestamp` so callers know exactly when the check ran, and `memoryUsage` so you can spot memory leaks over time:
 
 ```js
 app.get("/health", (req, res) => {
@@ -1545,7 +1545,7 @@ delete global.__file;
 
 ### --description--
 
-Add the same graceful shutdown logic for `SIGINT` — the signal sent when you press `Ctrl+C` in the terminal. Use the same pattern as `SIGTERM`:
+Add the same graceful shutdown logic for `SIGINT` - the signal sent when you press `Ctrl+C` in the terminal. Use the same pattern as `SIGTERM`:
 
 ```js
 process.on("SIGINT", () => {
@@ -1600,7 +1600,7 @@ delete global.__file;
 
 ### --description--
 
-Express 5 automatically catches errors thrown inside `async` route handlers and passes them to the error-handling middleware — no `try/catch` or `next(err)` required for unexpected errors.
+Express 5 automatically catches errors thrown inside `async` route handlers and passes them to the error-handling middleware - no `try/catch` or `next(err)` required for unexpected errors.
 
 Simplify the `GET /accounts` route by removing the `try/catch` wrapper entirely:
 
@@ -1639,7 +1639,7 @@ assert.isNotNull(
 assert.notMatch(
   __accountsRouteMatch[0],
   /try\s*\{/,
-  "The `GET /accounts` handler should not use `try/catch` — Express 5 handles async errors automatically",
+  "The `GET /accounts` handler should not use `try/catch` - Express 5 handles async errors automatically",
 );
 ```
 
@@ -1675,7 +1675,7 @@ delete global.__file;
 
 ### --description--
 
-Apply the same Express 5 simplification to `GET /accounts/:id`. Remove the `try/catch` block and drop the `next` parameter — intentional errors like the `404` can be thrown directly, and Express 5 will route them to the error handler:
+Apply the same Express 5 simplification to `GET /accounts/:id`. Remove the `try/catch` block and drop the `next` parameter - intentional errors like the `404` can be thrown directly, and Express 5 will route them to the error handler:
 
 ```js
 app.get("/accounts/:id", async (req, res) => {
@@ -1705,7 +1705,7 @@ const __idRouteSnippet = __file.slice(__idRouteIdx, __idRouteIdx + 400);
 assert.notMatch(
   __idRouteSnippet,
   /try\s*\{/,
-  "The `GET /accounts/:id` handler should not use `try/catch` — Express 5 handles async errors automatically",
+  "The `GET /accounts/:id` handler should not use `try/catch` - Express 5 handles async errors automatically",
 );
 ```
 
@@ -1715,7 +1715,7 @@ The `GET /accounts/:id` route should use `throw err` instead of `next(err)` for 
 assert.notMatch(
   __file,
   /\/accounts\/:id[\s\S]*?catch\s*\([\s\S]*?\)\s*\{[\s\S]*?next\s*\(/,
-  "The `GET /accounts/:id` handler should not have a `catch` block calling `next(err)` — use `throw err` directly",
+  "The `GET /accounts/:id` handler should not have a `catch` block calling `next(err)` - use `throw err` directly",
 );
 assert.match(
   __file,
@@ -1741,7 +1741,7 @@ delete global.__file;
 
 ### --description--
 
-Apply the final Express 5 refactor to `POST /transfer`. Remove the outer `try/catch` block and the `next` parameter — every `throw err` inside the handler will be caught automatically by Express 5 and forwarded to the error-handler middleware:
+Apply the final Express 5 refactor to `POST /transfer`. Remove the outer `try/catch` block and the `next` parameter - every `throw err` inside the handler will be caught automatically by Express 5 and forwarded to the error-handler middleware:
 
 ```js
 app.post("/transfer", async (req, res) => {
@@ -1756,7 +1756,7 @@ app.post("/transfer", async (req, res) => {
 });
 ```
 
-Keep all the `throw err` statements for your validation errors — they still work exactly as before, just without a `catch` block wrapping them.
+Keep all the `throw err` statements for your validation errors - they still work exactly as before, just without a `catch` block wrapping them.
 
 ### --tests--
 
@@ -1771,7 +1771,7 @@ const __transferSnippet = __file.slice(__transferIdx, __transferIdx + 1500);
 assert.notMatch(
   __transferSnippet,
   /try\s*\{/,
-  "The `POST /transfer` handler should not use `try/catch` — Express 5 handles async errors automatically",
+  "The `POST /transfer` handler should not use `try/catch` - Express 5 handles async errors automatically",
 );
 ```
 
@@ -1781,7 +1781,7 @@ The `POST /transfer` route should not call `next(err)` in a `catch` block.
 assert.notMatch(
   __file,
   /\/transfer[\s\S]*?catch\s*\([\s\S]*?\)\s*\{[\s\S]*?next\s*\(/,
-  "The `POST /transfer` handler should not have a `catch` block — use `throw err` directly throughout",
+  "The `POST /transfer` handler should not have a `catch` block - use `throw err` directly throughout",
 );
 ```
 
@@ -1849,7 +1849,7 @@ The server should be listening on port `9000`.
 const __listening = await __helpers.isServerListening(9000);
 assert.isTrue(
   __listening,
-  "The server is not listening on port 9000 — restart it with `node server.js`",
+  "The server is not listening on port 9000 - restart it with `node server.js`",
 );
 ```
 
@@ -1862,9 +1862,9 @@ You have now completed the Express 5 refactor. Here is a summary of what changed
 | Approach                 | Error handling                                                                       |
 | ------------------------ | ------------------------------------------------------------------------------------ |
 | Before (Express 4 style) | Wrap every `async` handler in `try/catch`, call `next(err)` in the `catch`           |
-| After (Express 5 style)  | Just `throw err` — Express automatically forwards it to the error-handler middleware |
+| After (Express 5 style)  | Just `throw err` - Express automatically forwards it to the error-handler middleware |
 
-The error-handler middleware itself did not change — it is still needed to format the JSON error response for the client. Check that your final `server.js` has no `try/catch` blocks in route handlers while retaining the error handler, `GET /health`, and both signal handlers.
+The error-handler middleware itself did not change - it is still needed to format the JSON error response for the client. Check that your final `server.js` has no `try/catch` blocks in route handlers while retaining the error handler, `GET /health`, and both signal handlers.
 
 ### --tests--
 
@@ -1888,7 +1888,7 @@ assert.notMatch(
 assert.match(
   __file,
   /app\.use\s*\(\s*\(\s*err\s*,\s*req\s*,\s*res\s*,\s*next\s*\)/,
-  "`server.js` should still have the error-handler middleware — it is still needed to format error responses",
+  "`server.js` should still have the error-handler middleware - it is still needed to format error responses",
 );
 ```
 
@@ -1929,14 +1929,14 @@ delete global.__file;
 
 ### --description--
 
-Congratulations — your Tiny Bank API is complete! Do a final manual test of the two key read endpoints to confirm everything works end-to-end with Express 5:
+Congratulations - your Tiny Bank API is complete! Do a final manual test of the two key read endpoints to confirm everything works end-to-end with Express 5:
 
 ```bash
 curl http://localhost:9000/accounts
 curl http://localhost:9000/health
 ```
 
-You built a REST API with structured JSON error responses, HTTP status codes (200, 400, 404, 409, 500), a health check endpoint, graceful shutdown handling, and clean Express 5 async error propagation — all without boilerplate `try/catch` blocks.
+You built a REST API with structured JSON error responses, HTTP status codes (200, 400, 404, 409, 500), a health check endpoint, graceful shutdown handling, and clean Express 5 async error propagation - all without boilerplate `try/catch` blocks.
 
 ### --tests--
 

@@ -31,8 +31,8 @@ assert.include(
 
 Your API needs two libraries that are not yet installed:
 
-- `bcryptjs` - to hash and compare passwords.
-- `jsonwebtoken` - to issue and validate tokens.
+- bcryptjs - to hash and compare passwords.
+- jsonwebtoken - to issue and validate tokens.
 
 In the terminal, install both packages as dependencies:
 
@@ -73,11 +73,7 @@ assert.property(
 
 ### --description--
 
-Instead of a database, this project stores users in a JSON file. Create a `data/users.json` file, and set its contents to an empty array:
-
-```json
-[]
-```
+Instead of a database, this project stores users in a JSON file. Create an empty `data/users.json` file in the project directory. You will give it its starting contents in the next lesson.
 
 ### --tests--
 
@@ -93,6 +89,18 @@ assert.isTrue(
 );
 ```
 
+## 3
+
+### --description--
+
+Set the contents of `data/users.json` to an empty array, so there are no users to begin with:
+
+```json
+[]
+```
+
+### --tests--
+
 `data/users.json` should contain an empty array.
 
 ```js
@@ -102,20 +110,11 @@ assert.isArray(__data, "data/users.json should contain a JSON array.");
 assert.lengthOf(__data, 0, "The array in data/users.json should be empty.");
 ```
 
-## 3
+## 4
 
 ### --description--
 
-Create a `utils/db.js` file. This module will read and write the users file.
-
-In Node.js, `import.meta.dirname` holds the absolute path of the current module's directory, which you can join with a relative path:
-
-```js
-import path from "path";
-const FILE = path.join(import.meta.dirname, "../data/example.json");
-```
-
-In `utils/db.js`, import the built-in `fs` and `path` modules, then declare a `const DB_PATH` that points to `../data/users.json` relative to the module directory.
+Create a `utils/db.js` file in the project directory. This module will read and write the users file.
 
 ### --tests--
 
@@ -128,21 +127,31 @@ const __exists = await __helpers.fileExists(
 assert.isTrue(__exists, "utils/db.js does not exist - create the file first.");
 ```
 
-`utils/db.js` should import the `fs` and `path` modules.
+## 5
+
+### --description--
+
+In Node.js, `import.meta.dirname` holds the absolute path of the current module's directory, which you can join with a relative path:
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, "utils/db.js");
-const __b = new __helpers.Babeliser(__file);
+import path from "path";
+const FILE = path.join(import.meta.dirname, "../data/example.json");
+```
+
+In `utils/db.js`, import the `path` module, then declare a `const DB_PATH` that points to `../data/users.json` relative to the module directory.
+
+### --tests--
+
+`utils/db.js` should import the `path` module.
+
+```js
 const __sources = __b.getImportDeclarations().map((i) => i.source.value);
-assert.include(__sources, "fs", 'Import the "fs" module.');
 assert.include(__sources, "path", 'Import the "path" module.');
 ```
 
 `utils/db.js` should build a path to `../data/users.json` using `path.join` and `import.meta.dirname`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, "utils/db.js");
-const __b = new __helpers.Babeliser(__file);
 const __join = __b.getType("CallExpression").find((c) => {
   const __code = __b.generateCode(c.callee);
   return __code.endsWith(".join") || __code === "join";
@@ -160,72 +169,53 @@ assert.isTrue(
 );
 ```
 
-## 4
-
-### --description--
-
-In `utils/db.js`, export a function named `readUsers` that returns the array of stored users.
-
-It should read `DB_PATH` synchronously as a UTF-8 string and `.trim()` it. If the result is empty, return an empty array; otherwise return the parsed JSON:
-
-```js
-const data = fs.readFileSync(DB_PATH, "utf-8").trim();
-if (!data) return [];
-```
-
-### --tests--
-
-`utils/db.js` should export a `readUsers` function.
-
-```js
-const __fn = __b
-  .getFunctionDeclarations()
-  .find((f) => f.id?.name === "readUsers");
-assert.exists(__fn, "Export a function named readUsers.");
-assert.lengthOf(__fn.params, 0, "readUsers should take no parameters.");
-assert.isTrue(
-  __b
-    .getType("ExportNamedDeclaration")
-    .some((e) => e.declaration?.id?.name === "readUsers"),
-  "readUsers should be exported.",
-);
-```
-
-`readUsers` should read the file synchronously with `fs.readFileSync`.
-
-```js
-const __fs = __b
-  .getImportDeclarations()
-  .find((i) => i.source.value === "fs")
-  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
-assert.isTrue(
-  __b
-    .getType("CallExpression")
-    .some((c) => __b.generateCode(c.callee).includes(`${__fs}.readFileSync`)),
-  "readUsers should call fs.readFileSync(...).",
-);
-```
-
-`readUsers` should parse the JSON, returning an empty array when the file is empty.
-
-```js
-assert.isTrue(
-  __b
-    .getType("CallExpression")
-    .some((c) => __b.generateCode(c.callee) === "JSON.parse"),
-  "Parse the file contents with JSON.parse.",
-);
-assert.isTrue(
-  __b.getType("ArrayExpression").some((a) => a.elements.length === 0),
-  "Return an empty array when the file has no data.",
-);
-```
-
 ### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "utils/db.js");
 const __b = new __helpers.Babeliser(__file);
+```
+
+## 6
+
+### --description--
+
+Now read the file. In `utils/db.js`, import the `fs` module, then export a function named `readUsers` that returns the array of stored users.
+
+It should read `DB_PATH` synchronously as a UTF-8 string and `.trim()` it. If the result is empty, return an empty array; otherwise return the parsed JSON.
+
+### --tests--
+
+`readUsers()` should return the parsed array of users from the file.
+
+```js
+const { readFile, writeFile } = await import("fs/promises");
+const { join } = await import("path");
+const __dataPath = join(ROOT, project.dashedName, "data/users.json");
+const __backup = await readFile(__dataPath, "utf-8");
+try {
+  await writeFile(
+    __dataPath,
+    JSON.stringify([{ id: "1", email: "a@b.com", role: "user" }]),
+  );
+  const { readUsers } = await __helpers.importSansCache(
+    join(project.dashedName, "utils/db.js"),
+  );
+  assert.isFunction(readUsers, "Export a readUsers function.");
+  assert.deepEqual(
+    readUsers(),
+    [{ id: "1", email: "a@b.com", role: "user" }],
+    "readUsers() should return the parsed contents of the users file.",
+  );
+  await writeFile(__dataPath, "   ");
+  assert.deepEqual(
+    readUsers(),
+    [],
+    "readUsers() should return an empty array when the file is empty.",
+  );
+} finally {
+  await writeFile(__dataPath, __backup);
+}
 ```
 
 ### --hints--
@@ -244,7 +234,7 @@ export function readUsers() {
 }
 ```
 
-## 5
+## 7
 
 ### --description--
 
@@ -254,41 +244,28 @@ Use `fs.writeFileSync` with `JSON.stringify(users, null, 2)` so the file stays h
 
 ### --tests--
 
-`utils/db.js` should export a `writeUsers` function that accepts one argument.
+`writeUsers(users)` should persist the array to the users file.
 
 ```js
-const __fn = __b
-  .getFunctionDeclarations()
-  .find((f) => f.id?.name === "writeUsers");
-assert.exists(__fn, "Export a function named writeUsers.");
-assert.lengthOf(__fn.params, 1, "writeUsers should accept the users array.");
-assert.isTrue(
-  __b
-    .getType("ExportNamedDeclaration")
-    .some((e) => e.declaration?.id?.name === "writeUsers"),
-  "writeUsers should be exported.",
-);
-```
-
-`writeUsers` should serialise the users with `JSON.stringify` and write them with `fs.writeFileSync`.
-
-```js
-const __fs = __b
-  .getImportDeclarations()
-  .find((i) => i.source.value === "fs")
-  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
-assert.isTrue(
-  __b
-    .getType("CallExpression")
-    .some((c) => __b.generateCode(c.callee) === `${__fs}.writeFileSync`),
-  "writeUsers should call fs.writeFileSync(...).",
-);
-assert.isTrue(
-  __b
-    .getType("CallExpression")
-    .some((c) => __b.generateCode(c.callee) === "JSON.stringify"),
-  "Serialise the users with JSON.stringify before writing.",
-);
+const { readFile, writeFile } = await import("fs/promises");
+const { join } = await import("path");
+const __dataPath = join(ROOT, project.dashedName, "data/users.json");
+const __backup = await readFile(__dataPath, "utf-8");
+try {
+  const { writeUsers } = await __helpers.importSansCache(
+    join(project.dashedName, "utils/db.js"),
+  );
+  assert.isFunction(writeUsers, "Export a writeUsers function.");
+  writeUsers([{ id: "7", email: "w@x.com" }]);
+  const __onDisk = JSON.parse(await readFile(__dataPath, "utf-8"));
+  assert.deepEqual(
+    __onDisk,
+    [{ id: "7", email: "w@x.com" }],
+    "writeUsers(users) should write the array to data/users.json.",
+  );
+} finally {
+  await writeFile(__dataPath, __backup);
+}
 ```
 
 ### --before-each--
@@ -298,7 +275,7 @@ const __file = await __helpers.getFile(project.dashedName, "utils/db.js");
 const __b = new __helpers.Babeliser(__file);
 ```
 
-## 6
+## 8
 
 ### --description--
 
@@ -315,65 +292,50 @@ return readUsers().find((u) => u.email === email) || null;
 
 ### --tests--
 
-`utils/db.js` should export a `findByEmail` function that accepts one argument.
+`findByEmail` and `findById` should return the matching user, or `null` when none matches.
 
 ```js
-const __fn = __b
-  .getFunctionDeclarations()
-  .find((f) => f.id?.name === "findByEmail");
-assert.exists(__fn, "Export a function named findByEmail.");
-assert.lengthOf(__fn.params, 1, "findByEmail should accept an email argument.");
-assert.isTrue(
-  __b
-    .getType("ExportNamedDeclaration")
-    .some((e) => e.declaration?.id?.name === "findByEmail"),
-  "findByEmail should be exported.",
-);
+const { readFile, writeFile } = await import("fs/promises");
+const { join } = await import("path");
+const __dataPath = join(ROOT, project.dashedName, "data/users.json");
+const __backup = await readFile(__dataPath, "utf-8");
+try {
+  await writeFile(
+    __dataPath,
+    JSON.stringify([
+      { id: "1", email: "a@b.com" },
+      { id: "2", email: "c@d.com" },
+    ]),
+  );
+  const { findByEmail, findById } = await __helpers.importSansCache(
+    join(project.dashedName, "utils/db.js"),
+  );
+  assert.isFunction(findByEmail, "Export a findByEmail function.");
+  assert.isFunction(findById, "Export a findById function.");
+  assert.equal(
+    findByEmail("c@d.com")?.id,
+    "2",
+    "findByEmail should return the user with the matching email.",
+  );
+  assert.isNull(
+    findByEmail("missing@nope.com"),
+    "findByEmail should return null when no user matches.",
+  );
+  assert.equal(
+    findById("1")?.email,
+    "a@b.com",
+    "findById should return the user with the matching id.",
+  );
+  assert.isNull(
+    findById("999"),
+    "findById should return null when no user matches.",
+  );
+} finally {
+  await writeFile(__dataPath, __backup);
+}
 ```
 
-`utils/db.js` should export a `findById` function that accepts one argument.
-
-```js
-const __fn = __b
-  .getFunctionDeclarations()
-  .find((f) => f.id?.name === "findById");
-assert.exists(__fn, "Export a function named findById.");
-assert.lengthOf(__fn.params, 1, "findById should accept an id argument.");
-assert.isTrue(
-  __b
-    .getType("ExportNamedDeclaration")
-    .some((e) => e.declaration?.id?.name === "findById"),
-  "findById should be exported.",
-);
-```
-
-Both lookups should use `.find` and fall back to `null` when no user matches.
-
-```js
-assert.isTrue(
-  __b
-    .getType("CallExpression")
-    .some((c) => c.callee?.property?.name === "find"),
-  "Use Array.prototype.find to locate the user.",
-);
-const __nullFallbacks = __b
-  .getType("LogicalExpression")
-  .filter((e) => e.operator === "||" && e.right?.type === "NullLiteral");
-assert.isAtLeast(
-  __nullFallbacks.length,
-  2,
-  "Both lookups should fall back to null when no user matches.",
-);
-```
-
-### --before-each--
-
-```js
-const __file = await __helpers.getFile(project.dashedName, "utils/db.js");
-const __b = new __helpers.Babeliser(__file);
-```
-
-## 7
+## 9
 
 ### --description--
 
@@ -408,19 +370,11 @@ assert.isNotEmpty(
 );
 ```
 
-## 8
+## 10
 
 ### --description--
 
-Create a `utils/jwt.js` file. This module wraps the `jsonwebtoken` library.
-
-`jwt.sign(payload, secret, options)` returns a signed token. The `expiresIn` option sets how long the token stays valid:
-
-```js
-jwt.sign({ id: 1 }, "secret", { expiresIn: "1h" });
-```
-
-In `utils/jwt.js`, import the default export of `jsonwebtoken` as `jwt`, then export a function `signToken(payload)` that signs the `payload` with `process.env.JWT_SECRET` and an `expiresIn` of `"1d"`.
+Create a `utils/jwt.js` file in the project directory. This module will wrap the `jsonwebtoken` library.
 
 ### --tests--
 
@@ -433,51 +387,44 @@ const __exists = await __helpers.fileExists(
 assert.isTrue(__exists, "utils/jwt.js does not exist - create the file first.");
 ```
 
-`utils/jwt.js` should import `jsonwebtoken` and export a `signToken` function.
+## 11
+
+### --description--
+
+`jwt.sign(payload, secret, options)` returns a signed token. The `expiresIn` option sets how long the token stays valid:
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, "utils/jwt.js");
-const __b = new __helpers.Babeliser(__file);
-const __jwt = __b
-  .getImportDeclarations()
-  .find((i) => i.source.value === "jsonwebtoken")
-  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
-assert.exists(__jwt, 'Import the default export of "jsonwebtoken".');
-assert.exists(
-  __b.getFunctionDeclarations().find((f) => f.id?.name === "signToken"),
-  "Export a signToken(payload) function.",
-);
-assert.isTrue(
-  __b
-    .getType("ExportNamedDeclaration")
-    .some((e) => e.declaration?.id?.name === "signToken"),
-  "signToken should be exported.",
-);
+jwt.sign({ id: 1 }, "secret", { expiresIn: "1h" });
 ```
 
-`signToken` should call `jwt.sign` with the secret and an `expiresIn` option.
+In `utils/jwt.js`, import the default export of `jsonwebtoken` as `jwt`, then export a function `signToken(payload)` that signs the `payload` with `process.env.JWT_SECRET` and an `expiresIn` of `"1d"`.
+
+### --tests--
+
+`signToken(payload)` should return a token that encodes the payload and has an expiry.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, "utils/jwt.js");
-const __b = new __helpers.Babeliser(__file);
-const __jwt = __b
-  .getImportDeclarations()
-  .find((i) => i.source.value === "jsonwebtoken")
-  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
-const __sign = __b
-  .getType("CallExpression")
-  .find((c) => __b.generateCode(c.callee) === `${__jwt}.sign`);
-assert.exists(__sign, "signToken should call jwt.sign(...).");
-assert.include(
-  __b.generateCode(__sign.arguments?.[1] ?? {}),
-  "process.env",
-  "Sign the token with your secret from process.env.",
+process.env.JWT_SECRET = "grading-secret-value";
+const { join } = await import("path");
+const { signToken } = await __helpers.importSansCache(
+  join(project.dashedName, "utils/jwt.js"),
 );
-const __opts = __sign.arguments?.[2];
-assert.isTrue(
-  __opts?.type === "ObjectExpression" &&
-    __opts.properties.some((p) => p.key?.name === "expiresIn"),
-  "Pass an { expiresIn } option to jwt.sign so the token expires.",
+assert.isFunction(signToken, "Export a signToken function.");
+const __token = signToken({ id: "1", email: "a@b.com", role: "user" });
+assert.isString(__token, "signToken should return a token string.");
+const { createRequire } = await import("module");
+const __jwt = createRequire(join(ROOT, project.dashedName, "package.json"))(
+  "jsonwebtoken",
+);
+const __decoded = __jwt.verify(__token, process.env.JWT_SECRET);
+assert.equal(
+  __decoded.id,
+  "1",
+  "The token should encode the payload you signed.",
+);
+assert.exists(
+  __decoded.exp,
+  "The token should have an expiry - pass an expiresIn option.",
 );
 ```
 
@@ -495,98 +442,42 @@ export function signToken(payload) {
 }
 ```
 
-## 9
+## 12
 
 ### --description--
 
 `jwt.verify(token, secret)` returns the decoded payload if the token is valid, but **throws** if the token is invalid or expired.
 
-In `utils/jwt.js`, export a function `verifyToken(token)` that returns the decoded payload when valid, and `null` when verification throws. Wrap the call in a `try`/`catch`:
-
-```js
-try {
-  return jwt.verify(token, process.env.JWT_SECRET);
-} catch {
-  return null;
-}
-```
+In `utils/jwt.js`, export a function `verifyToken(token)` that returns the decoded payload when the token is valid, and returns `null` when verification throws. Wrap the call to `jwt.verify` in a `try`/`catch` so the thrown error becomes a `null` return.
 
 ### --tests--
 
-`utils/jwt.js` should export a `verifyToken(token)` function that calls `jwt.verify`.
+`verifyToken` should return the payload for a valid token and `null` for an invalid one.
 
 ```js
-const __jwt = __b
-  .getImportDeclarations()
-  .find((i) => i.source.value === "jsonwebtoken")
-  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
-const __fn = __b
-  .getFunctionDeclarations()
-  .find((f) => f.id?.name === "verifyToken");
-assert.exists(__fn, "Export a verifyToken(token) function.");
-assert.lengthOf(__fn.params, 1, "verifyToken should accept a token argument.");
-assert.isTrue(
-  __b
-    .getType("ExportNamedDeclaration")
-    .some((e) => e.declaration?.id?.name === "verifyToken"),
-  "verifyToken should be exported.",
+process.env.JWT_SECRET = "grading-secret-value";
+const { join } = await import("path");
+const { signToken, verifyToken } = await __helpers.importSansCache(
+  join(project.dashedName, "utils/jwt.js"),
 );
-assert.isTrue(
-  __b
-    .getType("CallExpression")
-    .some((c) => __b.generateCode(c.callee) === `${__jwt}.verify`),
-  "verifyToken should call jwt.verify(...).",
+assert.isFunction(verifyToken, "Export a verifyToken function.");
+const __valid = signToken({ id: "42", role: "user" });
+assert.equal(
+  verifyToken(__valid)?.id,
+  "42",
+  "verifyToken should return the decoded payload for a valid token.",
+);
+assert.isNull(
+  verifyToken("clearly.not.a.valid.token"),
+  "verifyToken should return null for an invalid token.",
 );
 ```
 
-`verifyToken` should return `null` from a `catch` block when verification throws.
-
-```js
-const __try = __b.getType("TryStatement")[0];
-assert.exists(__try, "Wrap jwt.verify in a try/catch.");
-const __returnsNull = (node) => {
-  let __found = false;
-  const __walk = (n) => {
-    if (!n || typeof n !== "object") return;
-    if (Array.isArray(n)) return n.forEach(__walk);
-    if (n.type === "ReturnStatement" && n.argument?.type === "NullLiteral")
-      __found = true;
-    for (const k in n) {
-      if (["scope", "loc", "start", "end"].includes(k)) continue;
-      __walk(n[k]);
-    }
-  };
-  __walk(node);
-  return __found;
-};
-assert.isTrue(
-  __try.handler != null && __returnsNull(__try.handler),
-  "Return null inside the catch block.",
-);
-```
-
-### --before-each--
-
-```js
-const __file = await __helpers.getFile(project.dashedName, "utils/jwt.js");
-const __b = new __helpers.Babeliser(__file);
-```
-
-## 10
+## 13
 
 ### --description--
 
-Create a `routes/auth.js` file to hold the authentication routes.
-
-An Express <dfn title="an isolated mini-application that handles its own routes and middleware, then is mounted onto the main app">Router</dfn> lets you group related routes in their own file. Import `express`, create a router instance, and export it as the default export:
-
-```js
-import express from "express";
-const router = express.Router();
-export default router;
-```
-
-Set this up in `routes/auth.js`.
+Create a `routes/auth.js` file in the project directory. This will hold the authentication routes.
 
 ### --tests--
 
@@ -602,11 +493,25 @@ assert.isTrue(
 );
 ```
 
+## 14
+
+### --description--
+
+An Express <dfn title="an isolated mini-application that handles its own routes and middleware, then is mounted onto the main app">Router</dfn> lets you group related routes in their own file. Import `express`, create a router instance, and export it as the default export:
+
+```js
+import express from "express";
+const router = express.Router();
+export default router;
+```
+
+Set this up in `routes/auth.js`.
+
+### --tests--
+
 `routes/auth.js` should import `express` and create a router with `express.Router()`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, "routes/auth.js");
-const __b = new __helpers.Babeliser(__file);
 assert.isTrue(
   __b.getImportDeclarations().some((i) => i.source.value === "express"),
   "Import express.",
@@ -624,8 +529,6 @@ assert.exists(__routerDecl, "Create a router with express.Router().");
 `routes/auth.js` should export the router as the default export.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, "routes/auth.js");
-const __b = new __helpers.Babeliser(__file);
 const __routerDecl = __b.getVariableDeclarations().find((v) => {
   const __init = v.declarations[0]?.init;
   return (
@@ -643,7 +546,14 @@ assert.equal(
 );
 ```
 
-## 11
+### --before-each--
+
+```js
+const __file = await __helpers.getFile(project.dashedName, "routes/auth.js");
+const __b = new __helpers.Babeliser(__file);
+```
+
+## 15
 
 ### --description--
 
@@ -672,56 +582,52 @@ assert.isTrue(
 );
 ```
 
-`routes/auth.js` should define an `async` `POST /register` route that reads `email` and `password` from `req.body`.
+`POST /register` should be an `async` route handler.
 
 ```js
-const __route = __b
-  .getType("CallExpression")
-  .find(
-    (c) =>
-      c.callee?.property?.name === "post" &&
-      c.arguments?.[0]?.value === "/register",
-  );
-assert.exists(__route, 'Define a router.post("/register", ...) route.');
-const __handler = __route.arguments.find(
+const __r = __route("post", "/register");
+assert.exists(__r, 'Define a router.post("/register", ...) route.');
+const __fns = __r.arguments.filter(
   (a) =>
     a.type === "ArrowFunctionExpression" || a.type === "FunctionExpression",
 );
-assert.isTrue(__handler?.async === true, "Make the /register handler async.");
-const __destructures = __b.getVariableDeclarations().some((v) => {
-  const __d = v.declarations[0];
-  return (
-    __d?.id?.type === "ObjectPattern" &&
-    __d.id.properties.some((p) => p.key?.name === "email") &&
-    __d.id.properties.some((p) => p.key?.name === "password") &&
-    __b.generateCode(__d.init) === "req.body"
-  );
-});
-assert.isTrue(__destructures, "Read email and password from req.body.");
+assert.isTrue(
+  __fns.at(-1)?.async === true,
+  "Make the /register handler async.",
+);
 ```
 
-A missing field should respond with `400`, and a duplicate email should respond with `409`.
+The `/register` handler should respond with `400` when a field is missing and `409` when the email already exists.
 
 ```js
-const __statuses = __b
-  .getType("CallExpression")
-  .filter((c) => c.callee?.property?.name === "status")
-  .map((c) => c.arguments?.[0]?.value);
-assert.include(
-  __statuses,
+const __src = __handlerSrc("post", "/register");
+assert.exists(__src, 'Define the POST "/register" handler.');
+
+// Mock the dependencies the handler imports, then build it from its source.
+let __existing = null;
+const findByEmail = () => __existing;
+const readUsers = () => [];
+const writeUsers = () => {};
+const signToken = () => "signed.jwt.token";
+const bcrypt = { hash: async () => "HASHED_PW", compare: async () => true };
+const randomUUID = () => "uuid-1";
+const register = eval(`(${__src})`);
+
+const __missing = __mockRes();
+await register({ body: {} }, __missing);
+assert.equal(
+  __missing.statusCode,
   400,
-  "Respond with status 400 when email or password is missing.",
+  "A missing email or password should respond with status 400.",
 );
-assert.isTrue(
-  __b
-    .getType("CallExpression")
-    .some((c) => __b.generateCode(c.callee) === "findByEmail"),
-  "Call findByEmail to check for an existing user.",
-);
-assert.include(
-  __statuses,
+
+__existing = { id: "1", email: "a@b.com" };
+const __dup = __mockRes();
+await register({ body: { email: "a@b.com", password: "secret123" } }, __dup);
+assert.equal(
+  __dup.statusCode,
   409,
-  "Respond with status 409 when the email is already in use.",
+  "An email that already exists should respond with status 409.",
 );
 ```
 
@@ -730,6 +636,35 @@ assert.include(
 ```js
 const __file = await __helpers.getFile(project.dashedName, "routes/auth.js");
 const __b = new __helpers.Babeliser(__file);
+const __route = (method, path) =>
+  __b
+    .getType("CallExpression")
+    .find(
+      (c) =>
+        c.callee?.property?.name === method &&
+        c.arguments?.[0]?.value === path,
+    );
+const __handlerSrc = (method, path) => {
+  const __fn = __route(method, path)
+    ?.arguments?.filter(
+      (a) =>
+        a.type === "ArrowFunctionExpression" ||
+        a.type === "FunctionExpression",
+    )
+    .at(-1);
+  return __fn ? __b.generateCode(__fn) : null;
+};
+const __mockRes = () => ({
+  statusCode: 200,
+  status(code) {
+    this.statusCode = code;
+    return this;
+  },
+  json(body) {
+    this.body = body;
+    return this;
+  },
+});
 ```
 
 ### --hints--
@@ -754,7 +689,7 @@ if (findByEmail(email)) {
 }
 ```
 
-## 12
+## 16
 
 ### --description--
 
@@ -769,93 +704,49 @@ In the `/register` handler, hash the password, then build a new user object with
 - `id` - a unique id from `randomUUID()`
 - `email`
 - `passwordHash`
-- `provider` - `"local"`
 - `role` - `"user"`
 
 Push the new user onto the array from `readUsers()` and persist it with `writeUsers()`.
 
-Import `bcrypt` from `bcryptjs`, `randomUUID` from `crypto`, and add `readUsers` and `writeUsers` to your import from `../utils/db.js`.
+Import `bcrypt` from `bcryptjs`, `randomUUID` from `crypto`, and `readUsers` and `writeUsers` from `../utils/db.js`.
 
 ### --tests--
 
-`routes/auth.js` should import `bcrypt` from `bcryptjs` and `randomUUID` from `crypto`.
+The `/register` handler should hash the password and persist a new user with `role` `"user"` and no plain-text password.
 
 ```js
-assert.isTrue(
-  __b.getImportDeclarations().some((i) => i.source.value === "bcryptjs"),
-  'Import bcrypt from "bcryptjs".',
+const __src = __handlerSrc("post", "/register");
+assert.exists(__src, 'Define the POST "/register" handler.');
+
+let __saved = null;
+const findByEmail = () => null;
+const readUsers = () => [];
+const writeUsers = (users) => {
+  __saved = users;
+};
+const signToken = () => "signed.jwt.token";
+const bcrypt = { hash: async () => "HASHED_PW", compare: async () => true };
+const randomUUID = () => "uuid-1";
+const register = eval(`(${__src})`);
+
+await register(
+  { body: { email: "new@user.com", password: "secret123" } },
+  __mockRes(),
 );
-assert.isTrue(
-  __b
-    .getImportDeclarations()
-    .some(
-      (i) =>
-        i.source.value === "crypto" &&
-        i.specifiers.some(
-          (s) => (s.imported?.name ?? s.local.name) === "randomUUID",
-        ),
-    ),
-  'Import randomUUID from "crypto".',
+assert.isArray(
+  __saved,
+  "The handler should call writeUsers with the users array.",
 );
-```
-
-`routes/auth.js` should import `readUsers` and `writeUsers` from `../utils/db.js`.
-
-```js
-const __db = __b
-  .getImportDeclarations()
-  .find((i) => i.source.value === "../utils/db.js");
-const __names = __db
-  ? __db.specifiers.map((s) => s.imported?.name ?? s.local.name)
-  : [];
-assert.include(__names, "readUsers", "Import readUsers from ../utils/db.js.");
-assert.include(__names, "writeUsers", "Import writeUsers from ../utils/db.js.");
-```
-
-The handler should hash the password with `bcrypt.hash` and persist the user with `writeUsers`.
-
-```js
-const __bcrypt = __b
-  .getImportDeclarations()
-  .find((i) => i.source.value === "bcryptjs")
-  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
-assert.isTrue(
-  __b
-    .getType("CallExpression")
-    .some((c) => __b.generateCode(c.callee) === `${__bcrypt}.hash`),
-  "Hash the password with bcrypt.hash(...).",
-);
-assert.isTrue(
-  __b
-    .getType("CallExpression")
-    .some((c) => __b.generateCode(c.callee) === "writeUsers"),
-  "Persist the new user with writeUsers(...).",
-);
-```
-
-The new user object should set `id` to `randomUUID()`, `role` to `"user"`, and include a `provider`.
-
-```js
-const __user = __b
-  .getType("ObjectExpression")
-  .find(
-    (o) =>
-      o.properties.some((p) => p.key?.name === "role") &&
-      o.properties.some((p) => p.key?.name === "provider"),
-  );
-assert.exists(__user, "Build a user object with role and provider properties.");
-const __id = __user.properties.find((p) => p.key?.name === "id");
+const __user = __saved.at(-1);
+assert.exists(__user, "A new user should be added to the array.");
+assert.equal(__user.email, "new@user.com", "Store the submitted email.");
 assert.equal(
-  __b.generateCode(__id?.value ?? {}),
-  "randomUUID()",
-  "Generate the id with randomUUID().",
+  __user.passwordHash,
+  "HASHED_PW",
+  "Store the bcrypt hash, not the plain password.",
 );
-const __role = __user.properties.find((p) => p.key?.name === "role");
-assert.equal(
-  __role?.value?.value,
-  "user",
-  'New users should have role "user".',
-);
+assert.notProperty(__user, "password", "Do not store the plain-text password.");
+assert.equal(__user.role, "user", 'New users should have the role "user".');
 ```
 
 ### --before-each--
@@ -863,6 +754,35 @@ assert.equal(
 ```js
 const __file = await __helpers.getFile(project.dashedName, "routes/auth.js");
 const __b = new __helpers.Babeliser(__file);
+const __route = (method, path) =>
+  __b
+    .getType("CallExpression")
+    .find(
+      (c) =>
+        c.callee?.property?.name === method &&
+        c.arguments?.[0]?.value === path,
+    );
+const __handlerSrc = (method, path) => {
+  const __fn = __route(method, path)
+    ?.arguments?.filter(
+      (a) =>
+        a.type === "ArrowFunctionExpression" ||
+        a.type === "FunctionExpression",
+    )
+    .at(-1);
+  return __fn ? __b.generateCode(__fn) : null;
+};
+const __mockRes = () => ({
+  statusCode: 200,
+  status(code) {
+    this.statusCode = code;
+    return this;
+  },
+  json(body) {
+    this.body = body;
+    return this;
+  },
+});
 ```
 
 ### --hints--
@@ -880,14 +800,13 @@ const newUser = {
   id: randomUUID(),
   email,
   passwordHash,
-  provider: "local",
   role: "user",
 };
 users.push(newUser);
 writeUsers(users);
 ```
 
-## 13
+## 17
 
 ### --description--
 
@@ -899,64 +818,62 @@ Finally, wrap the whole handler body in a `try`/`catch`. In the `catch`, respond
 
 ### --tests--
 
-`routes/auth.js` should import `signToken` from `../utils/jwt.js`.
+A successful registration should respond with status `201` and the signed token.
 
 ```js
-assert.isTrue(
-  __b
-    .getImportDeclarations()
-    .some(
-      (i) =>
-        i.source.value === "../utils/jwt.js" &&
-        i.specifiers.some(
-          (s) => (s.imported?.name ?? s.local.name) === "signToken",
-        ),
-    ),
-  "Import signToken from ../utils/jwt.js.",
+const __src = __handlerSrc("post", "/register");
+assert.exists(__src, 'Define the POST "/register" handler.');
+
+const findByEmail = () => null;
+const readUsers = () => [];
+const writeUsers = () => {};
+const signToken = () => "signed.jwt.token";
+const bcrypt = { hash: async () => "HASHED_PW", compare: async () => true };
+const randomUUID = () => "uuid-1";
+const register = eval(`(${__src})`);
+
+const __res = __mockRes();
+await register(
+  { body: { email: "new@user.com", password: "secret123" } },
+  __res,
+);
+assert.equal(
+  __res.statusCode,
+  201,
+  "A successful registration should respond with 201.",
+);
+assert.equal(
+  __res.body?.token,
+  "signed.jwt.token",
+  "The response should include the signed token.",
 );
 ```
 
-The handler should call `signToken`, respond with status `201`, and include the `token` in the response.
+An unexpected error should be caught and answered with status `500`.
 
 ```js
-assert.isTrue(
-  __b
-    .getType("CallExpression")
-    .some((c) => __b.generateCode(c.callee) === "signToken"),
-  "Call signToken to issue a token.",
-);
-const __statuses = __b
-  .getType("CallExpression")
-  .filter((c) => c.callee?.property?.name === "status")
-  .map((c) => c.arguments?.[0]?.value);
-assert.include(__statuses, 201, "Respond with status 201 after registering.");
-const __jsonWithToken = __b
-  .getType("CallExpression")
-  .some(
-    (c) =>
-      c.callee?.property?.name === "json" &&
-      c.arguments?.[0]?.type === "ObjectExpression" &&
-      c.arguments[0].properties.some((p) => p.key?.name === "token"),
-  );
-assert.isTrue(__jsonWithToken, "Include the token in the JSON response.");
-```
+const __src = __handlerSrc("post", "/register");
+assert.exists(__src, 'Define the POST "/register" handler.');
 
-The handler body should be wrapped in a `try`/`catch` that responds with status `500`.
+const findByEmail = () => null;
+const readUsers = () => [];
+const writeUsers = () => {
+  throw new Error("disk failure");
+};
+const signToken = () => "signed.jwt.token";
+const bcrypt = { hash: async () => "HASHED_PW", compare: async () => true };
+const randomUUID = () => "uuid-1";
+const register = eval(`(${__src})`);
 
-```js
-assert.isAtLeast(
-  __b.getType("TryStatement").length,
-  1,
-  "Wrap the handler body in a try/catch.",
+const __res = __mockRes();
+await register(
+  { body: { email: "new@user.com", password: "secret123" } },
+  __res,
 );
-const __statuses = __b
-  .getType("CallExpression")
-  .filter((c) => c.callee?.property?.name === "status")
-  .map((c) => c.arguments?.[0]?.value);
-assert.include(
-  __statuses,
+assert.equal(
+  __res.statusCode,
   500,
-  "Respond with status 500 from the catch block.",
+  "An error thrown while registering should be caught and respond with 500.",
 );
 ```
 
@@ -965,6 +882,35 @@ assert.include(
 ```js
 const __file = await __helpers.getFile(project.dashedName, "routes/auth.js");
 const __b = new __helpers.Babeliser(__file);
+const __route = (method, path) =>
+  __b
+    .getType("CallExpression")
+    .find(
+      (c) =>
+        c.callee?.property?.name === method &&
+        c.arguments?.[0]?.value === path,
+    );
+const __handlerSrc = (method, path) => {
+  const __fn = __route(method, path)
+    ?.arguments?.filter(
+      (a) =>
+        a.type === "ArrowFunctionExpression" ||
+        a.type === "FunctionExpression",
+    )
+    .at(-1);
+  return __fn ? __b.generateCode(__fn) : null;
+};
+const __mockRes = () => ({
+  statusCode: 200,
+  status(code) {
+    this.statusCode = code;
+    return this;
+  },
+  json(body) {
+    this.body = body;
+    return this;
+  },
+});
 ```
 
 ### --hints--
@@ -988,7 +934,7 @@ res.status(201).json({ message: "User registered successfully", token });
 
 Wrap everything from reading `req.body` to sending the response in `try { ... } catch (err) { res.status(500).json({ message: err.message }); }`.
 
-## 14
+## 18
 
 ### --description--
 
@@ -1002,41 +948,47 @@ Then look up the user with `findByEmail(email)`. If no user is found, respond wi
 
 ### --tests--
 
-`routes/auth.js` should define an `async` `POST /login` route.
+`POST /login` should be an `async` route handler.
 
 ```js
-const __route = __b
-  .getType("CallExpression")
-  .find(
-    (c) =>
-      c.callee?.property?.name === "post" &&
-      c.arguments?.[0]?.value === "/login",
-  );
-assert.exists(__route, 'Define a router.post("/login", ...) route.');
-const __handler = __route.arguments.find(
+const __r = __route("post", "/login");
+assert.exists(__r, 'Define a router.post("/login", ...) route.');
+const __fns = __r.arguments.filter(
   (a) =>
     a.type === "ArrowFunctionExpression" || a.type === "FunctionExpression",
 );
-assert.isTrue(__handler?.async === true, "Make the /login handler async.");
+assert.isTrue(__fns.at(-1)?.async === true, "Make the /login handler async.");
 ```
 
-The login handler should look up the user with `findByEmail` and respond with status `401` when none is found.
+The `/login` handler should respond with `400` for a missing field and `401` for an unknown user.
 
 ```js
-assert.isTrue(
-  __b
-    .getType("CallExpression")
-    .some((c) => __b.generateCode(c.callee) === "findByEmail"),
-  "Look up the user with findByEmail.",
+const __src = __handlerSrc("post", "/login");
+assert.exists(__src, 'Define the POST "/login" handler.');
+
+let __account = null;
+const findByEmail = () => __account;
+const signToken = () => "login.token";
+const bcrypt = { hash: async () => "H", compare: async () => true };
+const login = eval(`(${__src})`);
+
+const __missing = __mockRes();
+await login({ body: {} }, __missing);
+assert.equal(
+  __missing.statusCode,
+  400,
+  "A missing email or password should respond with status 400.",
 );
-const __statuses = __b
-  .getType("CallExpression")
-  .filter((c) => c.callee?.property?.name === "status")
-  .map((c) => c.arguments?.[0]?.value);
-assert.include(
-  __statuses,
+
+const __unknown = __mockRes();
+await login(
+  { body: { email: "ghost@nope.com", password: "secret123" } },
+  __unknown,
+);
+assert.equal(
+  __unknown.statusCode,
   401,
-  "Respond with status 401 for invalid credentials.",
+  "An unknown user should respond with status 401.",
 );
 ```
 
@@ -1045,9 +997,38 @@ assert.include(
 ```js
 const __file = await __helpers.getFile(project.dashedName, "routes/auth.js");
 const __b = new __helpers.Babeliser(__file);
+const __route = (method, path) =>
+  __b
+    .getType("CallExpression")
+    .find(
+      (c) =>
+        c.callee?.property?.name === method &&
+        c.arguments?.[0]?.value === path,
+    );
+const __handlerSrc = (method, path) => {
+  const __fn = __route(method, path)
+    ?.arguments?.filter(
+      (a) =>
+        a.type === "ArrowFunctionExpression" ||
+        a.type === "FunctionExpression",
+    )
+    .at(-1);
+  return __fn ? __b.generateCode(__fn) : null;
+};
+const __mockRes = () => ({
+  statusCode: 200,
+  status(code) {
+    this.statusCode = code;
+    return this;
+  },
+  json(body) {
+    this.body = body;
+    return this;
+  },
+});
 ```
 
-## 15
+## 19
 
 ### --description--
 
@@ -1063,41 +1044,43 @@ When they match, sign a token containing the user's `id`, `email`, and `role`, t
 
 ### --tests--
 
-The login handler should compare the password with `bcrypt.compare`.
+A wrong password should respond with `401`, and a correct password should respond with the signed token.
 
 ```js
-const __bcrypt = __b
-  .getImportDeclarations()
-  .find((i) => i.source.value === "bcryptjs")
-  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
-assert.isTrue(
-  __b
-    .getType("CallExpression")
-    .some((c) => __b.generateCode(c.callee) === `${__bcrypt}.compare`),
-  "Compare the password with bcrypt.compare(...).",
-);
-```
+const __src = __handlerSrc("post", "/login");
+assert.exists(__src, 'Define the POST "/login" handler.');
 
-On success, the handler should sign a token and respond with a JSON body containing the `token`.
+const __account = {
+  id: "1",
+  email: "a@b.com",
+  role: "user",
+  passwordHash: "stored-hash",
+};
+let __passwordMatches = true;
+const findByEmail = () => __account;
+const signToken = () => "login.token";
+const bcrypt = {
+  hash: async () => "H",
+  compare: async () => __passwordMatches,
+};
+const login = eval(`(${__src})`);
 
-```js
-assert.isTrue(
-  __b
-    .getType("CallExpression")
-    .some((c) => __b.generateCode(c.callee) === "signToken"),
-  "Issue a token with signToken on success.",
+__passwordMatches = false;
+const __wrong = __mockRes();
+await login({ body: { email: "a@b.com", password: "wrong" } }, __wrong);
+assert.equal(
+  __wrong.statusCode,
+  401,
+  "A password that does not match should respond with status 401.",
 );
-const __jsonWithToken = __b
-  .getType("CallExpression")
-  .some(
-    (c) =>
-      c.callee?.property?.name === "json" &&
-      c.arguments?.[0]?.type === "ObjectExpression" &&
-      c.arguments[0].properties.some((p) => p.key?.name === "token"),
-  );
-assert.isTrue(
-  __jsonWithToken,
-  "Respond with a JSON body containing the token.",
+
+__passwordMatches = true;
+const __ok = __mockRes();
+await login({ body: { email: "a@b.com", password: "right" } }, __ok);
+assert.equal(
+  __ok.body?.token,
+  "login.token",
+  "A successful login should respond with the signed token.",
 );
 ```
 
@@ -1106,6 +1089,35 @@ assert.isTrue(
 ```js
 const __file = await __helpers.getFile(project.dashedName, "routes/auth.js");
 const __b = new __helpers.Babeliser(__file);
+const __route = (method, path) =>
+  __b
+    .getType("CallExpression")
+    .find(
+      (c) =>
+        c.callee?.property?.name === method &&
+        c.arguments?.[0]?.value === path,
+    );
+const __handlerSrc = (method, path) => {
+  const __fn = __route(method, path)
+    ?.arguments?.filter(
+      (a) =>
+        a.type === "ArrowFunctionExpression" ||
+        a.type === "FunctionExpression",
+    )
+    .at(-1);
+  return __fn ? __b.generateCode(__fn) : null;
+};
+const __mockRes = () => ({
+  statusCode: 200,
+  status(code) {
+    this.statusCode = code;
+    return this;
+  },
+  json(body) {
+    this.body = body;
+    return this;
+  },
+});
 ```
 
 ### --hints--
@@ -1125,7 +1137,7 @@ const token = signToken({ id: user.id, email: user.email, role: user.role });
 res.json({ message: "Login successful", token });
 ```
 
-## 16
+## 20
 
 ### --description--
 
@@ -1179,19 +1191,11 @@ const __file = await __helpers.getFile(project.dashedName, "index.js");
 const __b = new __helpers.Babeliser(__file);
 ```
 
-## 17
+## 21
 
 ### --description--
 
-Protected routes need a way to identify the caller. Create a `middleware/authenticate.js` file with a default-exported middleware function `authenticate(req, res, next)`.
-
-Clients send their token in the `Authorization` header using the `Bearer` scheme:
-
-```
-Authorization: Bearer <token>
-```
-
-In the middleware, read `req.headers.authorization`. If it is missing or does not start with `"Bearer "`, respond with status `401` and a JSON message such as `"No token provided"`. Otherwise, extract the token by splitting the header on the space and taking the second part.
+Protected routes need a way to identify the caller. Create a `middleware/authenticate.js` file in the project directory.
 
 ### --tests--
 
@@ -1207,22 +1211,27 @@ assert.isTrue(
 );
 ```
 
-`middleware/authenticate.js` should default-export an `authenticate(req, res, next)` function.
+## 22
+
+### --description--
+
+Clients send their token in the `Authorization` header using the `Bearer` scheme:
+
+```
+Authorization: Bearer <token>
+```
+
+In `middleware/authenticate.js`, default-export a middleware function `authenticate(req, res, next)`. Read `req.headers.authorization`. If it is missing or does not start with `"Bearer "`, respond with status `401` and a JSON message such as `"No token provided"`. Otherwise, extract the token by splitting the header on the space and taking the second part.
+
+### --tests--
+
+`authenticate` should be the default export and respond with `401` when there is no valid `Bearer` token.
 
 ```js
-const __file = await __helpers.getFile(
-  project.dashedName,
-  "middleware/authenticate.js",
-);
-const __b = new __helpers.Babeliser(__file);
-const __fn = __b
-  .getFunctionDeclarations()
-  .find((f) => f.id?.name === "authenticate");
-assert.exists(__fn, "Define a function named authenticate.");
-assert.lengthOf(
-  __fn.params,
-  3,
-  "authenticate should take three parameters: (req, res, next).",
+const __src = __authenticateSrc();
+assert.isString(
+  __src,
+  "middleware/authenticate.js should define an authenticate function.",
 );
 const __def = __b.getType("ExportDefaultDeclaration")[0];
 assert.isTrue(
@@ -1231,45 +1240,36 @@ assert.isTrue(
       __b.generateCode(__def.declaration) === "authenticate"),
   "Export authenticate as the default export.",
 );
-```
 
-`authenticate` should read the `Authorization` header, check the `Bearer` scheme, and respond with `401` when no token is present.
+const verifyToken = () => ({ id: "u1", role: "user" });
+const isBlacklisted = () => false;
+const authenticate = eval(`(${__src})`);
 
-```js
-const __file = await __helpers.getFile(
-  project.dashedName,
-  "middleware/authenticate.js",
-);
-const __b = new __helpers.Babeliser(__file);
-assert.isTrue(
-  __b
-    .getType("MemberExpression")
-    .some((m) => __b.generateCode(m) === "req.headers.authorization"),
-  "Read the token from req.headers.authorization.",
-);
-const __startsWith = __b
-  .getType("CallExpression")
-  .find((c) => c.callee?.property?.name === "startsWith");
-assert.exists(
-  __startsWith,
-  'Check the header begins with the "Bearer " scheme using startsWith.',
-);
-assert.isTrue(
-  (__startsWith.arguments?.[0]?.value ?? "").includes("Bearer"),
-  'Pass the "Bearer " scheme to startsWith.',
-);
-const __statuses = __b
-  .getType("CallExpression")
-  .filter((c) => c.callee?.property?.name === "status")
-  .map((c) => c.arguments?.[0]?.value);
-assert.include(
-  __statuses,
+const __noHeader = __mockRes();
+let __next1 = false;
+authenticate({ headers: {} }, __noHeader, () => (__next1 = true));
+assert.equal(
+  __noHeader.statusCode,
   401,
-  "Respond with status 401 when no token is provided.",
+  "A request with no Authorization header should respond with 401.",
+);
+assert.isFalse(__next1, "next() should not be called when there is no token.");
+
+const __badScheme = __mockRes();
+let __next2 = false;
+authenticate(
+  { headers: { authorization: "Basic abc" } },
+  __badScheme,
+  () => (__next2 = true),
+);
+assert.equal(
+  __badScheme.statusCode,
+  401,
+  'A header that is not "Bearer ..." should respond with 401.',
 );
 ```
 
-`authenticate` should extract the token by splitting the header.
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(
@@ -1277,12 +1277,23 @@ const __file = await __helpers.getFile(
   "middleware/authenticate.js",
 );
 const __b = new __helpers.Babeliser(__file);
-assert.isTrue(
-  __b
-    .getType("CallExpression")
-    .some((c) => c.callee?.property?.name === "split"),
-  "Extract the token by splitting the header on the space.",
-);
+const __authenticateSrc = () => {
+  const __fn = __b
+    .getFunctionDeclarations()
+    .find((f) => f.id?.name === "authenticate");
+  return __fn ? __b.generateCode(__fn) : null;
+};
+const __mockRes = () => ({
+  statusCode: 200,
+  status(code) {
+    this.statusCode = code;
+    return this;
+  },
+  json(body) {
+    this.body = body;
+    return this;
+  },
+});
 ```
 
 ### --hints--
@@ -1304,7 +1315,7 @@ export default function authenticate(req, res, next) {
 }
 ```
 
-## 18
+## 23
 
 ### --description--
 
@@ -1314,7 +1325,7 @@ In `authenticate`, pass the token to `verifyToken`. If it returns a falsy value,
 
 ### --tests--
 
-`middleware/authenticate.js` should import `verifyToken` from `../utils/jwt.js`.
+`authenticate` should import `verifyToken` from `../utils/jwt.js`.
 
 ```js
 assert.isTrue(
@@ -1331,40 +1342,43 @@ assert.isTrue(
 );
 ```
 
-`authenticate` should call `verifyToken` and respond with `401` when the token is invalid.
+A valid token should set `req.user` and call `next()`; an invalid token should respond with `401`.
 
 ```js
-assert.isTrue(
-  __b
-    .getType("CallExpression")
-    .some((c) => __b.generateCode(c.callee) === "verifyToken"),
-  "Verify the token with verifyToken(token).",
+const __src = __authenticateSrc();
+assert.isString(__src, "Define the authenticate function.");
+
+const verifyToken = (t) =>
+  t === "good-token" ? { id: "u1", role: "user" } : null;
+const isBlacklisted = () => false;
+const authenticate = eval(`(${__src})`);
+
+const __req = { headers: { authorization: "Bearer good-token" } };
+const __res = __mockRes();
+let __nextCalled = false;
+authenticate(__req, __res, () => (__nextCalled = true));
+assert.isTrue(__nextCalled, "A valid token should call next().");
+assert.equal(
+  __req.user?.id,
+  "u1",
+  "authenticate should set req.user to the decoded payload.",
 );
-const __statuses = __b
-  .getType("CallExpression")
-  .filter((c) => c.callee?.property?.name === "status")
-  .map((c) => c.arguments?.[0]?.value);
-assert.include(
-  __statuses,
+
+const __res2 = __mockRes();
+let __nextCalled2 = false;
+authenticate(
+  { headers: { authorization: "Bearer bad-token" } },
+  __res2,
+  () => (__nextCalled2 = true),
+);
+assert.equal(
+  __res2.statusCode,
   401,
-  "Respond with status 401 when the token is invalid.",
+  "An invalid token should respond with 401.",
 );
-```
-
-`authenticate` should attach the decoded payload to `req.user` and call `next()`.
-
-```js
-assert.isTrue(
-  __b
-    .getType("AssignmentExpression")
-    .some((a) => __b.generateCode(a.left) === "req.user"),
-  "Attach the decoded payload to req.user.",
-);
-assert.isTrue(
-  __b
-    .getType("CallExpression")
-    .some((c) => c.callee?.type === "Identifier" && c.callee.name === "next"),
-  "Call next() when the token is valid.",
+assert.isFalse(
+  __nextCalled2,
+  "next() should not be called for an invalid token.",
 );
 ```
 
@@ -1376,6 +1390,23 @@ const __file = await __helpers.getFile(
   "middleware/authenticate.js",
 );
 const __b = new __helpers.Babeliser(__file);
+const __authenticateSrc = () => {
+  const __fn = __b
+    .getFunctionDeclarations()
+    .find((f) => f.id?.name === "authenticate");
+  return __fn ? __b.generateCode(__fn) : null;
+};
+const __mockRes = () => ({
+  statusCode: 200,
+  status(code) {
+    this.statusCode = code;
+    return this;
+  },
+  json(body) {
+    this.body = body;
+    return this;
+  },
+});
 ```
 
 ### --hints--
@@ -1395,7 +1426,7 @@ req.user = decoded;
 next();
 ```
 
-## 19
+## 24
 
 ### --description--
 
@@ -1409,7 +1440,7 @@ In `routes/auth.js`, import the default export of `../middleware/authenticate.js
 
 ### --tests--
 
-`routes/auth.js` should import `authenticate` from `../middleware/authenticate.js`.
+`routes/auth.js` should define a `GET /profile` route protected by the `authenticate` middleware.
 
 ```js
 const __authLocal = __b
@@ -1420,27 +1451,10 @@ assert.exists(
   __authLocal,
   "Import authenticate from ../middleware/authenticate.js.",
 );
-```
-
-`routes/auth.js` should define a `GET /profile` route protected by `authenticate`.
-
-```js
-const __authLocal = __b
-  .getImportDeclarations()
-  .find((i) => i.source.value === "../middleware/authenticate.js")
-  ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
-const __route = __b
-  .getType("CallExpression")
-  .find(
-    (c) =>
-      c.callee?.property?.name === "get" &&
-      c.arguments?.[0]?.value === "/profile",
-  );
-assert.exists(__route, 'Define a router.get("/profile", ...) route.');
+const __r = __route("get", "/profile");
+assert.exists(__r, 'Define a router.get("/profile", ...) route.');
 assert.isTrue(
-  __route.arguments.some(
-    (a) => a.type === "Identifier" && a.name === __authLocal,
-  ),
+  __r.arguments.some((a) => a.type === "Identifier" && a.name === __authLocal),
   "Protect /profile with the authenticate middleware.",
 );
 ```
@@ -1448,18 +1462,17 @@ assert.isTrue(
 The `/profile` handler should respond with `{ user: req.user }`.
 
 ```js
-const __userResp = __b
-  .getType("CallExpression")
-  .some(
-    (c) =>
-      c.callee?.property?.name === "json" &&
-      c.arguments?.[0]?.type === "ObjectExpression" &&
-      c.arguments[0].properties.some(
-        (p) =>
-          p.key?.name === "user" && __b.generateCode(p.value) === "req.user",
-      ),
-  );
-assert.isTrue(__userResp, "Respond with res.json({ user: req.user }).");
+const __src = __handlerSrc("get", "/profile");
+assert.exists(__src, 'Define the GET "/profile" handler.');
+const profile = eval(`(${__src})`);
+const __req = { user: { id: "u1", email: "a@b.com", role: "user" } };
+const __res = __mockRes();
+await profile(__req, __res);
+assert.deepEqual(
+  __res.body?.user,
+  __req.user,
+  "The /profile handler should respond with { user: req.user }.",
+);
 ```
 
 ### --before-each--
@@ -1467,18 +1480,44 @@ assert.isTrue(__userResp, "Respond with res.json({ user: req.user }).");
 ```js
 const __file = await __helpers.getFile(project.dashedName, "routes/auth.js");
 const __b = new __helpers.Babeliser(__file);
+const __route = (method, path) =>
+  __b
+    .getType("CallExpression")
+    .find(
+      (c) =>
+        c.callee?.property?.name === method &&
+        c.arguments?.[0]?.value === path,
+    );
+const __handlerSrc = (method, path) => {
+  const __fn = __route(method, path)
+    ?.arguments?.filter(
+      (a) =>
+        a.type === "ArrowFunctionExpression" ||
+        a.type === "FunctionExpression",
+    )
+    .at(-1);
+  return __fn ? __b.generateCode(__fn) : null;
+};
+const __mockRes = () => ({
+  statusCode: 200,
+  status(code) {
+    this.statusCode = code;
+    return this;
+  },
+  json(body) {
+    this.body = body;
+    return this;
+  },
+});
 ```
 
-## 20
+## 25
 
 ### --description--
 
 JWTs are stateless, so the server cannot "delete" a token to log a user out. Instead, you keep a list of invalidated tokens and reject any token on that list.
 
-Create a `utils/token-blacklist.js` file. Declare a module-level `const blacklist = new Set()`, then export two functions:
-
-- `blacklistToken(token)` - adds the token to the set.
-- `isBlacklisted(token)` - returns whether the token is in the set.
+Create a `utils/token-blacklist.js` file in the project directory.
 
 ### --tests--
 
@@ -1494,60 +1533,42 @@ assert.isTrue(
 );
 ```
 
-`utils/token-blacklist.js` should declare a `Set` and export a `blacklistToken` function that adds to it.
+## 26
+
+### --description--
+
+In `utils/token-blacklist.js`, declare a module-level `const blacklist = new Set()`, then export two functions:
+
+- `blacklistToken(token)` - adds the token to the set.
+- `isBlacklisted(token)` - returns whether the token is in the set.
+
+### --tests--
+
+`blacklistToken` and `isBlacklisted` should track invalidated tokens.
 
 ```js
-const __file = await __helpers.getFile(
-  project.dashedName,
-  "utils/token-blacklist.js",
+const { join } = await import("path");
+const { blacklistToken, isBlacklisted } = await __helpers.importSansCache(
+  join(project.dashedName, "utils/token-blacklist.js"),
 );
-const __b = new __helpers.Babeliser(__file);
-const __set = __b.getVariableDeclarations().find((v) => {
-  const __init = v.declarations[0]?.init;
-  return __init?.type === "NewExpression" && __init.callee?.name === "Set";
-});
-assert.exists(__set, "Create a Set to hold blacklisted tokens.");
-assert.exists(
-  __b.getFunctionDeclarations().find((f) => f.id?.name === "blacklistToken"),
-  "Export a blacklistToken(token) function.",
+assert.isFunction(blacklistToken, "Export a blacklistToken function.");
+assert.isFunction(isBlacklisted, "Export an isBlacklisted function.");
+assert.isFalse(
+  isBlacklisted("token-a"),
+  "A token that was never blacklisted should not be blacklisted.",
 );
+blacklistToken("token-a");
 assert.isTrue(
-  __b
-    .getType("ExportNamedDeclaration")
-    .some((e) => e.declaration?.id?.name === "blacklistToken"),
-  "blacklistToken should be exported.",
+  isBlacklisted("token-a"),
+  "After blacklisting, isBlacklisted should return true for that token.",
 );
-assert.isTrue(
-  __b.getType("CallExpression").some((c) => c.callee?.property?.name === "add"),
-  "blacklistToken should add the token to the set.",
+assert.isFalse(
+  isBlacklisted("token-b"),
+  "Unrelated tokens should remain valid.",
 );
 ```
 
-`utils/token-blacklist.js` should export an `isBlacklisted` function that checks the set.
-
-```js
-const __file = await __helpers.getFile(
-  project.dashedName,
-  "utils/token-blacklist.js",
-);
-const __b = new __helpers.Babeliser(__file);
-assert.exists(
-  __b.getFunctionDeclarations().find((f) => f.id?.name === "isBlacklisted"),
-  "Export an isBlacklisted(token) function.",
-);
-assert.isTrue(
-  __b
-    .getType("ExportNamedDeclaration")
-    .some((e) => e.declaration?.id?.name === "isBlacklisted"),
-  "isBlacklisted should be exported.",
-);
-assert.isTrue(
-  __b.getType("CallExpression").some((c) => c.callee?.property?.name === "has"),
-  "isBlacklisted should check the set with .has(token).",
-);
-```
-
-## 21
+## 27
 
 ### --description--
 
@@ -1557,7 +1578,7 @@ After extracting the token but before verifying it, check `isBlacklisted(token)`
 
 ### --tests--
 
-`middleware/authenticate.js` should import `isBlacklisted` from `../utils/token-blacklist.js`.
+`authenticate` should import `isBlacklisted` from `../utils/token-blacklist.js`.
 
 ```js
 assert.isTrue(
@@ -1574,20 +1595,32 @@ assert.isTrue(
 );
 ```
 
-`authenticate` should call `isBlacklisted` and reject a blacklisted token with status `401`.
+A blacklisted token should be rejected with status `401`, even though it is otherwise valid.
 
 ```js
-assert.isTrue(
-  __b
-    .getType("CallExpression")
-    .some((c) => __b.generateCode(c.callee) === "isBlacklisted"),
-  "Check the token with isBlacklisted(token).",
+const __src = __authenticateSrc();
+assert.isString(__src, "Define the authenticate function.");
+
+const verifyToken = () => ({ id: "u1", role: "user" });
+const isBlacklisted = (t) => t === "revoked-token";
+const authenticate = eval(`(${__src})`);
+
+const __res = __mockRes();
+let __nextCalled = false;
+authenticate(
+  { headers: { authorization: "Bearer revoked-token" } },
+  __res,
+  () => (__nextCalled = true),
 );
-const __statuses = __b
-  .getType("CallExpression")
-  .filter((c) => c.callee?.property?.name === "status")
-  .map((c) => c.arguments?.[0]?.value);
-assert.include(__statuses, 401, "Reject a blacklisted token with status 401.");
+assert.equal(
+  __res.statusCode,
+  401,
+  "A blacklisted token should respond with 401.",
+);
+assert.isFalse(
+  __nextCalled,
+  "next() should not be called for a blacklisted token.",
+);
 ```
 
 ### --before-each--
@@ -1598,9 +1631,26 @@ const __file = await __helpers.getFile(
   "middleware/authenticate.js",
 );
 const __b = new __helpers.Babeliser(__file);
+const __authenticateSrc = () => {
+  const __fn = __b
+    .getFunctionDeclarations()
+    .find((f) => f.id?.name === "authenticate");
+  return __fn ? __b.generateCode(__fn) : null;
+};
+const __mockRes = () => ({
+  statusCode: 200,
+  status(code) {
+    this.statusCode = code;
+    return this;
+  },
+  json(body) {
+    this.body = body;
+    return this;
+  },
+});
 ```
 
-## 22
+## 28
 
 ### --description--
 
@@ -1610,54 +1660,42 @@ Protect the route with `authenticate`. In the handler, read the token from the `
 
 ### --tests--
 
-`routes/auth.js` should import `blacklistToken` from `../utils/token-blacklist.js`.
-
-```js
-assert.isTrue(
-  __b
-    .getImportDeclarations()
-    .some(
-      (i) =>
-        i.source.value === "../utils/token-blacklist.js" &&
-        i.specifiers.some(
-          (s) => (s.imported?.name ?? s.local.name) === "blacklistToken",
-        ),
-    ),
-  "Import blacklistToken from ../utils/token-blacklist.js.",
-);
-```
-
-`routes/auth.js` should define a `POST /logout` route protected by `authenticate`.
+`routes/auth.js` should define a `POST /logout` route protected by the `authenticate` middleware.
 
 ```js
 const __authLocal = __b
   .getImportDeclarations()
   .find((i) => i.source.value === "../middleware/authenticate.js")
   ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
-const __route = __b
-  .getType("CallExpression")
-  .find(
-    (c) =>
-      c.callee?.property?.name === "post" &&
-      c.arguments?.[0]?.value === "/logout",
-  );
-assert.exists(__route, 'Define a router.post("/logout", ...) route.');
+const __r = __route("post", "/logout");
+assert.exists(__r, 'Define a router.post("/logout", ...) route.');
 assert.isTrue(
-  __route.arguments.some(
-    (a) => a.type === "Identifier" && a.name === __authLocal,
-  ),
+  __r.arguments.some((a) => a.type === "Identifier" && a.name === __authLocal),
   "Protect /logout with the authenticate middleware.",
 );
 ```
 
-The `/logout` handler should blacklist the request's token.
+The `/logout` handler should blacklist the token from the request's `Authorization` header.
 
 ```js
-assert.isTrue(
-  __b
-    .getType("CallExpression")
-    .some((c) => __b.generateCode(c.callee) === "blacklistToken"),
-  "Blacklist the token with blacklistToken(token).",
+const __src = __handlerSrc("post", "/logout");
+assert.exists(__src, 'Define the POST "/logout" handler.');
+
+let __blacklisted = null;
+const blacklistToken = (t) => {
+  __blacklisted = t;
+};
+const logout = eval(`(${__src})`);
+
+const __res = __mockRes();
+await logout(
+  { headers: { authorization: "Bearer the-token" }, user: { id: "u1" } },
+  __res,
+);
+assert.equal(
+  __blacklisted,
+  "the-token",
+  "Logout should pass the request's token to blacklistToken.",
 );
 ```
 
@@ -1666,6 +1704,35 @@ assert.isTrue(
 ```js
 const __file = await __helpers.getFile(project.dashedName, "routes/auth.js");
 const __b = new __helpers.Babeliser(__file);
+const __route = (method, path) =>
+  __b
+    .getType("CallExpression")
+    .find(
+      (c) =>
+        c.callee?.property?.name === method &&
+        c.arguments?.[0]?.value === path,
+    );
+const __handlerSrc = (method, path) => {
+  const __fn = __route(method, path)
+    ?.arguments?.filter(
+      (a) =>
+        a.type === "ArrowFunctionExpression" ||
+        a.type === "FunctionExpression",
+    )
+    .at(-1);
+  return __fn ? __b.generateCode(__fn) : null;
+};
+const __mockRes = () => ({
+  statusCode: 200,
+  status(code) {
+    this.statusCode = code;
+    return this;
+  },
+  json(body) {
+    this.body = body;
+    return this;
+  },
+});
 ```
 
 ### --hints--
@@ -1684,13 +1751,33 @@ router.post("/logout", authenticate, (req, res) => {
 });
 ```
 
-## 23
+## 29
 
 ### --description--
 
 Authentication proves _who_ a user is; <dfn title="deciding whether an authenticated user is allowed to perform an action, often based on their role">authorization</dfn> decides _what_ they are allowed to do.
 
-Create a `middleware/authorize.js` file. Default-export a function `authorizeRole(role)` that **returns** a middleware function. This pattern - a function that returns middleware - lets you configure the middleware per route, e.g. `authorizeRole("admin")`.
+Create a `middleware/authorize.js` file in the project directory.
+
+### --tests--
+
+A `middleware/authorize.js` file should exist in the project directory.
+
+```js
+const __exists = await __helpers.fileExists(
+  `${project.dashedName}/middleware/authorize.js`,
+);
+assert.isTrue(
+  __exists,
+  "middleware/authorize.js does not exist - create the file first.",
+);
+```
+
+## 30
+
+### --description--
+
+In `middleware/authorize.js`, default-export a function `authorizeRole(role)` that **returns** a middleware function. This pattern - a function that returns middleware - lets you configure the middleware per route, e.g. `authorizeRole("admin")`.
 
 ```js
 export default function requireSomething(value) {
@@ -1702,82 +1789,60 @@ The returned middleware should respond with status `403` and a JSON message such
 
 ### --tests--
 
-`middleware/authorize.js` should exist and default-export `authorizeRole(role)`.
+`authorizeRole(role)` should return a middleware function.
 
 ```js
-const __exists = await __helpers.fileExists(
-  `${project.dashedName}/middleware/authorize.js`,
+const { join } = await import("path");
+const { default: authorizeRole } = await __helpers.importSansCache(
+  join(project.dashedName, "middleware/authorize.js"),
 );
-assert.isTrue(
-  __exists,
-  "middleware/authorize.js does not exist - create the file first.",
+assert.isFunction(
+  authorizeRole,
+  "authorize.js should default-export the authorizeRole function.",
 );
-const __file = await __helpers.getFile(
-  project.dashedName,
-  "middleware/authorize.js",
-);
-const __b = new __helpers.Babeliser(__file);
-const __fn = __b
-  .getFunctionDeclarations()
-  .find((f) => f.id?.name === "authorizeRole");
-assert.exists(__fn, "Define a function named authorizeRole.");
-assert.lengthOf(__fn.params, 1, "authorizeRole should accept a role argument.");
-const __def = __b.getType("ExportDefaultDeclaration")[0];
-assert.isTrue(
-  __def != null &&
-    (__def.declaration?.id?.name === "authorizeRole" ||
-      __b.generateCode(__def.declaration) === "authorizeRole"),
-  "Export authorizeRole as the default export.",
+assert.isFunction(
+  authorizeRole("admin"),
+  "authorizeRole(role) should return a middleware function.",
 );
 ```
 
-`authorizeRole` should return a middleware function with three parameters.
+The returned middleware should reject a mismatched role with `403` and call `next()` when the role matches.
 
 ```js
-const __file = await __helpers.getFile(
-  project.dashedName,
-  "middleware/authorize.js",
+const { join } = await import("path");
+const __mockRes = () => {
+  const r = { statusCode: 200 };
+  r.status = (c) => ((r.statusCode = c), r);
+  r.json = (b) => ((r.body = b), r);
+  return r;
+};
+const { default: authorizeRole } = await __helpers.importSansCache(
+  join(project.dashedName, "middleware/authorize.js"),
 );
-const __b = new __helpers.Babeliser(__file);
-const __mw = [
-  ...__b.getArrowFunctionExpressions(),
-  ...__b.getType("FunctionExpression"),
-].find((f) => f.params?.length === 3);
-assert.exists(
-  __mw,
-  "authorizeRole should return a (req, res, next) => {} middleware function.",
-);
-```
+const __mw = authorizeRole("admin");
 
-The returned middleware should compare `req.user.role` with `role` and respond with `403` on a mismatch, otherwise call `next()`.
+const __denied = __mockRes();
+let __next1 = false;
+__mw({ user: { role: "user" } }, __denied, () => (__next1 = true));
+assert.equal(
+  __denied.statusCode,
+  403,
+  "A user whose role does not match should get 403.",
+);
+assert.isFalse(__next1, "next() should not be called on a role mismatch.");
 
-```js
-const __file = await __helpers.getFile(
-  project.dashedName,
-  "middleware/authorize.js",
-);
-const __b = new __helpers.Babeliser(__file);
-const __statuses = __b
-  .getType("CallExpression")
-  .filter((c) => c.callee?.property?.name === "status")
-  .map((c) => c.arguments?.[0]?.value);
-assert.include(__statuses, 403, "Respond with status 403 on a role mismatch.");
-assert.isTrue(
-  __b
-    .getType("BinaryExpression")
-    .some(
-      (e) =>
-        (e.operator === "!==" || e.operator === "===") &&
-        (__b.generateCode(e.left) === "req.user.role" ||
-          __b.generateCode(e.right) === "req.user.role"),
-    ),
-  "Compare req.user.role with the required role.",
-);
-assert.isTrue(
-  __b
-    .getType("CallExpression")
-    .some((c) => c.callee?.type === "Identifier" && c.callee.name === "next"),
-  "Call next() when the role matches.",
+const __allowed = __mockRes();
+let __next2 = false;
+__mw({ user: { role: "admin" } }, __allowed, () => (__next2 = true));
+assert.isTrue(__next2, "next() should be called when the role matches.");
+
+const __noUser = __mockRes();
+let __next3 = false;
+__mw({}, __noUser, () => (__next3 = true));
+assert.equal(
+  __noUser.statusCode,
+  403,
+  "A request with no req.user should get 403.",
 );
 ```
 
@@ -1800,28 +1865,11 @@ export default function authorizeRole(role) {
 }
 ```
 
-## 24
+## 31
 
 ### --description--
 
-Create a `routes/admin.js` file for admin-only routes. You can stack middleware on a single route - Express runs them left to right:
-
-```js
-router.get("/path", first, second, handler);
-```
-
-In `routes/admin.js`:
-
-- Import `express`, `authenticate` from `../middleware/authenticate.js`, `authorizeRole` from `../middleware/authorize.js`, and `readUsers` from `../utils/db.js`.
-- Create a `router` with `express.Router()`.
-- Add a `GET /users` route guarded by both `authenticate` and `authorizeRole("admin")`. The handler should map over `readUsers()` to **strip the `passwordHash`** from every user, then respond with `{ users }`.
-- Export `router` as the default export.
-
-To remove a property while keeping the rest, destructure it out:
-
-```js
-readUsers().map(({ passwordHash, ...user }) => user);
-```
+Create a `routes/admin.js` file in the project directory for admin-only routes.
 
 ### --tests--
 
@@ -1837,37 +1885,33 @@ assert.isTrue(
 );
 ```
 
-`routes/admin.js` should import `authenticate`, `authorizeRole`, and `readUsers`.
+## 32
+
+### --description--
+
+You can stack middleware on a single route - Express runs them left to right:
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, "routes/admin.js");
-const __b = new __helpers.Babeliser(__file);
-const __imports = __b.getImportDeclarations();
-assert.isTrue(
-  __imports.some((i) => i.source.value === "../middleware/authenticate.js"),
-  "Import authenticate from ../middleware/authenticate.js.",
-);
-assert.isTrue(
-  __imports.some((i) => i.source.value === "../middleware/authorize.js"),
-  "Import authorizeRole from ../middleware/authorize.js.",
-);
-assert.isTrue(
-  __imports.some(
-    (i) =>
-      i.source.value === "../utils/db.js" &&
-      i.specifiers.some(
-        (s) => (s.imported?.name ?? s.local.name) === "readUsers",
-      ),
-  ),
-  "Import readUsers from ../utils/db.js.",
-);
+router.get("/path", first, second, handler);
 ```
 
-`routes/admin.js` should define `GET /users` guarded by `authenticate` and `authorizeRole("admin")`.
+In `routes/admin.js`:
+
+- Import `express`, `authenticate` from `../middleware/authenticate.js`, `authorizeRole` from `../middleware/authorize.js`, and `readUsers` from `../utils/db.js`.
+- Create a `router` with `express.Router()` and export it as the default export.
+- Add a `GET /users` route guarded by both `authenticate` and `authorizeRole("admin")`. The handler should map over `readUsers()` to **strip the `passwordHash`** from every user, then respond with `{ users }`.
+
+To remove a property while keeping the rest, destructure it out:
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, "routes/admin.js");
-const __b = new __helpers.Babeliser(__file);
+readUsers().map(({ passwordHash, ...user }) => user);
+```
+
+### --tests--
+
+`routes/admin.js` should define `GET /users` guarded by `authenticate` and `authorizeRole("admin")`, and export the router.
+
+```js
 const __authLocal = __b
   .getImportDeclarations()
   .find((i) => i.source.value === "../middleware/authenticate.js")
@@ -1876,22 +1920,22 @@ const __roleLocal = __b
   .getImportDeclarations()
   .find((i) => i.source.value === "../middleware/authorize.js")
   ?.specifiers.find((s) => s.type === "ImportDefaultSpecifier")?.local.name;
-const __route = __b
-  .getType("CallExpression")
-  .find(
-    (c) =>
-      c.callee?.property?.name === "get" &&
-      c.arguments?.[0]?.value === "/users",
-  );
-assert.exists(__route, 'Define a router.get("/users", ...) route.');
+assert.exists(
+  __authLocal,
+  "Import authenticate from ../middleware/authenticate.js.",
+);
+assert.exists(
+  __roleLocal,
+  "Import authorizeRole from ../middleware/authorize.js.",
+);
+const __r = __route("get", "/users");
+assert.exists(__r, 'Define a router.get("/users", ...) route.');
 assert.isTrue(
-  __route.arguments.some(
-    (a) => a.type === "Identifier" && a.name === __authLocal,
-  ),
+  __r.arguments.some((a) => a.type === "Identifier" && a.name === __authLocal),
   "Guard /users with the authenticate middleware.",
 );
 assert.isTrue(
-  __route.arguments.some(
+  __r.arguments.some(
     (a) =>
       a.type === "CallExpression" &&
       __b.generateCode(a.callee) === __roleLocal &&
@@ -1899,56 +1943,73 @@ assert.isTrue(
   ),
   'Guard /users with authorizeRole("admin").',
 );
-```
-
-The handler should strip `passwordHash` from each user and respond with `{ users }`.
-
-```js
-const __file = await __helpers.getFile(project.dashedName, "routes/admin.js");
-const __b = new __helpers.Babeliser(__file);
-const __strips = __b.getArrowFunctionExpressions().some((a) => {
-  const __p = a.params?.[0];
-  return (
-    __p?.type === "ObjectPattern" &&
-    __p.properties.some((pr) => pr.key?.name === "passwordHash")
-  );
-});
-assert.isTrue(
-  __strips,
-  "Strip passwordHash from each user by destructuring it out.",
-);
-const __usersResp = __b
-  .getType("CallExpression")
-  .some(
-    (c) =>
-      c.callee?.property?.name === "json" &&
-      c.arguments?.[0]?.type === "ObjectExpression" &&
-      c.arguments[0].properties.some((p) => p.key?.name === "users"),
-  );
-assert.isTrue(__usersResp, "Respond with res.json({ users }).");
-```
-
-`routes/admin.js` should export the router as the default export.
-
-```js
-const __file = await __helpers.getFile(project.dashedName, "routes/admin.js");
-const __b = new __helpers.Babeliser(__file);
-const __routerDecl = __b.getVariableDeclarations().find((v) => {
-  const __init = v.declarations[0]?.init;
-  return (
-    __init?.type === "CallExpression" &&
-    __b.generateCode(__init.callee).endsWith("Router")
-  );
-});
-const __routerName = __routerDecl?.declarations[0]?.id?.name;
 const __def = __b.getType("ExportDefaultDeclaration")[0];
-assert.isTrue(
-  __def != null && __b.generateCode(__def.declaration) === __routerName,
-  "Export the router as the default export.",
+assert.exists(__def, "Export the router as the default export.");
+```
+
+The `/users` handler should respond with `{ users }`, stripping `passwordHash` from every user.
+
+```js
+const __src = __handlerSrc("get", "/users");
+assert.exists(__src, 'Define the GET "/users" handler.');
+
+const readUsers = () => [
+  { id: "1", email: "a@b.com", role: "user", passwordHash: "SECRET_HASH" },
+];
+const listUsers = eval(`(${__src})`);
+
+const __res = __mockRes();
+await listUsers({ user: { role: "admin" } }, __res);
+assert.isArray(__res.body?.users, "Respond with a { users } array.");
+assert.equal(
+  __res.body.users[0].email,
+  "a@b.com",
+  "Keep the safe user fields like email.",
+);
+assert.notProperty(
+  __res.body.users[0],
+  "passwordHash",
+  "Strip passwordHash from every user in the response.",
 );
 ```
 
-## 25
+### --before-each--
+
+```js
+const __file = await __helpers.getFile(project.dashedName, "routes/admin.js");
+const __b = new __helpers.Babeliser(__file);
+const __route = (method, path) =>
+  __b
+    .getType("CallExpression")
+    .find(
+      (c) =>
+        c.callee?.property?.name === method &&
+        c.arguments?.[0]?.value === path,
+    );
+const __handlerSrc = (method, path) => {
+  const __fn = __route(method, path)
+    ?.arguments?.filter(
+      (a) =>
+        a.type === "ArrowFunctionExpression" ||
+        a.type === "FunctionExpression",
+    )
+    .at(-1);
+  return __fn ? __b.generateCode(__fn) : null;
+};
+const __mockRes = () => ({
+  statusCode: 200,
+  status(code) {
+    this.statusCode = code;
+    return this;
+  },
+  json(body) {
+    this.body = body;
+    return this;
+  },
+});
+```
+
+## 33
 
 ### --description--
 
@@ -1996,7 +2057,7 @@ const __file = await __helpers.getFile(project.dashedName, "index.js");
 const __b = new __helpers.Babeliser(__file);
 ```
 
-## 26
+## 34
 
 ### --description--
 

@@ -101,7 +101,7 @@ A `server.js` file should exist in the project directory.
 
 ```js
 const __exists = await __helpers.fileExists(`${project.dashedName}/server.js`);
-assert.isTrue(__exists, "server.js does not exist — create the file first.");
+assert.isTrue(__exists, "server.js does not exist - create the file first.");
 ```
 
 ## 4
@@ -257,7 +257,7 @@ const server = http.createServer((req, res) => {
 
 ### --description--
 
-<dfn title="WebSocket">WebSocket</dfn> connections begin as ordinary HTTP requests. The browser sends a special HTTP `Upgrade` request — including an `Upgrade: websocket` header — asking the server to switch protocols. If the server agrees, it responds with a `101 Switching Protocols` status and the connection is promoted from HTTP to the WebSocket protocol. This process is called the <dfn title="the initial HTTP request/response that establishes a WebSocket connection">handshake</dfn>.
+<dfn title="WebSocket">WebSocket</dfn> connections begin as ordinary HTTP requests. The browser sends a special HTTP `Upgrade` request - including an `Upgrade: websocket` header - asking the server to switch protocols. If the server agrees, it responds with a `101 Switching Protocols` status and the connection is promoted from HTTP to the WebSocket protocol. This process is called the <dfn title="the initial HTTP request/response that establishes a WebSocket connection">handshake</dfn>.
 
 The `ws` npm package handles the handshake for you. Import `WebSocketServer` from `'ws'` using named ESM syntax:
 
@@ -276,7 +276,8 @@ const __wsImport = __t.ast.body.find(
     n.type === "ImportDeclaration" &&
     n.source.value === "ws" &&
     n.specifiers.some(
-      (s) => s.type === "ImportSpecifier" && s.imported.name === "WebSocketServer",
+      (s) =>
+        s.type === "ImportSpecifier" && s.imported.name === "WebSocketServer",
     ),
 );
 assert.isDefined(
@@ -575,7 +576,7 @@ server.listen(PORT, () => {
 
 ### --description--
 
-The `'close'` event fires when the client disconnects — for example, when the user closes the browser tab. Add a `'close'` listener on `socket` inside the `'connection'` callback:
+The `'close'` event fires when the client disconnects - for example, when the user closes the browser tab. Add a `'close'` listener on `socket` inside the `'connection'` callback:
 
 ```js
 socket.on("close", () => {
@@ -678,7 +679,7 @@ server.listen(PORT, () => {
 
 ### --description--
 
-The `'error'` event fires when an unexpected problem occurs on the socket — such as a broken connection. Add an `'error'` listener on `socket` inside the `'connection'` callback:
+The `'error'` event fires when an unexpected problem occurs on the socket - such as a broken connection. Add an `'error'` listener on `socket` inside the `'connection'` callback:
 
 ```js
 socket.on("error", (err) => {
@@ -788,10 +789,10 @@ import os from "os";
 
 Then write a function named `getMetrics` that returns an object with the following properties:
 
-- `loadAvg` — the 1, 5, and 15-minute load averages from `os.loadavg()`
-- `freeMemMB` — free memory in megabytes, rounded to `0` decimal places
-- `totalMemMB` — total memory in megabytes, rounded to `0` decimal places
-- `memUsagePct` — used memory as a percentage of total, fixed to `1` decimal place
+- `loadAvg` - the 1, 5, and 15-minute load averages from `os.loadavg()`
+- `freeMemMB` - free memory in megabytes, rounded to `0` decimal places
+- `totalMemMB` - total memory in megabytes, rounded to `0` decimal places
+- `memUsagePct` - used memory as a percentage of total, fixed to `1` decimal place
 
 ```js
 function getMetrics() {
@@ -1043,7 +1044,7 @@ server.listen(PORT, () => {
 
 ### --description--
 
-`setInterval` schedules a callback to run repeatedly on Node.js's <dfn title="the mechanism that allows Node.js to perform non-blocking I/O by offloading operations and processing callbacks in a queue">event loop</dfn>. If you never cancel it, the interval keeps firing even after the client has gone — holding a reference to the closed socket and leaking memory.
+`setInterval` schedules a callback to run repeatedly on Node.js's <dfn title="the mechanism that allows Node.js to perform non-blocking I/O by offloading operations and processing callbacks in a queue">event loop</dfn>. If you never cancel it, the interval keeps firing even after the client has gone - holding a reference to the closed socket and leaking memory.
 
 Update the `'close'` handler to cancel the interval as soon as the client disconnects. Call `clearInterval` with the `interval` ID before logging the disconnect message.
 
@@ -1151,9 +1152,9 @@ server.listen(PORT, () => {
 
 ### --description--
 
-The server is complete. Now open `public/script.js` to add the browser-side WebSocket client. The helper functions `updateMetrics` and `setStatus` are already provided — do not modify them.
+The server is complete. Now open `public/script.js` to add the browser-side WebSocket client. The helper functions `updateMetrics` and `setStatus` are already provided - do not modify them.
 
-WebSocket URIs use `ws://` for plain connections and `wss://` for <dfn title="Transport Layer Security — encrypts data in transit">TLS</dfn>-encrypted connections (analogous to `http://` and `https://`). Because the server is running locally without TLS, use `ws://`.
+WebSocket URIs use `ws://` for plain connections and `wss://` for <dfn title="Transport Layer Security - encrypts data in transit">TLS</dfn>-encrypted connections (analogous to `http://` and `https://`). Because the server is running locally without TLS, use `ws://`.
 
 Create a `WebSocket` and store it in a constant named `socket`:
 
@@ -1258,7 +1259,7 @@ server.listen(PORT, () => {
 #### --"learn-websockets-by-building-a-resource-monitor/public/script.js"--
 
 ```js
-// Helper functions — pre-provided. Do not modify.
+// Helper functions - pre-provided. Do not modify.
 
 function updateMetrics({ loadAvg, freeMemMB, totalMemMB, memUsagePct }) {
   document.getElementById("mem-usage").textContent = memUsagePct;
@@ -1273,7 +1274,7 @@ function setStatus(text) {
   document.getElementById("status").textContent = text;
 }
 
-// Your code below — create a WebSocket connection and handle events.
+// Your code below - create a WebSocket connection and handle events.
 ```
 
 ## 16
@@ -1347,7 +1348,7 @@ const __script = await __helpers.getFile(
 #### --"learn-websockets-by-building-a-resource-monitor/public/script.js"--
 
 ```js
-// Helper functions — pre-provided. Do not modify.
+// Helper functions - pre-provided. Do not modify.
 
 function updateMetrics({ loadAvg, freeMemMB, totalMemMB, memUsagePct }) {
   document.getElementById("mem-usage").textContent = memUsagePct;
@@ -1362,7 +1363,7 @@ function setStatus(text) {
   document.getElementById("status").textContent = text;
 }
 
-// Your code below — create a WebSocket connection and handle events.
+// Your code below - create a WebSocket connection and handle events.
 
 const socket = new WebSocket("ws://localhost:3000");
 ```
@@ -1460,7 +1461,7 @@ const __script = await __helpers.getFile(
 #### --"learn-websockets-by-building-a-resource-monitor/public/script.js"--
 
 ```js
-// Helper functions — pre-provided. Do not modify.
+// Helper functions - pre-provided. Do not modify.
 
 function updateMetrics({ loadAvg, freeMemMB, totalMemMB, memUsagePct }) {
   document.getElementById("mem-usage").textContent = memUsagePct;
@@ -1475,7 +1476,7 @@ function setStatus(text) {
   document.getElementById("status").textContent = text;
 }
 
-// Your code below — create a WebSocket connection and handle events.
+// Your code below - create a WebSocket connection and handle events.
 
 const socket = new WebSocket("ws://localhost:3000");
 
@@ -1488,7 +1489,7 @@ socket.onopen = () => {
 
 ### --description--
 
-The `onclose` event fires when the WebSocket connection is closed — either by the server shutting down or the network dropping. Assign a handler to `socket.onclose` that calls `setStatus('Disconnected')`:
+The `onclose` event fires when the WebSocket connection is closed - either by the server shutting down or the network dropping. Assign a handler to `socket.onclose` that calls `setStatus('Disconnected')`:
 
 ```js
 socket.onclose = () => {
@@ -1555,7 +1556,7 @@ const __script = await __helpers.getFile(
 #### --"learn-websockets-by-building-a-resource-monitor/public/script.js"--
 
 ```js
-// Helper functions — pre-provided. Do not modify.
+// Helper functions - pre-provided. Do not modify.
 
 function updateMetrics({ loadAvg, freeMemMB, totalMemMB, memUsagePct }) {
   document.getElementById("mem-usage").textContent = memUsagePct;
@@ -1570,7 +1571,7 @@ function setStatus(text) {
   document.getElementById("status").textContent = text;
 }
 
-// Your code below — create a WebSocket connection and handle events.
+// Your code below - create a WebSocket connection and handle events.
 
 const socket = new WebSocket("ws://localhost:3000");
 
@@ -1652,7 +1653,7 @@ const __script = await __helpers.getFile(
 #### --"learn-websockets-by-building-a-resource-monitor/public/script.js"--
 
 ```js
-// Helper functions — pre-provided. Do not modify.
+// Helper functions - pre-provided. Do not modify.
 
 function updateMetrics({ loadAvg, freeMemMB, totalMemMB, memUsagePct }) {
   document.getElementById("mem-usage").textContent = memUsagePct;
@@ -1667,7 +1668,7 @@ function setStatus(text) {
   document.getElementById("status").textContent = text;
 }
 
-// Your code below — create a WebSocket connection and handle events.
+// Your code below - create a WebSocket connection and handle events.
 
 const socket = new WebSocket("ws://localhost:3000");
 

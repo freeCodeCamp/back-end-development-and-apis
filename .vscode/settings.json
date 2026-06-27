@@ -28,10 +28,11 @@
     "learn-express-by-building-a-weather-service-api": false,
     "learn-error-handling-in-express-by-building-a-bank-api": false,
     "learn-websockets-by-building-a-resource-monitor": false,
-    "build-a-chat-app": false
+    "build-a-chat-app": false,
+    "learn-auth-by-building-jwt-protected-routes": false
   },
-  "freecodecamp-courses.autoStart": true,
-  "freecodecamp-courses.prepare": "sed -i \"s#WD=.*#WD=$(pwd)#g\" ./bash/.bashrc",
+  "freecodecamp-courses.autoStart": false,
+  "freecodecamp-courses.prepare": "touch $(pwd)/.logs/.freecodecamp-os-lockfile",
   "freecodecamp-courses.scripts.develop-course": "NODE_ENV=development npm run start",
   "freecodecamp-courses.scripts.run-course": "NODE_ENV=production npm run start",
   "freecodecamp-courses.workspace.previews": [

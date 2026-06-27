@@ -2286,7 +2286,7 @@ You should restart the server, and see an error.
 const __isListening = await __helpers.isServerListening(3001);
 assert.isFalse(
   __isListening,
-  "The server should fail to start — it is still listening when it should not be",
+  "The server should fail to start - it is still listening when it should not be",
 );
 ```
 

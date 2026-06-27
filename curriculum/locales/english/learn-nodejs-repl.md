@@ -6,7 +6,7 @@ You will learn the Node.js REPL and command-line interface by exploring the runt
 
 ### --description--
 
-In this project, you will explore the <dfn title="Read-Eval-Print Loop">REPL</dfn> and command-line interface of Node.js — installing the runtime, running code with flags, and working interactively in the Node.js shell.
+In this project, you will explore the <dfn title="Read-Eval-Print Loop">REPL</dfn> and command-line interface of Node.js - installing the runtime, running code with flags, and working interactively in the Node.js shell.
 
 Open a new terminal and run `cd learn-nodejs-repl` to change into the project directory.
 
@@ -156,7 +156,7 @@ assert.isNotEmpty(
 
 ### --description--
 
-Previously, you used `node -e` to print a string. The `-e` flag can evaluate any JavaScript expression — including arithmetic.
+Previously, you used `node -e` to print a string. The `-e` flag can evaluate any JavaScript expression - including arithmetic.
 
 For example:
 
@@ -195,7 +195,7 @@ assert.match(
 
 ### --description--
 
-The `-p` (or `--print`) flag works like `-e` but automatically prints the result of the expression — no `console.log` needed.
+The `-p` (or `--print`) flag works like `-e` but automatically prints the result of the expression - no `console.log` needed.
 
 ```bash
 node -p "typeof process"
@@ -382,7 +382,7 @@ echo "console.log('Hello from a file!')" > learn-nodejs-repl/hello.js
 
 ### --description--
 
-So far you have run JavaScript non-interactively using flags and files. Node.js also includes an interactive shell called the <dfn title="Read-Eval-Print Loop">REPL</dfn> — it reads an expression you type, evaluates it, prints the result, and loops back for the next input.
+So far you have run JavaScript non-interactively using flags and files. Node.js also includes an interactive shell called the <dfn title="Read-Eval-Print Loop">REPL</dfn> - it reads an expression you type, evaluates it, prints the result, and loops back for the next input.
 
 Run `node` with no arguments to enter the REPL. You will see a `>` prompt indicating it is ready for input.
 
@@ -425,7 +425,7 @@ const __temp = await __helpers.getTemp();
 assert.match(
   __temp,
   /\d+/,
-  "Type an arithmetic expression in the REPL — it should print a number.",
+  "Type an arithmetic expression in the REPL - it should print a number.",
 );
 ```
 
@@ -433,7 +433,7 @@ assert.match(
 
 ### --description--
 
-Variables declared in the REPL persist for the rest of your session — you can reference them in later expressions.
+Variables declared in the REPL persist for the rest of your session - you can reference them in later expressions.
 
 Declare a variable using `let` or `const` and assign it any value you like:
 
@@ -442,7 +442,7 @@ Declare a variable using `let` or `const` and assign it any value you like:
 undefined
 ```
 
-Notice the REPL prints `undefined` — that is the return value of a variable declaration.
+Notice the REPL prints `undefined` - that is the return value of a variable declaration.
 
 **NOTE:** Keep the REPL open and click _Run Tests_ when done.
 
@@ -459,7 +459,7 @@ assert.match(
 );
 ```
 
-The REPL should print `undefined` — the return value of a variable declaration.
+The REPL should print `undefined` - the return value of a variable declaration.
 
 ```js
 const __temp = await __helpers.getTemp();
@@ -494,7 +494,7 @@ const __temp = await __helpers.getTemp();
 assert.match(
   __temp,
   /^> (?!undefined).+/m,
-  "Type your variable name in the REPL — it should print its value.",
+  "Type your variable name in the REPL - it should print its value.",
 );
 ```
 
@@ -545,7 +545,7 @@ const __temp = await __helpers.getRepl();
 assert.match(
   __temp,
   /> _(\W|$)/m,
-  "Use `_` in the REPL — it holds the result of the last evaluated expression.",
+  "Use `_` in the REPL - it holds the result of the last evaluated expression.",
 );
 ```
 
@@ -553,7 +553,7 @@ assert.match(
 
 ### --description--
 
-You can define functions in the REPL just as you would in a script — they stay available for the rest of the session.
+You can define functions in the REPL just as you would in a script - they stay available for the rest of the session.
 
 ```bash
 > function double(n) { return n * 2; }
@@ -577,7 +577,7 @@ assert.match(
 );
 ```
 
-The REPL should print `undefined` — the return value of a function definition.
+The REPL should print `undefined` - the return value of a function definition.
 
 ```js
 const __temp = await __helpers.getTemp();
@@ -599,7 +599,7 @@ Now, the function can be called:
 42
 ```
 
-Call your function with an argument of your choice — the REPL will print the return value directly.
+Call your function with an argument of your choice - the REPL will print the return value directly.
 
 **NOTE:** Keep the REPL open and click _Run Tests_ when done.
 
@@ -612,7 +612,7 @@ const __repl = await __helpers.getRepl();
 assert.match(
   __repl,
   /^\w+\s*\([^)]*\)/m,
-  "Call your function in the REPL — type its name followed by parentheses and an argument.",
+  "Call your function in the REPL - type its name followed by parentheses and an argument.",
 );
 ```
 
@@ -620,7 +620,7 @@ assert.match(
 
 ### --description--
 
-Node.js includes a set of built-in modules you can load at any time using `require()`. You do not need to install them — they ship with Node.js itself.
+Node.js includes a set of built-in modules you can load at any time using `require()`. You do not need to install them - they ship with Node.js itself.
 
 ```bash
 > const os = require('os')
@@ -644,7 +644,7 @@ assert.match(
 );
 ```
 
-The REPL should print `undefined` — the return value of assigning the module to a variable.
+The REPL should print `undefined` - the return value of assigning the module to a variable.
 
 ```js
 const __temp = await __helpers.getTemp();
@@ -679,7 +679,7 @@ const __temp = await __helpers.getRepl();
 assert.match(
   __temp,
   /\w+\.\w+\s*\(/m,
-  "Call a method on the module you loaded — e.g. `os.platform()`.",
+  "Call a method on the module you loaded - e.g. `os.platform()`.",
 );
 ```
 
@@ -700,7 +700,7 @@ const __temp = await __helpers.getTemp();
 assert.include(
   __temp,
   ".break",
-  "Type `.help` in the REPL — its output should list the available dot-commands.",
+  "Type `.help` in the REPL - its output should list the available dot-commands.",
 );
 ```
 
@@ -732,7 +732,7 @@ const __history = await __helpers.getBashHistory();
 assert.match(
   __history,
   /^node\s*$/m,
-  "Type `.exit` (or press Ctrl+D) to leave the REPL — `node` should appear in your bash history once the session ends.",
+  "Type `.exit` (or press Ctrl+D) to leave the REPL - `node` should appear in your bash history once the session ends.",
 );
 ```
 
@@ -740,7 +740,7 @@ assert.match(
 
 ### --description--
 
-Earlier you used `require()` to load modules — that is the CommonJS style. Node.js also supports <dfn title="ECMAScript Modules">ESM</dfn>, the modern `import`/`export` syntax. You can run ESM code inline by piping it to `node` with the `--input-type=module` flag.
+Earlier you used `require()` to load modules - that is the CommonJS style. Node.js also supports <dfn title="ECMAScript Modules">ESM</dfn>, the modern `import`/`export` syntax. You can run ESM code inline by piping it to `node` with the `--input-type=module` flag.
 
 ```bash
 echo "import { createRequire } from 'module'; console.log(typeof createRequire);" | node --input-type=module

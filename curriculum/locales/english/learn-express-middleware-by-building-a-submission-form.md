@@ -6,7 +6,7 @@ You will learn application-level and router-level middleware by building a struc
 
 ### --description--
 
-In this project, you will build a structured <dfn title="a web application framework for Node.js">Express</dfn> API that demonstrates how <dfn title="functions that have access to the request object, response object, and the next function in the application's request-response cycle">middleware</dfn> works — including application-level middleware, router-level middleware, and custom error-handling middleware.
+In this project, you will build a structured <dfn title="a web application framework for Node.js">Express</dfn> API that demonstrates how <dfn title="functions that have access to the request object, response object, and the next function in the application's request-response cycle">middleware</dfn> works - including application-level middleware, router-level middleware, and custom error-handling middleware.
 
 Open a new terminal and navigate into the project directory.
 
@@ -70,7 +70,7 @@ A `server.js` file should exist in the project directory.
 
 ```js
 const __exists = await __helpers.fileExists(`${project.dashedName}/server.js`);
-assert.isTrue(__exists, "server.js does not exist — create the file first.");
+assert.isTrue(__exists, "server.js does not exist - create the file first.");
 ```
 
 ## 3
@@ -259,7 +259,7 @@ const __exists = await __helpers.fileExists(
 );
 assert.isTrue(
   __exists,
-  "routes/api.routes.js does not exist — create the file first.",
+  "routes/api.routes.js does not exist - create the file first.",
 );
 ```
 
@@ -372,7 +372,7 @@ await rm(__testDir, { recursive: true, force: true });
 const __line = stdout.split("\n").find((l) => l.startsWith("RESULT:"));
 assert.exists(
   __line,
-  "The GET / handler did not respond — check your route definition.",
+  "The GET / handler did not respond - check your route definition.",
 );
 const __result = JSON.parse(__line.slice("RESULT:".length));
 assert.equal(__result.status, 200, "GET / should respond with status 200.");
@@ -491,7 +491,7 @@ assert.isTrue(
 
 ### --description--
 
-When you call the `NextFunction` parameter of a route handler with an error object, Express skips all remaining regular middleware and routes, and jumps directly to the nearest <dfn title="a special Express middleware with four parameters: err, req, res, next — used to handle errors passed via next(err)">error-handling middleware</dfn>:
+When you call the `NextFunction` parameter of a route handler with an error object, Express skips all remaining regular middleware and routes, and jumps directly to the nearest <dfn title="a special Express middleware with four parameters: err, req, res, next - used to handle errors passed via next(err)">error-handling middleware</dfn>:
 
 ```js
 app.get("/", (req, res, next) => {
@@ -620,7 +620,7 @@ const __exists = await __helpers.fileExists(
 );
 assert.isTrue(
   __exists,
-  "middleware/error.middleware.js does not exist — create the file first.",
+  "middleware/error.middleware.js does not exist - create the file first.",
 );
 ```
 
@@ -859,10 +859,10 @@ Your middleware stack is complete. (Re)start the server with `npm start`, then c
 
 | URL                    | Expected status                        |
 | ---------------------- | -------------------------------------- |
-| `GET /api`             | `200` — `'API is available!'`          |
-| `GET /api/crash`       | `500` — JSON with `error: true`        |
-| `GET /api/bad-request` | `400` — JSON with the specific message |
-| `GET /nonsense`        | `404` — JSON with `error: true`        |
+| `GET /api`             | `200` - `'API is available!'`          |
+| `GET /api/crash`       | `500` - JSON with `error: true`        |
+| `GET /api/bad-request` | `400` - JSON with the specific message |
+| `GET /nonsense`        | `404` - JSON with `error: true`        |
 
 **NOTE:** Keep the server running, then click _Run Tests_.
 

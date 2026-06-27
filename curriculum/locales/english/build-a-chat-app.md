@@ -14,9 +14,9 @@ In this project, you will implement the server side of a real-time chat applicat
 
 The boilerplate gives you:
 
-- `public/index.html` — a complete chat UI (no edits needed)
-- `public/script.js` — a complete browser WebSocket client (no edits needed)
-- `server.js` — the imports and `PORT` constant are already written; you must implement the rest
+- `public/index.html` - a complete chat UI (no edits needed)
+- `public/script.js` - a complete browser WebSocket client (no edits needed)
+- `server.js` - the imports and `PORT` constant are already written; you must implement the rest
 
 Open a terminal, navigate into the project directory, and install the dependencies:
 
@@ -142,7 +142,7 @@ assert.include(
 );
 ```
 
-When a client sends a message, all connected clients — including the sender — should receive `{ type: 'chat', username, text }`.
+When a client sends a message, all connected clients - including the sender - should receive `{ type: 'chat', username, text }`.
 
 ```js
 const __alice = new WebSocket("ws://localhost:3001?username=Alice");
