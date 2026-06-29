@@ -653,6 +653,7 @@ const __handlerSrc = (method, path) => {
   return __fn ? __b.generateCode(__fn) : null;
 };
 const __mockRes = () => ({
+  send() {},
   statusCode: 200,
   status(code) {
     this.statusCode = code;
@@ -769,6 +770,7 @@ const __handlerSrc = (method, path) => {
   return __fn ? __b.generateCode(__fn) : null;
 };
 const __mockRes = () => ({
+  send() {},
   statusCode: 200,
   status(code) {
     this.statusCode = code;
@@ -865,6 +867,7 @@ const __handlerSrc = (method, path) => {
   return __fn ? __b.generateCode(__fn) : null;
 };
 const __mockRes = () => ({
+  send() {},
   statusCode: 200,
   status(code) {
     this.statusCode = code;
@@ -974,6 +977,7 @@ const __handlerSrc = (method, path) => {
   return __fn ? __b.generateCode(__fn) : null;
 };
 const __mockRes = () => ({
+  send() {},
   statusCode: 200,
   status(code) {
     this.statusCode = code;
@@ -1064,6 +1068,7 @@ const __handlerSrc = (method, path) => {
   return __fn ? __b.generateCode(__fn) : null;
 };
 const __mockRes = () => ({
+  send() {},
   statusCode: 200,
   status(code) {
     this.statusCode = code;
@@ -1240,6 +1245,7 @@ const __authenticateSrc = () => {
   return __fn ? __b.generateCode(__fn) : null;
 };
 const __mockRes = () => ({
+  send() {},
   statusCode: 200,
   status(code) {
     this.statusCode = code;
@@ -1353,6 +1359,7 @@ const __authenticateSrc = () => {
   return __fn ? __b.generateCode(__fn) : null;
 };
 const __mockRes = () => ({
+  send() {},
   statusCode: 200,
   status(code) {
     this.statusCode = code;
@@ -1453,6 +1460,7 @@ const __handlerSrc = (method, path) => {
   return __fn ? __b.generateCode(__fn) : null;
 };
 const __mockRes = () => ({
+  send() {},
   statusCode: 200,
   status(code) {
     this.statusCode = code;
@@ -1592,6 +1600,7 @@ const __authenticateSrc = () => {
   return __fn ? __b.generateCode(__fn) : null;
 };
 const __mockRes = () => ({
+  send() {},
   statusCode: 200,
   status(code) {
     this.statusCode = code;
@@ -1675,6 +1684,7 @@ const __handlerSrc = (method, path) => {
   return __fn ? __b.generateCode(__fn) : null;
 };
 const __mockRes = () => ({
+  send() {},
   statusCode: 200,
   status(code) {
     this.statusCode = code;
@@ -1763,7 +1773,7 @@ The returned middleware should reject a mismatched role with `403` and call `nex
 ```js
 const { join } = await import("path");
 const __mockRes = () => {
-  const r = { statusCode: 200 };
+  const r = { statusCode: 200, send: () => {} };
   r.status = (c) => ((r.statusCode = c), r);
   r.json = (b) => ((r.body = b), r);
   return r;
@@ -1947,6 +1957,7 @@ const __handlerSrc = (method, path) => {
   return __fn ? __b.generateCode(__fn) : null;
 };
 const __mockRes = () => ({
+  send() {},
   statusCode: 200,
   status(code) {
     this.statusCode = code;
@@ -2061,7 +2072,7 @@ const __fn = __errHandler?.arguments?.find(
 );
 const __fnSrc = __b.generateCode(__fn);
 const __mockRes = () => {
-  const r = { statusCode: 200 };
+  const r = { statusCode: 200, send: () => {} };
   r.status = (c) => ((r.statusCode = c), r);
   r.json = (b) => ((r.body = b), r);
   return r;
