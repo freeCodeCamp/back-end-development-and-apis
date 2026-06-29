@@ -641,15 +641,13 @@ const __route = (method, path) =>
     .getType("CallExpression")
     .find(
       (c) =>
-        c.callee?.property?.name === method &&
-        c.arguments?.[0]?.value === path,
+        c.callee?.property?.name === method && c.arguments?.[0]?.value === path,
     );
 const __handlerSrc = (method, path) => {
   const __fn = __route(method, path)
     ?.arguments?.filter(
       (a) =>
-        a.type === "ArrowFunctionExpression" ||
-        a.type === "FunctionExpression",
+        a.type === "ArrowFunctionExpression" || a.type === "FunctionExpression",
     )
     .at(-1);
   return __fn ? __b.generateCode(__fn) : null;
@@ -759,15 +757,13 @@ const __route = (method, path) =>
     .getType("CallExpression")
     .find(
       (c) =>
-        c.callee?.property?.name === method &&
-        c.arguments?.[0]?.value === path,
+        c.callee?.property?.name === method && c.arguments?.[0]?.value === path,
     );
 const __handlerSrc = (method, path) => {
   const __fn = __route(method, path)
     ?.arguments?.filter(
       (a) =>
-        a.type === "ArrowFunctionExpression" ||
-        a.type === "FunctionExpression",
+        a.type === "ArrowFunctionExpression" || a.type === "FunctionExpression",
     )
     .at(-1);
   return __fn ? __b.generateCode(__fn) : null;
@@ -814,8 +810,6 @@ Once the user is saved, issue a token so they are logged in immediately after re
 
 Import `signToken` from `../utils/jwt.js`. Sign a token whose payload contains the new user's `id`, `email`, and `role`, then respond with status `201` and a JSON body containing a `message` and the `token`.
 
-Finally, wrap the whole handler body in a `try`/`catch`. In the `catch`, respond with status `500` and the error message.
-
 ### --tests--
 
 A successful registration should respond with status `201` and the signed token.
@@ -849,34 +843,6 @@ assert.equal(
 );
 ```
 
-An unexpected error should be caught and answered with status `500`.
-
-```js
-const __src = __handlerSrc("post", "/register");
-assert.exists(__src, 'Define the POST "/register" handler.');
-
-const findByEmail = () => null;
-const readUsers = () => [];
-const writeUsers = () => {
-  throw new Error("disk failure");
-};
-const signToken = () => "signed.jwt.token";
-const bcrypt = { hash: async () => "HASHED_PW", compare: async () => true };
-const randomUUID = () => "uuid-1";
-const register = eval(`(${__src})`);
-
-const __res = __mockRes();
-await register(
-  { body: { email: "new@user.com", password: "secret123" } },
-  __res,
-);
-assert.equal(
-  __res.statusCode,
-  500,
-  "An error thrown while registering should be caught and respond with 500.",
-);
-```
-
 ### --before-each--
 
 ```js
@@ -887,15 +853,13 @@ const __route = (method, path) =>
     .getType("CallExpression")
     .find(
       (c) =>
-        c.callee?.property?.name === method &&
-        c.arguments?.[0]?.value === path,
+        c.callee?.property?.name === method && c.arguments?.[0]?.value === path,
     );
 const __handlerSrc = (method, path) => {
   const __fn = __route(method, path)
     ?.arguments?.filter(
       (a) =>
-        a.type === "ArrowFunctionExpression" ||
-        a.type === "FunctionExpression",
+        a.type === "ArrowFunctionExpression" || a.type === "FunctionExpression",
     )
     .at(-1);
   return __fn ? __b.generateCode(__fn) : null;
@@ -930,15 +894,11 @@ const token = signToken({
 res.status(201).json({ message: "User registered successfully", token });
 ```
 
-#### 3
-
-Wrap everything from reading `req.body` to sending the response in `try { ... } catch (err) { res.status(500).json({ message: err.message }); }`.
-
 ## 18
 
 ### --description--
 
-Add a `POST /login` route. Like `/register`, make the handler `async` and wrap its body in `try`/`catch` (respond with `500` on error).
+Add a `POST /login` route. Like `/register`, make the handler `async`.
 
 Read `email` and `password` from `req.body`, and respond with status `400` if either is missing.
 
@@ -1002,15 +962,13 @@ const __route = (method, path) =>
     .getType("CallExpression")
     .find(
       (c) =>
-        c.callee?.property?.name === method &&
-        c.arguments?.[0]?.value === path,
+        c.callee?.property?.name === method && c.arguments?.[0]?.value === path,
     );
 const __handlerSrc = (method, path) => {
   const __fn = __route(method, path)
     ?.arguments?.filter(
       (a) =>
-        a.type === "ArrowFunctionExpression" ||
-        a.type === "FunctionExpression",
+        a.type === "ArrowFunctionExpression" || a.type === "FunctionExpression",
     )
     .at(-1);
   return __fn ? __b.generateCode(__fn) : null;
@@ -1094,15 +1052,13 @@ const __route = (method, path) =>
     .getType("CallExpression")
     .find(
       (c) =>
-        c.callee?.property?.name === method &&
-        c.arguments?.[0]?.value === path,
+        c.callee?.property?.name === method && c.arguments?.[0]?.value === path,
     );
 const __handlerSrc = (method, path) => {
   const __fn = __route(method, path)
     ?.arguments?.filter(
       (a) =>
-        a.type === "ArrowFunctionExpression" ||
-        a.type === "FunctionExpression",
+        a.type === "ArrowFunctionExpression" || a.type === "FunctionExpression",
     )
     .at(-1);
   return __fn ? __b.generateCode(__fn) : null;
@@ -1485,15 +1441,13 @@ const __route = (method, path) =>
     .getType("CallExpression")
     .find(
       (c) =>
-        c.callee?.property?.name === method &&
-        c.arguments?.[0]?.value === path,
+        c.callee?.property?.name === method && c.arguments?.[0]?.value === path,
     );
 const __handlerSrc = (method, path) => {
   const __fn = __route(method, path)
     ?.arguments?.filter(
       (a) =>
-        a.type === "ArrowFunctionExpression" ||
-        a.type === "FunctionExpression",
+        a.type === "ArrowFunctionExpression" || a.type === "FunctionExpression",
     )
     .at(-1);
   return __fn ? __b.generateCode(__fn) : null;
@@ -1709,15 +1663,13 @@ const __route = (method, path) =>
     .getType("CallExpression")
     .find(
       (c) =>
-        c.callee?.property?.name === method &&
-        c.arguments?.[0]?.value === path,
+        c.callee?.property?.name === method && c.arguments?.[0]?.value === path,
     );
 const __handlerSrc = (method, path) => {
   const __fn = __route(method, path)
     ?.arguments?.filter(
       (a) =>
-        a.type === "ArrowFunctionExpression" ||
-        a.type === "FunctionExpression",
+        a.type === "ArrowFunctionExpression" || a.type === "FunctionExpression",
     )
     .at(-1);
   return __fn ? __b.generateCode(__fn) : null;
@@ -1983,15 +1935,13 @@ const __route = (method, path) =>
     .getType("CallExpression")
     .find(
       (c) =>
-        c.callee?.property?.name === method &&
-        c.arguments?.[0]?.value === path,
+        c.callee?.property?.name === method && c.arguments?.[0]?.value === path,
     );
 const __handlerSrc = (method, path) => {
   const __fn = __route(method, path)
     ?.arguments?.filter(
       (a) =>
-        a.type === "ArrowFunctionExpression" ||
-        a.type === "FunctionExpression",
+        a.type === "ArrowFunctionExpression" || a.type === "FunctionExpression",
     )
     .at(-1);
   return __fn ? __b.generateCode(__fn) : null;
@@ -2058,6 +2008,101 @@ const __b = new __helpers.Babeliser(__file);
 ```
 
 ## 34
+
+### --description--
+
+Express v5 automatically forwards errors thrown inside `async` route handlers to the next error-handling middleware - no `try`/`catch` is needed in the route handlers themselves.
+
+Add the Express error handler to `index.js` **after** all route mounts.
+
+### --tests--
+
+`index.js` should register an error-handling middleware with `app.use`.
+
+```js
+const __errHandler = __b
+  .getType("CallExpression")
+  .filter(
+    (c) =>
+      c.callee?.property?.name === "use" && c.callee?.object?.name === "app",
+  )
+  .find((c) => {
+    const __fn = c.arguments?.find(
+      (a) =>
+        a.type === "ArrowFunctionExpression" || a.type === "FunctionExpression",
+    );
+    return __fn?.params?.length === 4;
+  });
+assert.exists(
+  __errHandler,
+  "Add an error-handling middleware to index.js with app.use((err, req, res, next) => {...}).",
+);
+```
+
+The error middleware should respond with status `500` and the error message.
+
+```js
+const __errHandler = __b
+  .getType("CallExpression")
+  .filter(
+    (c) =>
+      c.callee?.property?.name === "use" && c.callee?.object?.name === "app",
+  )
+  .find((c) => {
+    const __fn = c.arguments?.find(
+      (a) =>
+        a.type === "ArrowFunctionExpression" || a.type === "FunctionExpression",
+    );
+    return __fn?.params?.length === 4;
+  });
+const __fn = __errHandler?.arguments?.find(
+  (a) =>
+    a.type === "ArrowFunctionExpression" || a.type === "FunctionExpression",
+);
+const __fnSrc = __b.generateCode(__fn);
+const __mockRes = () => {
+  const r = { statusCode: 200 };
+  r.status = (c) => ((r.statusCode = c), r);
+  r.json = (b) => ((r.body = b), r);
+  return r;
+};
+const errHandler = eval(`(${__fnSrc})`);
+const __res = __mockRes();
+errHandler(new Error("test error"), {}, __res, () => {});
+assert.equal(
+  __res.statusCode,
+  500,
+  "The error middleware should respond with status 500.",
+);
+assert.equal(
+  __res.body?.message,
+  "test error",
+  "The error middleware should include the error message in the response.",
+);
+```
+
+### --before-each--
+
+```js
+const __file = await __helpers.getFile(project.dashedName, "index.js");
+const __b = new __helpers.Babeliser(__file);
+```
+
+### --hints--
+
+#### 1
+
+The four-parameter signature `(err, req, res, next)` is what Express uses to identify error-handling middleware. A regular middleware with three parameters would not receive errors.
+
+#### 2
+
+```js
+app.use((err, req, res, next) => {
+  res.status(err.status ?? 500).json({ message: err.message });
+});
+```
+
+## 35
 
 ### --description--
 
