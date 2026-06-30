@@ -1,5 +1,5 @@
 import { pluginEvents } from "@freecodecamp/freecodecamp-os/.freeCodeCamp/plugin/index.js";
-import { readdir, writeFile } from "node:fs/promises";
+import { readdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 pluginEvents.onTestsStart = async (project, testsState) => {};
@@ -8,7 +8,32 @@ pluginEvents.onTestsEnd = async (project, testsState) => {};
 
 pluginEvents.onProjectStart = async (project) => {};
 
-pluginEvents.onProjectFinished = async (project) => {};
+pluginEvents.onProjectFinished = async (project) => {
+  try {
+    const token = await readFile("config/token.txt", "utf-8");
+
+    // Send request to POST /coderoad-challenge-completed
+    // header: coderoad-user-token
+    // body: tutorialId: freeCodeCamp/{project_dashed_name}
+    const res = await fetch("https://api.freecodecamp.org/", {
+      method: "POST",
+      headers: {
+        "coderoad-user-token": token.trim(),
+      },
+      body: JSON.stringify({ tutorialId: project.dashedName }),
+    });
+
+    const r = await res.json();
+    if (r.type === "error") {
+      console.error(r);
+    }
+  } catch (e) {
+    console.error(e);
+    console.error(
+      "An error occurred saving progress when completing this project",
+    );
+  }
+};
 
 pluginEvents.onLessonFailed = async (project) => {};
 

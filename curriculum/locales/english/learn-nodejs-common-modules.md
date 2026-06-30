@@ -94,7 +94,7 @@ console.log(data); // <Buffer 48 65 6c 6c 6f ...>
 
 In `server.js`, call `fs.readFileSync` with the path `'assets/poem.txt'` and log the result to the console.
 
-Run the file with `node server.js` — you should see a raw `Buffer` printed, not a string.
+Run the file with `node server.js` - you should see a raw `Buffer` printed, not a string.
 
 ### --tests--
 
@@ -126,7 +126,7 @@ const { stdout } = await __helpers.getCommandOutput(
 assert.include(
   stdout,
   "<Buffer",
-  "Running `node server.js` should print a Buffer — make sure you are logging the result of `fs.readFileSync` without an encoding option",
+  "Running `node server.js` should print a Buffer - make sure you are logging the result of `fs.readFileSync` without an encoding option",
 );
 ```
 
@@ -158,7 +158,7 @@ console.log(data); // Hello, World!
 
 Update the `fs.readFileSync` call in `server.js` to pass `{ encoding: 'utf8' }` as the second argument.
 
-Run `node server.js` — the poem should now print as readable text instead of a Buffer.
+Run `node server.js` - the poem should now print as readable text instead of a Buffer.
 
 ### --tests--
 
@@ -190,7 +190,7 @@ const { stdout } = await __helpers.getCommandOutput(
 assert.notInclude(
   stdout,
   "<Buffer",
-  "The output should be a string, not a Buffer — make sure you passed the encoding option",
+  "The output should be a string, not a Buffer - make sure you passed the encoding option",
 );
 assert.include(
   stdout,
@@ -203,7 +203,7 @@ assert.include(
 
 ### --description--
 
-Another way to use `fs` is `fs.readFile`, which reads a file <dfn title="without blocking the event loop — other code can continue while the file is being read">asynchronously</dfn> using a <dfn title="a function passed as an argument that is called when the operation completes">callback</dfn>. The callback receives an error (or `null`) and the file data:
+Another way to use `fs` is `fs.readFile`, which reads a file <dfn title="without blocking the event loop - other code can continue while the file is being read">asynchronously</dfn> using a <dfn title="a function passed as an argument that is called when the operation completes">callback</dfn>. The callback receives an error (or `null`) and the file data:
 
 ```js
 fs.readFile("path/to/file.txt", { encoding: "utf8" }, (err, data) => {
@@ -256,7 +256,7 @@ const { stdout } = await __helpers.getCommandOutput(
 assert.include(
   stdout,
   "one by one",
-  "Running `node server.js` should print the poem — log the data inside the callback",
+  "Running `node server.js` should print the poem - log the data inside the callback",
 );
 ```
 
@@ -338,7 +338,7 @@ fs.writeFileSync("assets/output.txt", "Hello, World!");
 
 In `server.js`, use `fs.writeFileSync` to create the file `'assets/output.txt'` and write the string `'Hello, freeCodeCamp!'` to it.
 
-Run `node server.js` — the file should be created in the `assets/` directory.
+Run `node server.js` - the file should be created in the `assets/` directory.
 
 ### --tests--
 
@@ -385,7 +385,7 @@ assert.isTrue(
 fs.appendFileSync("assets/output.txt", "\nSecond line");
 ```
 
-In `server.js`, add a call to `fs.appendFileSync` below the existing `writeFileSync` call. Append a second line — any string of your choice — to `'assets/output.txt'`.
+In `server.js`, add a call to `fs.appendFileSync` below the existing `writeFileSync` call. Append a second line - any string of your choice - to `'assets/output.txt'`.
 
 Run `node server.js` to verify the file now has two lines.
 
@@ -461,7 +461,7 @@ console.log(exists); // true or false
 
 In `server.js`, call `fs.existsSync` with the path `'assets/output.txt'` and log the result to the console.
 
-Run `node server.js` — you should see `true` printed.
+Run `node server.js` - you should see `true` printed.
 
 ### --tests--
 
@@ -493,7 +493,7 @@ const { stdout } = await __helpers.getCommandOutput(
 assert.include(
   stdout,
   "true",
-  "Running `node server.js` should print `true` — make sure you are logging the result of `fs.existsSync`",
+  "Running `node server.js` should print `true` - make sure you are logging the result of `fs.existsSync`",
 );
 ```
 
@@ -533,7 +533,7 @@ console.log(entries); // [ 'output.txt', 'poem.txt' ]
 
 In `server.js`, call `fs.readdirSync` with the path `'assets'` and log the result.
 
-Run `node server.js` — you should see an array listing the files in the `assets/` directory.
+Run `node server.js` - you should see an array listing the files in the `assets/` directory.
 
 ### --tests--
 
@@ -598,7 +598,7 @@ console.log(exists);
 
 ### --description--
 
-The `Buffer` module is a global in Node.js — you do not need to `require` it. A `Buffer` represents a fixed-length sequence of raw bytes in memory. Create one from a string using `Buffer.from`:
+The `Buffer` module is a global in Node.js - you do not need to `require` it. A `Buffer` represents a fixed-length sequence of raw bytes in memory. Create one from a string using `Buffer.from`:
 
 ```js
 const buf = Buffer.from("Hello");
@@ -607,7 +607,7 @@ console.log(buf); // <Buffer 48 65 6c 6c 6f>
 
 In `server.js`, create a `Buffer` from the string `'Hello, Node!'` using `Buffer.from`, store it in a variable called `buf`, and log `buf` to the console.
 
-Run `node server.js` — you should see the raw byte values printed as a `Buffer`.
+Run `node server.js` - you should see the raw byte values printed as a `Buffer`.
 
 ### --tests--
 
@@ -735,7 +735,7 @@ console.log(buf); // <Buffer ab ab ab ab>
 
 In `server.js`, add a new `Buffer.alloc` call that allocates `8` bytes and fills them with `0xff`. Store it in a variable called `buf2` and log it.
 
-Run `node server.js` — you should see `<Buffer ff ff ff ff ff ff ff ff>`.
+Run `node server.js` - you should see `<Buffer ff ff ff ff ff ff ff ff>`.
 
 ### --tests--
 
@@ -781,7 +781,7 @@ In `server.js`, decode the following base64 string and log the result:
 ZnJlZUNvZGVDYW1w
 ```
 
-Run `node server.js` — you should see the decoded text printed.
+Run `node server.js` - you should see the decoded text printed.
 
 ### --tests--
 
@@ -814,7 +814,7 @@ assert.include(
 
 ### --description--
 
-The `crypto` module provides cryptographic functionality. One common use is hashing — transforming data into a fixed-length string that cannot be reversed. Use `crypto.createHash` to create a hash, `.update` to feed it data, and `.digest` to get the result:
+The `crypto` module provides cryptographic functionality. One common use is hashing - transforming data into a fixed-length string that cannot be reversed. Use `crypto.createHash` to create a hash, `.update` to feed it data, and `.digest` to get the result:
 
 ```js
 const crypto = require("crypto");
@@ -824,7 +824,7 @@ console.log(hash); // 2cf24dba...
 
 In `server.js`, require the `crypto` module and use `crypto.createHash('sha256')` to hash the string `'freeCodeCamp!'`. Log the result as a hex digest.
 
-Run `node server.js` — you should see a 64-character hexadecimal string.
+Run `node server.js` - you should see a 64-character hexadecimal string.
 
 ### --tests--
 
@@ -912,7 +912,7 @@ console.log(random); // e.g. 4f3a9c1b8e2d7a05
 
 In `server.js`, add a call to `crypto.randomBytes(16)` and log the result as a hex string.
 
-Run `node server.js` — you should see a 32-character random hex string on a new line.
+Run `node server.js` - you should see a 32-character random hex string on a new line.
 
 ### --tests--
 
@@ -946,7 +946,7 @@ assert.isDefined(
 
 ### --description--
 
-`crypto.randomUUID()` generates a <dfn title="a 128-bit identifier formatted as 32 hexadecimal digits grouped by hyphens">UUID version 4</dfn> — a universally unique identifier:
+`crypto.randomUUID()` generates a <dfn title="a 128-bit identifier formatted as 32 hexadecimal digits grouped by hyphens">UUID version 4</dfn> - a universally unique identifier:
 
 ```js
 const id = crypto.randomUUID();
@@ -955,7 +955,7 @@ console.log(id); // e.g. 110e8400-e29b-41d4-a716-446655440000
 
 In `server.js`, add a call to `crypto.randomUUID()` and log the result.
 
-Run `node server.js` — you should see a UUID printed on a new line.
+Run `node server.js` - you should see a UUID printed on a new line.
 
 ### --tests--
 
@@ -998,9 +998,9 @@ const os = require("os");
 
 In `server.js`, require the `os` module and log the following three values, each on its own line:
 
-- `os.platform()` — the operating system platform (e.g. `'linux'`, `'win32'`)
-- `os.arch()` — the CPU architecture (e.g. `'x64'`, `'arm'`)
-- `os.hostname()` — the hostname of the machine
+- `os.platform()` - the operating system platform (e.g. `'linux'`, `'win32'`)
+- `os.arch()` - the CPU architecture (e.g. `'x64'`, `'arm'`)
+- `os.hostname()` - the hostname of the machine
 
 Run `node server.js` to see the values for your system.
 
@@ -1096,13 +1096,13 @@ console.log(crypto.randomUUID());
 
 The `os` module also exposes memory and uptime information:
 
-- `os.totalmem()` — total system memory in bytes
-- `os.freemem()` — available memory in bytes
-- `os.uptime()` — system uptime in seconds
+- `os.totalmem()` - total system memory in bytes
+- `os.freemem()` - available memory in bytes
+- `os.uptime()` - system uptime in seconds
 
 In `server.js`, add `console.log` calls for each of the three values above.
 
-Run `node server.js` — you should now see six lines of output.
+Run `node server.js` - you should now see six lines of output.
 
 ### --tests--
 
@@ -1152,7 +1152,7 @@ console.log(os.cpus().length); // e.g. 8
 
 In `server.js`, add a `console.log` that prints the number of CPU cores using `os.cpus().length`.
 
-Run `node server.js` — a positive integer should appear at the end of the output.
+Run `node server.js` - a positive integer should appear at the end of the output.
 
 ### --tests--
 
@@ -1189,7 +1189,7 @@ assert.isAbove(__expectedCpus, 0, "The CPU count should be greater than 0");
 
 ### --description--
 
-The `path` module provides utilities for working with file and directory paths in a cross-platform way. Use `path.join` to build paths from segments — it inserts the correct separator (`/` on Unix, `\` on Windows) automatically:
+The `path` module provides utilities for working with file and directory paths in a cross-platform way. Use `path.join` to build paths from segments - it inserts the correct separator (`/` on Unix, `\` on Windows) automatically:
 
 ```js
 const path = require("path");
@@ -1199,7 +1199,7 @@ console.log(fullPath);
 
 In `server.js`, require the `path` module and use `path.join` to build a path from `__dirname`, `'assets'`, and `'poem.txt'`. Store the result in a variable called `filePath` and log it.
 
-Run `node server.js` — you should see an absolute path to `assets/poem.txt`.
+Run `node server.js` - you should see an absolute path to `assets/poem.txt`.
 
 ### --tests--
 
@@ -1302,13 +1302,13 @@ console.log(os.cpus().length);
 
 The `path` module has three useful methods for inspecting path components:
 
-- `path.basename(p)` — the last portion of a path (the filename)
-- `path.dirname(p)` — the directory portion of a path
-- `path.extname(p)` — the file extension, including the dot
+- `path.basename(p)` - the last portion of a path (the filename)
+- `path.dirname(p)` - the directory portion of a path
+- `path.extname(p)` - the file extension, including the dot
 
 In `server.js`, add `console.log` calls that pass `filePath` to each of the three methods above.
 
-Run `node server.js` — you should see the filename, directory, and extension printed on separate lines.
+Run `node server.js` - you should see the filename, directory, and extension printed on separate lines.
 
 ### --tests--
 
@@ -1358,7 +1358,7 @@ assert.include(
 
 `path.resolve` and `path.join` both build paths, but they behave differently when given `'..'` segments:
 
-- `path.join` simply concatenates the segments with the separator — it does not resolve the result to an absolute path on its own unless you start with an absolute segment like `__dirname`.
+- `path.join` simply concatenates the segments with the separator - it does not resolve the result to an absolute path on its own unless you start with an absolute segment like `__dirname`.
 - `path.resolve` always returns an absolute path, processing `'..'` segments against the current working directory.
 
 ```js
@@ -1394,7 +1394,7 @@ assert.match(
 );
 ```
 
-Running `server.js` should print two paths — one relative, one absolute.
+Running `server.js` should print two paths - one relative, one absolute.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
@@ -1433,7 +1433,7 @@ console.log(parts);
 
 In `server.js`, call `path.parse(filePath)` and log the result.
 
-Run `node server.js` — you should see an object with all five properties printed.
+Run `node server.js` - you should see an object with all five properties printed.
 
 ### --tests--
 
@@ -1476,15 +1476,15 @@ assert.include(
 
 ### --description--
 
-`process` is a global object in Node.js — you do not need to `require` it. It provides information about the current Node.js process:
+`process` is a global object in Node.js - you do not need to `require` it. It provides information about the current Node.js process:
 
-- `process.version` — the Node.js version string (e.g. `'v20.0.0'`)
-- `process.platform` — the operating system platform (e.g. `'linux'`)
-- `process.env` — an object containing environment variables; `process.env.NODE_ENV` is commonly used to detect the environment
+- `process.version` - the Node.js version string (e.g. `'v20.0.0'`)
+- `process.platform` - the operating system platform (e.g. `'linux'`)
+- `process.env` - an object containing environment variables; `process.env.NODE_ENV` is commonly used to detect the environment
 
 In `server.js`, log `process.version`, `process.platform`, and `process.env.NODE_ENV`, each on its own line.
 
-Run `node server.js` — you should see the version, platform, and `undefined` (or the value of `NODE_ENV` if set) printed.
+Run `node server.js` - you should see the version, platform, and `undefined` (or the value of `NODE_ENV` if set) printed.
 
 ### --tests--
 
@@ -1637,7 +1637,7 @@ process.stderr.write("Something went wrong\n");
 
 In `server.js`, add a call to `process.stdout.write` that writes `'Hello from stdout\n'` and a call to `process.stderr.write` that writes `'Hello from stderr\n'`.
 
-Run `node server.js` — both messages should appear in the terminal.
+Run `node server.js` - both messages should appear in the terminal.
 
 ### --tests--
 
@@ -1698,7 +1698,7 @@ readable.on("end", () => {
 
 In `server.js`, require `fs` and create a readable stream from `'assets/poem.txt'` with `encoding: 'utf8'`. Listen to the `data` and `end` events and log each chunk and a message when reading is complete.
 
-Run `node server.js` — the poem should print in chunks, followed by your end message.
+Run `node server.js` - the poem should print in chunks, followed by your end message.
 
 ### --tests--
 
@@ -1828,7 +1828,7 @@ writable.end();
 
 In `server.js`, create a writable stream pointing to `'assets/stream-output.txt'` and write at least two chunks of text to it, then call `.end()`.
 
-Run `node server.js` — the file `assets/stream-output.txt` should be created with your written content.
+Run `node server.js` - the file `assets/stream-output.txt` should be created with your written content.
 
 ### --tests--
 
@@ -1869,7 +1869,7 @@ assert.isTrue(
 
 ### --description--
 
-`readable.pipe(writable)` connects a readable stream directly to a writable stream — data flows from the source to the destination automatically without you having to handle `data` events manually:
+`readable.pipe(writable)` connects a readable stream directly to a writable stream - data flows from the source to the destination automatically without you having to handle `data` events manually:
 
 ```js
 const readable = fs.createReadStream("assets/poem.txt");
@@ -1879,7 +1879,7 @@ readable.pipe(writable);
 
 In `server.js`, remove the manual `.write` calls. Instead, create a readable stream from `'assets/poem.txt'` and a writable stream to `'assets/stream-output.txt'`, then pipe the readable into the writable.
 
-Run `node server.js` — `assets/stream-output.txt` should be overwritten with the contents of `poem.txt`.
+Run `node server.js` - `assets/stream-output.txt` should be overwritten with the contents of `poem.txt`.
 
 ### --tests--
 

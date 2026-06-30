@@ -39,10 +39,11 @@ In `index.js`, import Express using ESM syntax and assign it to a variable calle
 ```js
 assert.match(
   __file,
-  /import\s+express\s+from\s+['"]express['"]/, 
-  'You should import express using ESM syntax.',
+  /import\s+express\s+from\s+['"]express['"]/,
+  "You should import express using ESM syntax.",
 );
 ```
+
 `index.js` should call `express()` and assign the result to an `app` variable.
 
 ```js
@@ -379,7 +380,7 @@ app.listen(PORT, () => {
 
 ### --description--
 
-So far all your route paths have been static strings. Express also supports route parameters — placeholders prefixed with `:` that are captured and made available on `req.params`.
+So far all your route paths have been static strings. Express also supports route parameters - placeholders prefixed with `:` that are captured and made available on `req.params`.
 
 In `index.js`, add a `GET /api/greet/:name` route that reads the `:name` parameter from `req.params` and includes it somewhere in a JSON response.
 
@@ -609,7 +610,7 @@ app.listen(PORT, () => {
 
 ### --description--
 
-As your API grows, keeping all routes in `index.js` becomes unwieldy. Express provides `express.Router()` to create <dfn title="A mini Express application that handles a subset of routes and can be mounted at a path">modular routers</dfn> — self-contained route handlers that can be organised in separate files.
+As your API grows, keeping all routes in `index.js` becomes unwieldy. Express provides `express.Router()` to create <dfn title="A mini Express application that handles a subset of routes and can be mounted at a path">modular routers</dfn> - self-contained route handlers that can be organised in separate files.
 
 Create a new file called `weather.js` in the project directory. In it, import Express using ESM syntax and create a router by calling `express.Router()`, storing the result in a variable called `router`.
 
@@ -620,7 +621,7 @@ Create a new file called `weather.js` in the project directory. In it, import Ex
 ```js
 assert.match(
   __file,
-  /import\s+express\s+from\s+['"]express['"]/, 
+  /import\s+express\s+from\s+['"]express['"]/,
   "weather.js should import express using ESM syntax.",
 );
 ```
@@ -651,7 +652,7 @@ const __file = await __helpers.getFile(project.dashedName, "weather.js");
 
 ### --description--
 
-Now that you have a `router`, you can add routes to it just like you did with `app` — using `router.get()`, `router.post()`, and so on. Routes defined on a router are relative to wherever the router is eventually mounted.
+Now that you have a `router`, you can add routes to it just like you did with `app` - using `router.get()`, `router.post()`, and so on. Routes defined on a router are relative to wherever the router is eventually mounted.
 
 In `weather.js`, first define a `SUPPORTED_CITIES` array containing a list of city name strings (e.g. `'London'`, `'Tokyo'`). Then add a `GET /` route on the router that responds with the array using `res.json()`.
 
@@ -761,7 +762,7 @@ In `index.js`, import the router from `./weather.js` and mount it at `/api/weath
 ```js
 assert.match(
   __indexFile,
-  /import\s+weatherRouter\s+from\s+['"]\.\/weather\.js['"]/, 
+  /import\s+weatherRouter\s+from\s+['"]\.\/weather\.js['"]/,
   "index.js should import './weather.js'.",
 );
 ```
@@ -868,7 +869,7 @@ app.listen(PORT, () => {
 
 ### --description--
 
-The weather router is mounted and working. Now add a second route to it for fetching weather by city name. Route parameters work the same on a router as they do on `app` — prefix the segment with `:`:
+The weather router is mounted and working. Now add a second route to it for fetching weather by city name. Route parameters work the same on a router as they do on `app` - prefix the segment with `:`:
 
 ```js
 router.get("/:city", (req, res) => {
@@ -973,7 +974,7 @@ app.listen(PORT, () => {
 
 ### --description--
 
-Now replace the placeholder response in the `/:city` handler with a real <dfn title="A server-to-server HTTP request made from within your application">machine-to-machine fetch call</dfn>. Node.js has a built-in `fetch()` — mark the handler `async` and `await` the response:
+Now replace the placeholder response in the `/:city` handler with a real <dfn title="A server-to-server HTTP request made from within your application">machine-to-machine fetch call</dfn>. Node.js has a built-in `fetch()` - mark the handler `async` and `await` the response:
 
 ```js
 router.get("/:city", async (req, res) => {
@@ -1204,7 +1205,7 @@ assert.match(
 );
 ```
 
-Static files in `public/` should be served — `GET /index.html` should return a `200` with an HTML content-type.
+Static files in `public/` should be served - `GET /index.html` should return a `200` with an HTML content-type.
 
 ```js
 const __res = await fetch("http://localhost:3000/index.html");
@@ -1369,7 +1370,7 @@ app.listen(PORT, () => {
 
 ### --description--
 
-Your weather service API is almost complete! As a finishing touch, update the `GET /api/info` route to include an `endpoints` array in its response — a self-documenting list of the routes your API exposes:
+Your weather service API is almost complete! As a finishing touch, update the `GET /api/info` route to include an `endpoints` array in its response - a self-documenting list of the routes your API exposes:
 
 ```js
 app.get("/api/info", (req, res) => {
@@ -1381,7 +1382,7 @@ app.get("/api/info", (req, res) => {
 });
 ```
 
-In `index.js`, update the `GET /api/info` handler to include an `endpoints` array with at least one entry. Then restart your server and click _Run Tests_ to verify the complete API is working end-to-end. Congratulations — you have built a weather service API with Express!
+In `index.js`, update the `GET /api/info` handler to include an `endpoints` array with at least one entry. Then restart your server and click _Run Tests_ to verify the complete API is working end-to-end. Congratulations - you have built a weather service API with Express!
 
 ### --tests--
 
@@ -1411,7 +1412,7 @@ assert.isAbove(
 );
 ```
 
-The complete API should still serve weather data correctly — `GET /api/weather/London` should return `city`, `temperature`, and `description`.
+The complete API should still serve weather data correctly - `GET /api/weather/London` should return `city`, `temperature`, and `description`.
 
 ```js
 const __res = await fetch("http://localhost:3000/api/weather/London");

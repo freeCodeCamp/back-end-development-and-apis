@@ -1,0 +1,17 @@
+{
+  "name": "auth-api",
+  "version": "1.0.0",
+  "description": "JWT Authentication API with social login and role-based authorization",
+  "main": "index.js",
+  "scripts": {
+    "start": "node --env-file .env index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "BSD-3-Clause",
+  "type": "module",
+  "dependencies": {
+    "express": "5.2.1",
+    "helmet": "8.2.0"
+  }
+}
