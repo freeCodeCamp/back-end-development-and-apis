@@ -1006,7 +1006,7 @@ When they match, sign a token containing the user's `id`, `email`, and `role`, t
 
 ### --tests--
 
-A wrong password should respond with `401`, and a correct password should respond with the signed token.
+A wrong password should respond with `401`, and a correct password should respond with the signed token and `200`.
 
 ```js
 const __src = __handlerSrc("post", "/login");
@@ -1043,6 +1043,11 @@ assert.equal(
   __ok.body?.token,
   "login.token",
   "A successful login should respond with the signed token.",
+);
+assert.equal(
+  __ok.statusCode,
+  200,
+  "A successful login should respond with status 200.",
 );
 ```
 
@@ -1863,6 +1868,10 @@ In `routes/admin.js`:
 - Create a `router` with `express.Router()` and export it as the default export.
 - Add a `GET /users` route guarded by both `authenticate` and `authorizeRole("admin")`. The handler should map over `readUsers()` to **strip the `passwordHash`** from every user, then respond with `{ users }`.
 
+### --hints--
+
+#### 0
+
 To remove a property while keeping the rest, destructure it out:
 
 ```js
@@ -2024,7 +2033,7 @@ const __b = new __helpers.Babeliser(__file);
 
 Express v5 automatically forwards errors thrown inside `async` route handlers to the next error-handling middleware - no `try`/`catch` is needed in the route handlers themselves.
 
-Add the Express error handler to `index.js` **after** all route mounts.
+Add an Express error handler to `index.js` **after** all route mounts that responds with the error status or `500`, and the error message as `{ "error": err.message }`.
 
 ### --tests--
 
@@ -2050,7 +2059,7 @@ assert.exists(
 );
 ```
 
-The error middleware should respond with status `500` and the error message.
+The error middleware should respond with status `500` and a JSON `{ "error": err.message }`.
 
 ```js
 const __errHandler = __b
@@ -2086,7 +2095,7 @@ assert.equal(
   "The error middleware should respond with status 500.",
 );
 assert.equal(
-  __res.body?.message,
+  __res.body?.error,
   "test error",
   "The error middleware should include the error message in the response.",
 );
@@ -2115,6 +2124,10 @@ app.use((err, req, res, next) => {
 
 ## 35
 
+```json
+{ "watch": [] }
+```
+
 ### --description--
 
 Your authentication API is complete. The `"start"` script loads `.env` with `node --env-file .env`, so `PORT` and `JWT_SECRET` are available. Start the server:
@@ -2123,7 +2136,7 @@ Your authentication API is complete. The `"start"` script loads `.env` with `nod
 npm start
 ```
 
-**NOTE:** Keep the server running, then click _Run Tests_. The tests exercise the full flow against `http://localhost:8080`:
+**NOTE:** Keep the server running, then click _Run Tests_. The tests exercise the full flow against `http://localhost:8800`:
 
 | Request                                  | Expected                             |
 | ---------------------------------------- | ------------------------------------ |
@@ -2300,7 +2313,7 @@ assert.equal(
 ### --before-each--
 
 ```js
-const __url = "http://localhost:8080/";
+const __url = "http://localhost:8800/";
 ```
 
 ### --hints--
