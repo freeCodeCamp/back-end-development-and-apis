@@ -1,4 +1,8 @@
 {
+  "name": "Back-End Development and APIs",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-24",
+  "remoteUser": "node",
+  "workspaceFolder": "/workspaces/back-end-development-and-apis",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -9,8 +13,5 @@
     }
   },
   "forwardPorts": [8080],
-  "workspaceFolder": "/workspace/back-end-development-and-apis",
-  "dockerFile": "../Dockerfile",
-  "context": "..",
-  "postCreateCommand": "node tooling/adjust-url.js"
+  "postCreateCommand": "npm ci && node tooling/adjust-url.js"
 }

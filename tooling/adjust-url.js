@@ -7,7 +7,7 @@ if (process.env.GITPOD_WORKSPACE_URL) {
     process.env.GITPOD_WORKSPACE_URL.split("https://")[1]
   }`;
 } else if (process.env.CODESPACE_NAME) {
-  PREVIEW_URL = `https://${process.env.CODESPACE_NAME}-8080.${GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}`;
+  PREVIEW_URL = `https://${process.env.CODESPACE_NAME}-8080.${process.env.GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN}`;
 }
 
 const VSCODE_SETTINGS_PATH = ".vscode/settings.json";
@@ -29,9 +29,8 @@ async function main() {
   );
 }
 
-try {
-  main();
-} catch (e) {
+main().catch((e) => {
   console.error("Unable to adjust .vscode/settings.json preview url setting:");
   console.error(e);
-}
+  process.exit(1);
+});
