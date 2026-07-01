@@ -59,3 +59,11 @@ You will learn Node.js WebSockets and real-time data streaming by building a sys
 ### 14. Build a Chat App
 
 Practice building a real-time multi-client chat server using Node.js WebSockets.
+
+### 15. Learn Auth by Building JWT Protected Routes
+
+You will learn JSON Web Token authentication and role-based authorization by building a secure Express API with register, login, logout, and protected routes.
+
+### 16. Build a Family Movie Watchlist API
+
+Practice authentication and authorization by building a family movie watchlist HTTP API.
