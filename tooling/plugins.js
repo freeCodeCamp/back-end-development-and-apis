@@ -15,13 +15,18 @@ pluginEvents.onProjectFinished = async (project) => {
     // Send request to POST /coderoad-challenge-completed
     // header: coderoad-user-token
     // body: tutorialId: freeCodeCamp/{project_dashed_name}
-    const res = await fetch("https://api.freecodecamp.org/", {
-      method: "POST",
-      headers: {
-        "coderoad-user-token": token.trim(),
+    const res = await fetch(
+      "https://api.freecodecamp.org/challenges/coderoad-challenge-completed",
+      {
+        method: "POST",
+        headers: {
+          "coderoad-user-token": token.trim(),
+        },
+        body: JSON.stringify({
+          tutorialId: "freeCodeCamp:" + project.dashedName,
+        }),
       },
-      body: JSON.stringify({ tutorialId: project.dashedName }),
-    });
+    );
 
     const r = await res.json();
     if (r.type === "error") {
