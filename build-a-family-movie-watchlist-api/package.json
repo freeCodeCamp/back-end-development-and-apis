@@ -1,0 +1,19 @@
+{
+  "name": "movie-api",
+  "version": "1.0.0",
+  "description": "Family movie watchlist API",
+  "main": "index.js",
+  "scripts": {
+    "start": "node --env-file .env index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "BSD-3-Clause",
+  "type": "module",
+  "dependencies": {
+    "bcryptjs": "3.0.3",
+    "jsonwebtoken": "9.0.3",
+    "express": "5.2.1",
+    "helmet": "8.2.0"
+  }
+}

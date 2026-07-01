@@ -180,5 +180,31 @@
     "blockingTests": true,
     "breakOnFailure": true,
     "numberOfLessons": 1
+  },
+  {
+    "id": 14,
+    "dashedName": "learn-auth-by-building-jwt-protected-routes",
+    "isIntegrated": false,
+    "isPublic": true,
+    "currentLesson": 0,
+    "runTestsOnWatch": true,
+    "seedEveryLesson": false,
+    "isResetEnabled": false,
+    "blockingTests": null,
+    "breakOnFailure": null,
+    "numberOfLessons": 36
+  },
+  {
+    "id": 15,
+    "dashedName": "build-a-family-movie-watchlist-api",
+    "isIntegrated": true,
+    "isPublic": true,
+    "currentLesson": 0,
+    "runTestsOnWatch": false,
+    "seedEveryLesson": false,
+    "isResetEnabled": false,
+    "blockingTests": true,
+    "breakOnFailure": true,
+    "numberOfLessons": 1
   }
 ]
