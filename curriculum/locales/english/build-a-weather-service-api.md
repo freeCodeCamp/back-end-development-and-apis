@@ -1,4 +1,4 @@
-# Learn Express by Building a Weather Service API
+# Build a Weather Service API
 
 You will learn route parameters and modular routing with `express.Router` by building a weather service API.
 
@@ -8,11 +8,11 @@ You will learn route parameters and modular routing with `express.Router` by bui
 
 In this project, you will build a weather service API with <dfn title="Express.js is a minimal and flexible Node.js web application framework">Express</dfn>. Along the way you will learn routing, route parameters, response methods, chainable route handlers, modular routing with `express.Router`, and serving static files.
 
-Open a new terminal and run `cd learn-express-by-building-a-weather-service-api` to navigate into the project directory.
+Open a new terminal and run `cd build-a-weather-service-api` to navigate into the project directory.
 
 ### --tests--
 
-You should be in the `learn-express-by-building-a-weather-service-api` directory.
+You should be in the `build-a-weather-service-api` directory.
 
 ```js
 const __cwd = await __helpers.getLastCWD();
@@ -20,7 +20,7 @@ const __dirRegex = new RegExp(`${project.dashedName}/?$`);
 assert.match(
   __cwd,
   __dirRegex,
-  "You should be in the 'learn-express-by-building-a-weather-service-api' directory.",
+  "You should be in the 'build-a-weather-service-api' directory.",
 );
 ```
 
@@ -125,7 +125,7 @@ const __file = await __helpers.getFile(project.dashedName, "index.js");
 
 ### --seed--
 
-#### --"learn-express-by-building-a-weather-service-api/index.js"--
+#### --"build-a-weather-service-api/index.js"--
 
 ```js
 import express from "express";
@@ -177,7 +177,7 @@ assert.property(
 
 ### --seed--
 
-#### --"learn-express-by-building-a-weather-service-api/index.js"--
+#### --"build-a-weather-service-api/index.js"--
 
 ```js
 import express from "express";
@@ -229,7 +229,7 @@ assert.isAbove(
 
 ### --seed--
 
-#### --"learn-express-by-building-a-weather-service-api/index.js"--
+#### --"build-a-weather-service-api/index.js"--
 
 ```js
 import express from "express";
@@ -283,7 +283,7 @@ assert.property(
 
 ### --seed--
 
-#### --"learn-express-by-building-a-weather-service-api/index.js"--
+#### --"build-a-weather-service-api/index.js"--
 
 ```js
 import express from "express";
@@ -351,7 +351,7 @@ assert.property(
 
 ### --seed--
 
-#### --"learn-express-by-building-a-weather-service-api/index.js"--
+#### --"build-a-weather-service-api/index.js"--
 
 ```js
 import express from "express";
@@ -421,7 +421,7 @@ assert.match(
 
 ### --seed--
 
-#### --"learn-express-by-building-a-weather-service-api/index.js"--
+#### --"build-a-weather-service-api/index.js"--
 
 ```js
 import express from "express";
@@ -492,7 +492,7 @@ assert.include(
 
 ### --seed--
 
-#### --"learn-express-by-building-a-weather-service-api/index.js"--
+#### --"build-a-weather-service-api/index.js"--
 
 ```js
 import express from "express";
@@ -568,7 +568,7 @@ assert.include(
 
 ### --seed--
 
-#### --"learn-express-by-building-a-weather-service-api/index.js"--
+#### --"build-a-weather-service-api/index.js"--
 
 ```js
 import express from "express";
@@ -698,7 +698,7 @@ const __file = await __helpers.getFile(project.dashedName, "weather.js");
 
 ### --seed--
 
-#### --"learn-express-by-building-a-weather-service-api/weather.js"--
+#### --"build-a-weather-service-api/weather.js"--
 
 ```js
 import express from "express";
@@ -728,7 +728,7 @@ assert.match(
 
 ### --seed--
 
-#### --"learn-express-by-building-a-weather-service-api/weather.js"--
+#### --"build-a-weather-service-api/weather.js"--
 
 ```js
 import express from "express";
@@ -801,7 +801,7 @@ const __indexFile = await __helpers.getFile(project.dashedName, "index.js");
 
 ### --seed--
 
-#### --"learn-express-by-building-a-weather-service-api/weather.js"--
+#### --"build-a-weather-service-api/weather.js"--
 
 ```js
 import express from "express";
@@ -822,7 +822,7 @@ router.get("/", (req, res) => {
 export default router;
 ```
 
-#### --"learn-express-by-building-a-weather-service-api/index.js"--
+#### --"build-a-weather-service-api/index.js"--
 
 ```js
 import express from "express";
@@ -924,7 +924,7 @@ const __file = await __helpers.getFile(project.dashedName, "weather.js");
 
 ### --seed--
 
-#### --"learn-express-by-building-a-weather-service-api/index.js"--
+#### --"build-a-weather-service-api/index.js"--
 
 ```js
 import express from "express";
@@ -1038,7 +1038,7 @@ assert.property(
 
 ### --seed--
 
-#### --"learn-express-by-building-a-weather-service-api/weather.js"--
+#### --"build-a-weather-service-api/weather.js"--
 
 ```js
 import express from "express";
@@ -1133,7 +1133,7 @@ assert.property(
 
 ### --seed--
 
-#### --"learn-express-by-building-a-weather-service-api/weather.js"--
+#### --"build-a-weather-service-api/weather.js"--
 
 ```js
 import express from "express";
@@ -1224,7 +1224,7 @@ assert.include(
 
 ### --seed--
 
-#### --"learn-express-by-building-a-weather-service-api/index.js"--
+#### --"build-a-weather-service-api/index.js"--
 
 ```js
 import express from "express";
@@ -1315,7 +1315,7 @@ assert.include(
 
 ### --seed--
 
-#### --"learn-express-by-building-a-weather-service-api/index.js"--
+#### --"build-a-weather-service-api/index.js"--
 
 ```js
 import express from "express";
@@ -1441,7 +1441,7 @@ assert.property(
 
 ### --seed--
 
-#### --"learn-express-by-building-a-weather-service-api/index.js"--
+#### --"build-a-weather-service-api/index.js"--
 
 ```js
 import express from "express";

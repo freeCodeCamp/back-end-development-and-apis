@@ -16,20 +16,20 @@
     "package.json": false,
     "README.md": false,
     "build-a-timestamp-microservice": false,
-    "learn-nodejs-by-building-a-web-server": false,
+    "build-a-web-server": false,
     "learn-nodejs-repl": false,
-    "learn-how-to-build-an-npm-module": false,
+    "build-a-case-converter": false,
     "build-a-prime-number-checker-module": false,
-    "learn-nodejs-common-modules": false,
-    "learn-express-by-building-a-random-joke-app": false,
+    "build-a-file-processor": false,
+    "build-a-random-joke-app": false,
     "build-a-personal-profile-app": false,
-    "learn-express-middleware-by-building-a-submission-form": false,
+    "build-a-submission-form": false,
     "build-a-data-sanitizer": false,
-    "learn-express-by-building-a-weather-service-api": false,
-    "learn-error-handling-in-express-by-building-a-bank-api": false,
-    "learn-websockets-by-building-a-resource-monitor": false,
+    "build-a-weather-service-api": false,
+    "build-a-bank-api": false,
+    "build-a-resource-monitor": false,
     "build-a-chat-app": false,
-    "learn-auth-by-building-jwt-protected-routes": false
+    "build-jwt-protected-routes": false
   },
   "freecodecamp-courses.autoStart": false,
   "freecodecamp-courses.prepare": "touch $(pwd)/.logs/.freecodecamp-os-lockfile",
@@ -46,7 +46,10 @@
   "terminal.integrated.defaultProfile.linux": "bash",
   "terminal.integrated.profiles.linux": {
     "bash": {
-      "args": ["--init-file", "./bash/sourcerer.sh"],
+      "args": [
+        "--init-file",
+        "./bash/sourcerer.sh"
+      ],
       "icon": "terminal-bash",
       "path": "bash"
     }

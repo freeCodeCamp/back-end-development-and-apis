@@ -1,4 +1,4 @@
-# Learn Express Middleware by Building a Submission Form
+# Build a Submission Form
 
 You will learn application-level and router-level middleware by building a structured submission form.
 
@@ -12,13 +12,13 @@ Open a new terminal and navigate into the project directory.
 
 ### --tests--
 
-The terminal working directory should include `learn-express-middleware-by-building-a-submission-form`.
+The terminal working directory should include `build-a-submission-form`.
 
 ```js
 const __cwd = await __helpers.getLastCWD();
 assert.include(
   __cwd,
-  "learn-express-middleware-by-building-a-submission-form",
+  "build-a-submission-form",
   "Change into the project directory first.",
 );
 ```

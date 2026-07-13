@@ -1,5 +1,5 @@
 {
-  "name": "learn-error-handling-in-express-by-building-a-bank-api",
+  "name": "build-a-bank-api",
   "version": "0.0.1",
   "description": "Learn error handling in Express by building a Bank API",
   "main": "server.js",

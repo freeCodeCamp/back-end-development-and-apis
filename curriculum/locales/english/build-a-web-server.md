@@ -1,4 +1,4 @@
-# Learn Nodejs by Building a Web Server
+# Build a Web Server
 
 You will learn the Node.js http module by building a web server to serve a multi-page client application.
 
@@ -8,13 +8,13 @@ You will learn the Node.js http module by building a web server to serve a multi
 
 In this project, you will use Nodejs' built-in `http` module to create a web server that serves a client application.
 
-For the duration of this project, you will be working within the `learn-nodejs-by-building-a-web-server/` directory.
+For the duration of this project, you will be working within the `build-a-web-server/` directory.
 
-Open a new terminal, and change into the `learn-nodejs-by-building-a-web-server/` directory.
+Open a new terminal, and change into the `build-a-web-server/` directory.
 
 ### --tests--
 
-You should be within the `learn-nodejs-by-building-a-web-server/` directory.
+You should be within the `build-a-web-server/` directory.
 
 ```js
 const cwd = await __helpers.getLastCWD();
@@ -31,7 +31,7 @@ Create a `server.js` file to house the server code.
 
 ### --tests--
 
-You should create a `learn-nodejs-by-building-a-web-server/server.js` file.
+You should create a `build-a-web-server/server.js` file.
 
 ```js
 const fileExists = await __helpers.fileExists(
@@ -62,7 +62,7 @@ assert.equal(http.compact, 'const http=require("http");');
 #### --cmd--
 
 ```bash
-touch learn-nodejs-by-building-a-web-server/server.js
+touch build-a-web-server/server.js
 ```
 
 ## 3
@@ -84,7 +84,7 @@ assert.equal(server.compact, "const server=http.createServer();");
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -116,7 +116,7 @@ assert.equal(response.name, "response");
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -143,7 +143,7 @@ assert.equal(server_listen.length, 1);
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -171,7 +171,7 @@ assert.equal(arg.value, 3001);
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -200,7 +200,7 @@ assert.isTrue(isListening, "The server is not listening on port 3001");
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -365,7 +365,7 @@ assert.include(args, "http://localhost:3001");
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -466,7 +466,7 @@ assert.include(args, "http://localhost:3001");
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -522,7 +522,7 @@ assert.include(temp, "curl http://localhost:3001/test-url");
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -579,7 +579,7 @@ assert.include(temp, "curl http://localhost:3001/hello");
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -660,7 +660,7 @@ assert.equal(ends.at(0).compact, 'response.end(url,"utf-8");');
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -740,7 +740,7 @@ assert.equal(filePathVar.compact, 'const filePath=join("public",url);');
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -774,7 +774,7 @@ assert.include(joinVar.compact, 'const{join}=require("path")');
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -828,7 +828,7 @@ assert.isBelow(filePathVar.ast.start, ends.at(0).ast.start);
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -862,7 +862,7 @@ assert.include(temp, "curl http://localhost:3001/index.html");
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -925,7 +925,7 @@ assert.include(readFileVar.compact, 'const{readFile}=require("fs")');
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -981,7 +981,7 @@ assert.equal(arg2.params[1].name, "file");
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -1033,7 +1033,7 @@ assert.include(rfcbTower.compact, "if(error){console.error(error);return;}");
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -1082,7 +1082,7 @@ assert.isTrue(
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -1124,7 +1124,7 @@ assert.include(temp, "curl http://localhost:3001/");
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -1218,7 +1218,7 @@ assert.include(temp, "curl http://localhost:3001/");
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -1313,7 +1313,7 @@ assert.notEqual(
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -1405,7 +1405,7 @@ assert.notEqual(
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -1521,7 +1521,7 @@ assert.notEqual(
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -1651,7 +1651,7 @@ assert.notEqual(
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -1817,7 +1817,7 @@ assert.equal(ext.compact, "const ext=extname(filePath);");
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -1881,7 +1881,7 @@ assert.equal(
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -1978,7 +1978,7 @@ assert.isTrue(
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -2041,7 +2041,7 @@ assert.isTrue(
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -2141,7 +2141,7 @@ assert.isTrue(
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -2232,7 +2232,7 @@ assert.isFalse(
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 const http = require("http");
@@ -2292,7 +2292,7 @@ assert.isFalse(
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 import http from "http";
@@ -2385,7 +2385,7 @@ assert.include(__args, "http://localhost:3001");
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/package.json"--
+#### --"build-a-web-server/package.json"--
 
 ```json
 {
@@ -2498,7 +2498,7 @@ When you are done, submit your project by entering `done` in the terminal.
 
 ### --seed--
 
-#### --"learn-nodejs-by-building-a-web-server/server.js"--
+#### --"build-a-web-server/server.js"--
 
 ```js
 import http from "http";

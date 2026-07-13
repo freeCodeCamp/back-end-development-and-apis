@@ -8,7 +8,7 @@ This curriculum teaches you how to build back end applications and APIs using No
 
 You will learn the Node.js REPL and command-line interface by exploring the runtime from the terminal.
 
-### 2. Learn How to Build an NPM Module
+### 2. Build a Case Converter
 
 You will learn how to initialize, configure, and publish an NPM module by building a case converter.
 
@@ -16,15 +16,15 @@ You will learn how to initialize, configure, and publish an NPM module by buildi
 
 Practice building and exporting an NPM module by creating a prime number checker.
 
-### 4. Learn Node.js Common Modules
+### 4. Build a File Processor
 
 You will learn Node.js built-in modules like `fs`, `path`, and `crypto` by using them for file operations and data processing.
 
-### 5. Learn Node.js by Building a Web Server
+### 5. Build a Web Server
 
 You will learn the Node.js `http` module by building a web server to serve a multi-page client application.
 
-### 6. Learn Express by Building a Random Joke App
+### 6. Build a Random Joke App
 
 You will learn basic Express routing and response methods by building a random joke app.
 
@@ -32,7 +32,7 @@ You will learn basic Express routing and response methods by building a random j
 
 Practice building an Express server and JSON API by creating a personal profile application.
 
-### 8. Learn Express Middleware by Building a Submission Form
+### 8. Build a Submission Form
 
 You will learn application-level and router-level middleware by building a structured submission form.
 
@@ -40,7 +40,7 @@ You will learn application-level and router-level middleware by building a struc
 
 Practice creating custom Express middleware by building a data sanitizer and validator.
 
-### 10. Learn Express by Building a Weather Service API
+### 10. Build a Weather Service API
 
 You will learn route parameters and modular routing with `express.Router` by building a weather service API.
 
@@ -48,11 +48,11 @@ You will learn route parameters and modular routing with `express.Router` by bui
 
 Practice building a RESTful API with date parsing logic by creating a timestamp microservice.
 
-### 12. Learn Error Handling in Express by Building a Bank API
+### 12. Build a Bank API
 
 You will learn Express 5 error handling, health checks, and graceful shutdowns by building a bank API.
 
-### 13. Learn WebSockets by Building a Resource Monitor
+### 13. Build a Resource Monitor
 
 You will learn Node.js WebSockets and real-time data streaming by building a system resource monitor.
 
@@ -60,7 +60,7 @@ You will learn Node.js WebSockets and real-time data streaming by building a sys
 
 Practice building a real-time multi-client chat server using Node.js WebSockets.
 
-### 15. Learn Auth by Building JWT Protected Routes
+### 15. Build JWT Protected Routes
 
 You will learn JSON Web Token authentication and role-based authorization by building a secure Express API with register, login, logout, and protected routes.
 
