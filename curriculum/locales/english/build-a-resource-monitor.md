@@ -1,4 +1,4 @@
-# Learn WebSockets by Building a Resource Monitor
+# Build a Resource Monitor
 
 You will learn Node.js WebSockets and real-time data streaming by building a system resource monitor.
 
@@ -11,18 +11,18 @@ In this project, you will build a live system resource monitor. A <dfn title="a 
 Open a new terminal and navigate into the project directory:
 
 ```bash
-cd learn-websockets-by-building-a-resource-monitor
+cd build-a-resource-monitor
 ```
 
 ### --tests--
 
-The terminal working directory should include `learn-websockets-by-building-a-resource-monitor`.
+The terminal working directory should include `build-a-resource-monitor`.
 
 ```js
 const __cwd = await __helpers.getLastCWD();
 assert.include(
   __cwd,
-  "learn-websockets-by-building-a-resource-monitor",
+  "build-a-resource-monitor",
   "Change into the project directory first.",
 );
 ```
@@ -171,7 +171,7 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --seed--
 
-#### --"learn-websockets-by-building-a-resource-monitor/server.js"--
+#### --"build-a-resource-monitor/server.js"--
 
 ```js
 
@@ -234,7 +234,7 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --seed--
 
-#### --"learn-websockets-by-building-a-resource-monitor/server.js"--
+#### --"build-a-resource-monitor/server.js"--
 
 ```js
 import http from "http";
@@ -294,7 +294,7 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --seed--
 
-#### --"learn-websockets-by-building-a-resource-monitor/server.js"--
+#### --"build-a-resource-monitor/server.js"--
 
 ```js
 import http from "http";
@@ -368,7 +368,7 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --seed--
 
-#### --"learn-websockets-by-building-a-resource-monitor/server.js"--
+#### --"build-a-resource-monitor/server.js"--
 
 ```js
 import http from "http";
@@ -448,7 +448,7 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --seed--
 
-#### --"learn-websockets-by-building-a-resource-monitor/server.js"--
+#### --"build-a-resource-monitor/server.js"--
 
 ```js
 import http from "http";
@@ -540,7 +540,7 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --seed--
 
-#### --"learn-websockets-by-building-a-resource-monitor/server.js"--
+#### --"build-a-resource-monitor/server.js"--
 
 ```js
 import http from "http";
@@ -639,7 +639,7 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --seed--
 
-#### --"learn-websockets-by-building-a-resource-monitor/server.js"--
+#### --"build-a-resource-monitor/server.js"--
 
 ```js
 import http from "http";
@@ -737,7 +737,7 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --seed--
 
-#### --"learn-websockets-by-building-a-resource-monitor/server.js"--
+#### --"build-a-resource-monitor/server.js"--
 
 ```js
 import http from "http";
@@ -868,7 +868,7 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --seed--
 
-#### --"learn-websockets-by-building-a-resource-monitor/server.js"--
+#### --"build-a-resource-monitor/server.js"--
 
 ```js
 import http from "http";
@@ -983,7 +983,7 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --seed--
 
-#### --"learn-websockets-by-building-a-resource-monitor/server.js"--
+#### --"build-a-resource-monitor/server.js"--
 
 ```js
 import http from "http";
@@ -1087,7 +1087,7 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --seed--
 
-#### --"learn-websockets-by-building-a-resource-monitor/server.js"--
+#### --"build-a-resource-monitor/server.js"--
 
 ```js
 import http from "http";
@@ -1194,7 +1194,7 @@ const __script = await __helpers.getFile(
 
 ### --seed--
 
-#### --"learn-websockets-by-building-a-resource-monitor/server.js"--
+#### --"build-a-resource-monitor/server.js"--
 
 ```js
 import http from "http";
@@ -1256,7 +1256,7 @@ server.listen(PORT, () => {
 });
 ```
 
-#### --"learn-websockets-by-building-a-resource-monitor/public/script.js"--
+#### --"build-a-resource-monitor/public/script.js"--
 
 ```js
 // Helper functions - pre-provided. Do not modify.
@@ -1345,7 +1345,7 @@ const __script = await __helpers.getFile(
 
 ### --seed--
 
-#### --"learn-websockets-by-building-a-resource-monitor/public/script.js"--
+#### --"build-a-resource-monitor/public/script.js"--
 
 ```js
 // Helper functions - pre-provided. Do not modify.
@@ -1458,7 +1458,7 @@ const __script = await __helpers.getFile(
 
 ### --seed--
 
-#### --"learn-websockets-by-building-a-resource-monitor/public/script.js"--
+#### --"build-a-resource-monitor/public/script.js"--
 
 ```js
 // Helper functions - pre-provided. Do not modify.
@@ -1553,7 +1553,7 @@ const __script = await __helpers.getFile(
 
 ### --seed--
 
-#### --"learn-websockets-by-building-a-resource-monitor/public/script.js"--
+#### --"build-a-resource-monitor/public/script.js"--
 
 ```js
 // Helper functions - pre-provided. Do not modify.
@@ -1650,7 +1650,7 @@ const __script = await __helpers.getFile(
 
 ### --seed--
 
-#### --"learn-websockets-by-building-a-resource-monitor/public/script.js"--
+#### --"build-a-resource-monitor/public/script.js"--
 
 ```js
 // Helper functions - pre-provided. Do not modify.

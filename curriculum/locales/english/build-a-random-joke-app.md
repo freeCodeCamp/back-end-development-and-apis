@@ -1,4 +1,4 @@
-# Learn Express by Building a Random Joke App
+# Build a Random Joke App
 
 You will learn basic Express routing and response methods by building a random joke app.
 
@@ -6,11 +6,11 @@ You will learn basic Express routing and response methods by building a random j
 
 ### --description--
 
-Open a new terminal and change to the project directory, `learn-express-by-building-a-random-joke-app`.
+Open a new terminal and change to the project directory, `build-a-random-joke-app`.
 
 ### --tests--
 
-You should run `cd learn-express-by-building-a-random-joke-app` in the terminal.
+You should run `cd build-a-random-joke-app` in the terminal.
 
 ```js
 const cwd = await __helpers.getLastCWD();
@@ -18,13 +18,13 @@ const dirRegex = new RegExp(`${project.dashedName}/?$`);
 assert.match(
   cwd,
   dirRegex,
-  "You should be in the 'learn-express-by-building-a-random-joke-app' directory.",
+  "You should be in the 'build-a-random-joke-app' directory.",
 );
 ```
 
 ### --seed--
 
-#### --"learn-express-by-building-a-random-joke-app/server.js"--
+#### --"build-a-random-joke-app/server.js"--
 
 ```js
 
@@ -53,7 +53,7 @@ assert.property(
 
 ### --seed--
 
-#### --"learn-express-by-building-a-random-joke-app/server.js"--
+#### --"build-a-random-joke-app/server.js"--
 
 ```js
 
@@ -140,7 +140,7 @@ assert.equal(
 
 ### --seed--
 
-#### --"learn-express-by-building-a-random-joke-app/server.js"--
+#### --"build-a-random-joke-app/server.js"--
 
 ```js
 
@@ -187,7 +187,7 @@ assert.isTrue(
 
 ### --seed--
 
-#### --"learn-express-by-building-a-random-joke-app/server.js"--
+#### --"build-a-random-joke-app/server.js"--
 
 ```js
 const express = require("express");
@@ -241,7 +241,7 @@ assert.equal(
 
 ### --seed--
 
-#### --"learn-express-by-building-a-random-joke-app/server.js"--
+#### --"build-a-random-joke-app/server.js"--
 
 ```js
 const express = require("express");
@@ -345,7 +345,7 @@ assert.isAbove(
 
 ### --seed--
 
-#### --"learn-express-by-building-a-random-joke-app/server.js"--
+#### --"build-a-random-joke-app/server.js"--
 
 ```js
 const express = require("express");
@@ -406,7 +406,7 @@ assert.equal(
 
 ### --seed--
 
-#### --"learn-express-by-building-a-random-joke-app/server.js"--
+#### --"build-a-random-joke-app/server.js"--
 
 ```js
 const express = require("express");

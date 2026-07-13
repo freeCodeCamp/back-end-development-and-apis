@@ -1,4 +1,4 @@
-# Learn Auth by Building JWT Protected Routes
+# Build JWT Protected Routes
 
 You will learn JSON Web Token authentication and role-based authorization by building a secure Express API with register, login, logout, and protected routes.
 
@@ -10,18 +10,18 @@ In this project, you will build an Express API that authenticates users with <df
 
 The project directory already contains a minimal server in `index.js` that mounts `helmet` and `express.json()`, plus a `package.json` and a `.env` file. You will build the data layer, token helpers, routes, and middleware around it.
 
-Open a new terminal and navigate into the `learn-auth-by-building-jwt-protected-routes` directory.
+Open a new terminal and navigate into the `build-jwt-protected-routes` directory.
 
 ### --tests--
 
-The terminal working directory should include `learn-auth-by-building-jwt-protected-routes`.
+The terminal working directory should include `build-jwt-protected-routes`.
 
 ```js
 const __cwd = await __helpers.getLastCWD();
 assert.include(
   __cwd,
   project.dashedName,
-  "Run `cd learn-auth-by-building-jwt-protected-routes`.",
+  "Run `cd build-jwt-protected-routes`.",
 );
 ```
 

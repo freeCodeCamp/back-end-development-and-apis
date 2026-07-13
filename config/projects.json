@@ -1,7 +1,7 @@
 [
   {
     "id": 0,
-    "dashedName": "learn-nodejs-repl",
+    "dashedName": "build-a-repl-logger",
     "isIntegrated": false,
     "isPublic": true,
     "currentLesson": 0,
@@ -14,7 +14,7 @@
   },
   {
     "id": 1,
-    "dashedName": "learn-how-to-build-an-npm-module",
+    "dashedName": "build-a-case-converter",
     "isIntegrated": false,
     "isPublic": true,
     "currentLesson": 0,
@@ -23,7 +23,7 @@
     "isResetEnabled": false,
     "blockingTests": null,
     "breakOnFailure": null,
-    "numberOfLessons": 44
+    "numberOfLessons": 45
   },
   {
     "id": 2,
@@ -40,7 +40,7 @@
   },
   {
     "id": 3,
-    "dashedName": "learn-nodejs-common-modules",
+    "dashedName": "build-a-file-processor",
     "isIntegrated": false,
     "isPublic": true,
     "currentLesson": 0,
@@ -49,11 +49,11 @@
     "isResetEnabled": false,
     "blockingTests": null,
     "breakOnFailure": null,
-    "numberOfLessons": 29
+    "numberOfLessons": 30
   },
   {
     "id": 4,
-    "dashedName": "learn-nodejs-by-building-a-web-server",
+    "dashedName": "build-a-web-server",
     "isIntegrated": false,
     "isPublic": true,
     "currentLesson": 0,
@@ -62,11 +62,11 @@
     "isResetEnabled": false,
     "blockingTests": false,
     "breakOnFailure": false,
-    "numberOfLessons": 59
+    "numberOfLessons": 60
   },
   {
     "id": 5,
-    "dashedName": "learn-express-by-building-a-random-joke-app",
+    "dashedName": "build-a-random-joke-app",
     "isIntegrated": false,
     "isPublic": true,
     "currentLesson": 0,
@@ -75,7 +75,7 @@
     "isResetEnabled": false,
     "blockingTests": null,
     "breakOnFailure": null,
-    "numberOfLessons": 7
+    "numberOfLessons": 8
   },
   {
     "id": 6,
@@ -92,7 +92,7 @@
   },
   {
     "id": 7,
-    "dashedName": "learn-express-middleware-by-building-a-submission-form",
+    "dashedName": "build-a-submission-form",
     "isIntegrated": false,
     "isPublic": true,
     "currentLesson": 0,
@@ -118,7 +118,7 @@
   },
   {
     "id": 9,
-    "dashedName": "learn-express-by-building-a-weather-service-api",
+    "dashedName": "build-a-weather-service-api",
     "isIntegrated": false,
     "isPublic": true,
     "currentLesson": 0,
@@ -144,7 +144,7 @@
   },
   {
     "id": 11,
-    "dashedName": "learn-error-handling-in-express-by-building-a-bank-api",
+    "dashedName": "build-a-bank-api",
     "isIntegrated": false,
     "isPublic": true,
     "currentLesson": 0,
@@ -157,7 +157,7 @@
   },
   {
     "id": 12,
-    "dashedName": "learn-websockets-by-building-a-resource-monitor",
+    "dashedName": "build-a-resource-monitor",
     "isIntegrated": false,
     "isPublic": true,
     "currentLesson": 0,
@@ -166,7 +166,7 @@
     "isResetEnabled": false,
     "blockingTests": null,
     "breakOnFailure": null,
-    "numberOfLessons": 19
+    "numberOfLessons": 20
   },
   {
     "id": 13,
@@ -183,7 +183,7 @@
   },
   {
     "id": 14,
-    "dashedName": "learn-auth-by-building-jwt-protected-routes",
+    "dashedName": "build-jwt-protected-routes",
     "isIntegrated": false,
     "isPublic": true,
     "currentLesson": 0,

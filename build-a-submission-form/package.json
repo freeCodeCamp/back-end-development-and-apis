@@ -1,11 +1,11 @@
 {
-  "name": "learn-websockets-by-building-a-resource-monitor",
+  "name": "build-a-submission-form",
   "version": "0.0.1",
   "description": "",
   "main": "server.js",
   "scripts": {},
   "dependencies": {
-    "ws": "^8.18.2"
+    "express": "^5.1.0"
   },
   "keywords": ["node", "freecodecamp"],
   "license": "MIT",

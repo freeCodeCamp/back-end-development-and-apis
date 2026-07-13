@@ -138,7 +138,7 @@ if [ -z "$_FREECODECAMP_NO_LOG" ]; then
   # continues to flow through the existing tee redirect unchanged.
   node() {
       if [ $# -eq 0 ]; then
-          command node "$WD/learn-nodejs-repl/.repl-logger.js"
+          command node "$WD/build-a-repl-logger/.repl-logger.js"
       else
           command node "$@"
       fi

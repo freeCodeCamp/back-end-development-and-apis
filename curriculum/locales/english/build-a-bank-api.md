@@ -1,4 +1,4 @@
-# Learn Error Handling in Express by Building a Bank API
+# Build a Bank API
 
 You will learn Express 5 error handling, health checks, and graceful shutdowns by building a bank API.
 
@@ -11,19 +11,19 @@ In this project, you will build a <dfn title="Representational State Transfer">R
 To get started, open a new terminal and navigate into the project directory:
 
 ```bash
-cd learn-error-handling-in-express-by-building-a-bank-api
+cd build-a-bank-api
 ```
 
 ### --tests--
 
-The terminal should be in the `learn-error-handling-in-express-by-building-a-bank-api` directory.
+The terminal should be in the `build-a-bank-api` directory.
 
 ```js
 const __cwd = await __helpers.getLastCWD();
 assert.include(
   __cwd,
-  "learn-error-handling-in-express-by-building-a-bank-api",
-  "Make sure you have run `cd learn-error-handling-in-express-by-building-a-bank-api` in the terminal",
+  "build-a-bank-api",
+  "Make sure you have run `cd build-a-bank-api` in the terminal",
 );
 ```
 

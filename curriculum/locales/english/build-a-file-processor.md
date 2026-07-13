@@ -1,4 +1,4 @@
-# Learn Node.js Common Modules
+# Build a File Processor
 
 You will learn Node.js built-in modules like fs, path, and crypto by using them for file operations and data processing.
 
@@ -8,11 +8,11 @@ You will learn Node.js built-in modules like fs, path, and crypto by using them 
 
 In this project, you will learn about the set of <dfn title="built-in modules that are part of Node.js itself and do not need to be installed">core modules</dfn> Nodejs comes with.
 
-Open a new terminal and run `cd learn-nodejs-common-modules` to change into the project directory.
+Open a new terminal and run `cd build-a-file-processor` to change into the project directory.
 
 ### --tests--
 
-You should be in the `learn-nodejs-common-modules/` directory.
+You should be in the `build-a-file-processor/` directory.
 
 ```js
 const __cwd = await __helpers.getLastCWD();
@@ -75,7 +75,7 @@ assert.fail();
 
 ### --seed--
 
-#### --"learn-nodejs-common-modules/server.js"--
+#### --"build-a-file-processor/server.js"--
 
 ```js
 
@@ -138,7 +138,7 @@ assert.fail();
 
 ### --seed--
 
-#### --"learn-nodejs-common-modules/server.js"--
+#### --"build-a-file-processor/server.js"--
 
 ```js
 const fs = require("fs");
@@ -428,7 +428,7 @@ assert.isAbove(
 
 ### --seed--
 
-#### --"learn-nodejs-common-modules/server.js"--
+#### --"build-a-file-processor/server.js"--
 
 ```js
 const fs = require("fs");
@@ -499,7 +499,7 @@ assert.include(
 
 ### --seed--
 
-#### --"learn-nodejs-common-modules/server.js"--
+#### --"build-a-file-processor/server.js"--
 
 ```js
 const fs = require("fs");
@@ -571,7 +571,7 @@ assert.include(
 
 ### --seed--
 
-#### --"learn-nodejs-common-modules/server.js"--
+#### --"build-a-file-processor/server.js"--
 
 ```js
 const fs = require("fs");
@@ -638,7 +638,7 @@ assert.include(
 
 ### --seed--
 
-#### --"learn-nodejs-common-modules/server.js"--
+#### --"build-a-file-processor/server.js"--
 
 ```js
 const fs = require("fs");
@@ -866,7 +866,7 @@ assert.isDefined(
 
 ### --seed--
 
-#### --"learn-nodejs-common-modules/server.js"--
+#### --"build-a-file-processor/server.js"--
 
 ```js
 const fs = require("fs");
@@ -1052,7 +1052,7 @@ assert.isTrue(
 
 ### --seed--
 
-#### --"learn-nodejs-common-modules/server.js"--
+#### --"build-a-file-processor/server.js"--
 
 ```js
 const fs = require("fs");
@@ -1250,7 +1250,7 @@ assert.match(
 
 ### --seed--
 
-#### --"learn-nodejs-common-modules/server.js"--
+#### --"build-a-file-processor/server.js"--
 
 ```js
 const fs = require("fs");
@@ -1525,7 +1525,7 @@ assert.match(
 
 ### --seed--
 
-#### --"learn-nodejs-common-modules/server.js"--
+#### --"build-a-file-processor/server.js"--
 
 ```js
 const fs = require("fs");
@@ -1752,7 +1752,7 @@ assert.include(
 
 ### --seed--
 
-#### --"learn-nodejs-common-modules/server.js"--
+#### --"build-a-file-processor/server.js"--
 
 ```js
 const fs = require("fs");
@@ -1913,7 +1913,7 @@ assert.include(
 
 ### --seed--
 
-#### --"learn-nodejs-common-modules/server.js"--
+#### --"build-a-file-processor/server.js"--
 
 ```js
 const fs = require("fs");

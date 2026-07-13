@@ -1,5 +1,5 @@
 {
-  "name": "learn-nodejs-repl",
+  "name": "build-a-repl-logger",
   "version": "0.0.1",
   "description": "Learn the Node.js REPL and CLI flags",
   "main": "index.js",
