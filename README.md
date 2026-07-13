@@ -4,7 +4,7 @@ This curriculum teaches you how to build back end applications and APIs using No
 
 ## Projects
 
-### 1. Build a REPL Logger
+### 1. Learn Node.js REPL
 
 You will learn the Node.js REPL and command-line interface by exploring the runtime from the terminal.
 
