@@ -1,4 +1,4 @@
-# Build a REPL Logger
+# Learn Node.js REPL
 
 You will learn the Node.js REPL and command-line interface by exploring the runtime from the terminal.
 
@@ -8,18 +8,18 @@ You will learn the Node.js REPL and command-line interface by exploring the runt
 
 In this project, you will explore the <dfn title="Read-Eval-Print Loop">REPL</dfn> and command-line interface of Node.js - installing the runtime, running code with flags, and working interactively in the Node.js shell.
 
-Open a new terminal and run `cd build-a-repl-logger` to change into the project directory.
+Open a new terminal and run `cd learn-nodejs-repl` to change into the project directory.
 
 ### --tests--
 
-You should be in the `build-a-repl-logger/` directory.
+You should be in the `learn-nodejs-repl/` directory.
 
 ```js
 const __cwd = await __helpers.getLastCWD();
 assert.include(
   __cwd,
   project.dashedName,
-  "Run `cd build-a-repl-logger` to enter the project directory.",
+  "Run `cd learn-nodejs-repl` to enter the project directory.",
 );
 ```
 
@@ -270,7 +270,7 @@ assert.match(
 
 So far you have run JavaScript inline with flags. Now you will create a JavaScript file that Node.js can run directly.
 
-Use `echo` to create a `hello.js` file in the `build-a-repl-logger/` directory containing a `console.log` call:
+Use `echo` to create a `hello.js` file in the `learn-nodejs-repl/` directory containing a `console.log` call:
 
 ```bash
 echo "console.log('Hello from a file!')" > hello.js
@@ -286,7 +286,7 @@ You should have a `hello.js` file in the project directory.
 const __exists = await __helpers.fileExists(`${project.dashedName}/hello.js`);
 assert.isTrue(
   __exists,
-  "Create a `hello.js` file in the `build-a-repl-logger/` directory.",
+  "Create a `hello.js` file in the `learn-nodejs-repl/` directory.",
 );
 ```
 
@@ -331,7 +331,7 @@ assert.match(
 #### --cmd--
 
 ```bash
-echo "console.log('Hello from a file!')" > build-a-repl-logger/hello.js
+echo "console.log('Hello from a file!')" > learn-nodejs-repl/hello.js
 ```
 
 ## 10
@@ -375,7 +375,7 @@ assert.isNotEmpty(
 #### --cmd--
 
 ```bash
-echo "console.log('Hello from a file!')" > build-a-repl-logger/hello.js
+echo "console.log('Hello from a file!')" > learn-nodejs-repl/hello.js
 ```
 
 ## 11
