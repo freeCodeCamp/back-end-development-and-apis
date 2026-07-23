@@ -35,7 +35,7 @@ Run the following command to install Node.js:
 sudo apt install -y nodejs
 ```
 
-Node.js is already present in this environment, so the command will confirm it is up to date.
+Node.js is already present in this environment, so the command will not work as expected.
 
 ### --tests--
 
