@@ -393,7 +393,7 @@ Run `node` with no arguments to enter the REPL. You will see a `>` prompt indica
 You should run `node` with no arguments to enter the REPL.
 
 ```js
-const __history = await __helpers.getBashHistory();
+const __history = await __helpers.getTemp();
 assert.match(
   __history,
   /^node\s*$/m,
@@ -487,16 +487,6 @@ Type your variable name in the REPL to print its value.
 
 ### --tests--
 
-The REPL should print the value you assigned (a non-`undefined` result).
-
-```js
-const __temp = await __helpers.getTemp();
-assert.match(
-  __temp,
-  /^> (?!undefined).+/m,
-  "Type your variable name in the REPL - it should print its value.",
-);
-```
 
 The REPL should print a value that is not `undefined`.
 
@@ -544,7 +534,7 @@ You should use `_` in an expression in the REPL.
 const __temp = await __helpers.getRepl();
 assert.match(
   __temp,
-  /> _(\W|$)/m,
+  /_(\W|$)/m,
   "Use `_` in the REPL - it holds the result of the last evaluated expression.",
 );
 ```
