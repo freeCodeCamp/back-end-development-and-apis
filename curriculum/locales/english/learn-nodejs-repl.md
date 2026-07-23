@@ -123,7 +123,7 @@ assert.match(
 You can run JavaScript directly from the terminal without creating a file by using the `-e` (or `--eval`) flag. Whatever string you pass is evaluated as JavaScript code.
 
 ```bash
-node -e "console.log('Hello, Node!')"
+node -e "console.log('Hello, Node')"
 ```
 
 Use `node -e` to run any JavaScript expression that prints something to the terminal.
@@ -273,7 +273,7 @@ So far you have run JavaScript inline with flags. Now you will create a JavaScri
 Use `echo` to create a `hello.js` file in the `learn-nodejs-repl/` directory containing a `console.log` call:
 
 ```bash
-echo "console.log('Hello from a file!')" > hello.js
+echo "console.log('Hello from a file')" > hello.js
 ```
 
 You can write any message you like inside `console.log`.
@@ -331,7 +331,7 @@ assert.match(
 #### --cmd--
 
 ```bash
-echo "console.log('Hello from a file!')" > learn-nodejs-repl/hello.js
+echo "console.log('Hello from a file')" > learn-nodejs-repl/hello.js
 ```
 
 ## 10
@@ -375,7 +375,7 @@ assert.isNotEmpty(
 #### --cmd--
 
 ```bash
-echo "console.log('Hello from a file!')" > learn-nodejs-repl/hello.js
+echo "console.log('Hello from a file')" > learn-nodejs-repl/hello.js
 ```
 
 ## 11
