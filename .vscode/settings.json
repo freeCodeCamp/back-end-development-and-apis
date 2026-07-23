@@ -10,7 +10,6 @@
     "node_modules": false,
     "tooling": false,
     ".gitignore": false,
-    "Dockerfile": false,
     "freecodecamp.conf.json": false,
     "package-lock.json": false,
     "package.json": false,
@@ -31,7 +30,7 @@
     "build-a-chat-app": false,
     "build-jwt-protected-routes": false
   },
-  "freecodecamp-courses.autoStart": false,
+  "freecodecamp-courses.autoStart": true,
   "freecodecamp-courses.prepare": "touch $(pwd)/.logs/.freecodecamp-os-lockfile",
   "freecodecamp-courses.scripts.develop-course": "NODE_ENV=development npm run start",
   "freecodecamp-courses.scripts.run-course": "NODE_ENV=production npm run start",
@@ -46,10 +45,7 @@
   "terminal.integrated.defaultProfile.linux": "bash",
   "terminal.integrated.profiles.linux": {
     "bash": {
-      "args": [
-        "--init-file",
-        "./bash/sourcerer.sh"
-      ],
+      "args": ["--init-file", "./bash/sourcerer.sh"],
       "icon": "terminal-bash",
       "path": "bash"
     }
