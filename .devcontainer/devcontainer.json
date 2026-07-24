@@ -7,7 +7,7 @@
     "vscode": {
       "extensions": [
         "dbaeumer.vscode-eslint",
-        "freeCodeCamp.freecodecamp-courses@3.0.0",
+        "freeCodeCamp.freecodecamp-courses@3.0.1",
         "freeCodeCamp.freecodecamp-dark-vscode-theme"
       ]
     }
