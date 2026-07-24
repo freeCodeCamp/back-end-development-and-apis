@@ -18,17 +18,15 @@ Do not forget to restart your server for your code changes to take effect.
 
 **User Stories:**
 
-2. You should use Express to create an HTTP server that listens on port `3000`.
+1. You should use Express to create an HTTP server that listens on port `3000`.
 
-3. You should have a GET route for the root path `/` that sends the response `Welcome to Camper Bot's homepage!`.
+2. You should have a GET route for the root path `/` that sends the response `Welcome to Camper Bot's homepage!`.
 
-4. You should have a GET route for the `/hobbies` path that sends the response `I cycle, go boating, and play guitar.`.
+3. You should have a GET route for the `/hobbies` path that sends the response `I cycle, go boating, and play guitar.`.
 
-5. You should have a GET route for the `/skills` path that sends the response `JavaScript, Node.js, and Express.js!`.
+4. You should have a GET route for the `/skills` path that sends the response `JavaScript, Node.js, and Express.js!`.
 
-6. You should have a GET route for the `/api/profile` path that sends a JSON response with a `name` property set to `Camper Bot`, a `hobbies` property containing an array of strings `['cycling', 'boating', 'guitar']`, and a `skills` property containing an array of strings `['JavaScript', 'Node.js', 'Express.js']`.
-
-7. When the server starts listening, you should log the message `Personal Profile App running at http://localhost:3000` to the console.
+5. You should have a GET route for the `/api/profile` path that sends a JSON response with a `name` property set to `Camper Bot`, a `hobbies` property containing an array of strings `['cycling', 'boating', 'guitar']`, and a `skills` property containing an array of strings `['JavaScript', 'Node.js', 'Express.js']`.
 
 ### --tests--
 

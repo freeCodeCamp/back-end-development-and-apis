@@ -25,26 +25,45 @@ cd build-a-chat-app
 npm install
 ```
 
-In `server.js`, complete the following:
+Work within `server.js`.
 
-**1.** Create an HTTP server using `http.createServer` that reads `./public/index.html` and responds with status `200` and `Content-Type: text/html`. Store it in a variable named `server`.
+Once your server is running, open `http://localhost:3001` in a browser to use the chat UI.
 
-**2.** Create a `WebSocketServer` from the `ws` package, passing `{ server }` as the option, and store it in `wss`.
+**Objective:** Fulfill the user stories below and get all the tests to pass to complete the lab.
 
-**3.** Register a `'connection'` listener on `wss`. The listener receives the socket and the upgrade request as arguments: `wss.on('connection', (socket, req) => { ... })`. Inside:
+**User Stories:**
 
-- Parse the connecting client's username from the URL query string:
-  ```js
-  const username = new URL(req.url, "http://localhost").searchParams.get(
-    "username",
-  );
-  ```
-- Immediately broadcast a system message to **all** connected clients:
-  ```json
-  { "type": "system", "text": "<username> joined" }
-  ```
-- Register a `'message'` listener on `socket`. Parse the incoming JSON `{ username, text }` and broadcast `{ type: 'chat', username, text }` to **all** connected clients (including the sender).
-- Register a `'close'` listener on `socket`. Broadcast `{ type: 'system', text: '<username> left' }` to all remaining connected clients.
+1. You should create an HTTP server using `http.createServer` that reads `./public/index.html` and responds with status `200` and `Content-Type: text/html`. Store it in a variable named `server`.
+
+2. You should create a `WebSocketServer` from the `ws` package, passing `{ server }` as the option, and store it in a variable named `wss`.
+
+3. You should register a `'connection'` listener on `wss`. The listener receives the socket and the upgrade request as arguments: `wss.on('connection', (socket, req) => { ... })`.
+
+4. On connection, you should parse the connecting client's username from the URL query string:
+
+   ```js
+   const username = new URL(req.url, "http://localhost").searchParams.get(
+     "username",
+   );
+   ```
+
+   and immediately broadcast a system message to **all** connected clients:
+
+   ```json
+   { "type": "system", "text": "<username> joined" }
+   ```
+
+5. You should register a `'message'` listener on `socket` that parses the incoming JSON `{ username, text }` and broadcasts `{ type: 'chat', username, text }` to **all** connected clients (including the sender).
+
+6. You should register a `'close'` listener on `socket` that broadcasts `{ type: 'system', text: '<username> left' }` to all remaining connected clients.
+
+7. You should start the server by calling `server.listen(PORT, callback)`. The callback should log `Chat server running at http://localhost:3001`.
+
+**NOTE:** Click _Run Tests_ only after starting the server with `npm start`.
+
+### --hints--
+
+#### 0
 
 To broadcast to all connected clients, iterate over `wss.clients`:
 
@@ -55,16 +74,6 @@ wss.clients.forEach((client) => {
   }
 });
 ```
-
-**4.** Start the server by calling `server.listen(PORT, callback)`. The callback should log:
-
-```
-Chat server running at http://localhost:3001
-```
-
-Once your server is running, open `http://localhost:3001` in a browser to use the chat UI.
-
-**NOTE:** Click _Run Tests_ only after starting the server with `npm start`.
 
 ### --tests--
 

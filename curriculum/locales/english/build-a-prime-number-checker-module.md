@@ -16,7 +16,21 @@ A <dfn title="prime number">prime number</dfn> is a whole number greater than 1 
 
 Within an `index.js`, write a function named `isPrime` that takes a number as an argument and returns `true` if it is prime, or `false` otherwise. Then export `isPrime` using `module.exports`.
 
-Pass all the user stories below to complete the project.
+**Objective:** Fulfill the user stories below and get all the tests to pass to complete the lab.
+
+**User Stories:**
+
+1. You should have an `index.js` file.
+
+2. The project directory should be an npm package. Its `package.json` should have `name`, `version`, `description`, `keywords`, `license`, and `author` properties (all strings, with `keywords` an array), and a `type` property set to `commonjs`.
+
+3. Your `index.js` file should define a function named `isPrime`.
+
+4. Your `isPrime` function should be exported using `module.exports`.
+
+5. Calling `isPrime` with a prime number should return `true`.
+
+6. Calling `isPrime` with a non-prime number should return `false`.
 
 ### --tests--
 
