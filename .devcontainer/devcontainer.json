@@ -1,5 +1,5 @@
 {
-  "name": "Back-End Development and APIs",
+  "name": "Back End Development and APIs",
   "image": "mcr.microsoft.com/devcontainers/javascript-node:4-24",
   "remoteUser": "node",
   "workspaceFolder": "/workspaces/back-end-development-and-apis",
