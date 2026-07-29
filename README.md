@@ -16,11 +16,10 @@ Whether you are using **GitHub Codespaces**, **Ona**, or a **Local Dev Container
 
 ## Selecting & Switching Projects
 
-You do **not** need to create a new machine or environment to take another lab or workshop:
+You do **not** need to create a new machine or environment to take another lab or workshop. To start a new lab or switch projects:
 
-* To start a new lab or switch projects, click the **Home** or **Menu** icon in the **Simple Browser** tab.
-* Select any lab from the list (for example, *Build a Case Converter*, *Build a Prime Number Checker Module*).
-* The course runner will automatically switch instructions and tests to the new project while keeping your existing work safe.
+1. Click the **freeCodeCamp** logo in the **Simple Browser** tab.
+2. Select any lab from the list (for example, *Build a Case Converter*, *Build a Prime Number Checker Module*).
 
 ---
 
