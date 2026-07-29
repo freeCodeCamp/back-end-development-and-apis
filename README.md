@@ -2,6 +2,33 @@
 
 This curriculum teaches you how to build back end applications and APIs using Node.js and Express. You will work through guided lessons that introduce new concepts step by step, then apply what you have learnt in independent practice projects.
 
+---
+
+## Getting Started in VS Code
+
+Whether you are using **GitHub Codespaces**, **Ona**, or a **Local Dev Container**, follow these steps once your environment has finished loading:
+
+1. **Open the Command Palette**: Press `Ctrl+Shift+P` on Windows and Linux or `Cmd+Shift+P` on Mac.
+2. **Start the Course**: Search for and run `freeCodeCamp: Run Course`.
+3. **Select a Project**: The **Simple Browser** tab will open. Select your desired lab or workshop from the menu to start.
+
+---
+
+## Selecting & Switching Projects
+
+You do **not** need to create a new machine or environment to take another lab or workshop. To start a new lab or switch projects:
+
+1. Click the **freeCodeCamp** logo in the **Simple Browser** tab.
+2. Select any lab from the list (for example, *Build a Case Converter*, *Build a Prime Number Checker Module*).
+
+---
+
+## Troubleshooting & Tips
+
+* **Blank Screen on Launch:** Click the refresh icon in the top toolbar of the **Simple Browser** tab.
+* **Reopening the Course Tab:** If you accidentally close the course panel, re-run `freeCodeCamp: Run Course` from the Command Palette.
+* **Environment Loading:** If `freeCodeCamp: Run Course` isn't found immediately upon opening the workspace, wait a minute for VS Code extensions to finish initializing.
+
 ## Projects
 
 ### 1. Learn Node.js REPL
