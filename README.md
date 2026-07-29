@@ -1,4 +1,4 @@
-# Back End Development and APIs
+# Back End Development and APIs Certification
 
 This curriculum teaches you how to build back end applications and APIs using Node.js and Express. You will work through guided lessons that introduce new concepts step by step, then apply what you have learnt in independent practice projects.
 
