@@ -12,9 +12,10 @@ export async function getDir(path) {
   return dir;
 }
 
-export async function fileExists(path) {
+export async function fileExists(...path) {
   try {
-    await access(path, constants.F_OK);
+    const withRoot = join(ROOT, ...path);
+    await access(withRoot, constants.F_OK);
     return true;
   } catch {
     return false;

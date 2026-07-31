@@ -26,7 +26,7 @@ Within an `index.js`, write a function named `isPrime` that takes a number as an
 
 3. Your `index.js` file should define a function named `isPrime`.
 
-4. Your `isPrime` function should be exported using `module.exports`.
+4. Your `isPrime` function should be a **named export** using `module.exports`.
 
 5. Calling `isPrime` with a prime number should return `true`.
 
@@ -73,7 +73,7 @@ const __fn = __t.getFunction("isPrime");
 assert.isDefined(__fn, "index.js should define a function named isPrime");
 ```
 
-Your `isPrime` function should be exported using `module.exports`.
+Your `isPrime` function should a a named export using `module.exports`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "index.js");
