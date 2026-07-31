@@ -359,7 +359,21 @@ const file = await __helpers.getFile(
   project.dashedName,
   "case_converter/index.js",
 );
-assert.match(file, /function getUpperCase\(|getUpperCase\s*=\s*\(/);
+const babelisedCode = new __helpers.Babeliser(file);
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find((f) => f.id?.name === "getUpperCase");
+const functionVariable = babelisedCode.getVariableDeclarations().find((v) =>
+  v.declarations.some(
+    (d) =>
+      d.id?.name === "getUpperCase" &&
+      ["ArrowFunctionExpression", "FunctionExpression"].includes(d.init?.type),
+  ),
+);
+assert.exists(
+  functionDeclaration ?? functionVariable,
+  "A function named `getUpperCase` should exist",
+);
 ```
 
 The `getUpperCase` function should return an uppercase version of the string argument.
@@ -398,7 +412,21 @@ const file = await __helpers.getFile(
   project.dashedName,
   "case_converter/index.js",
 );
-assert.match(file, /function getLowerCase\(|getLowerCase\s*=\s*\(/);
+const babelisedCode = new __helpers.Babeliser(file);
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find((f) => f.id?.name === "getLowerCase");
+const functionVariable = babelisedCode.getVariableDeclarations().find((v) =>
+  v.declarations.some(
+    (d) =>
+      d.id?.name === "getLowerCase" &&
+      ["ArrowFunctionExpression", "FunctionExpression"].includes(d.init?.type),
+  ),
+);
+assert.exists(
+  functionDeclaration ?? functionVariable,
+  "A function named `getLowerCase` should exist",
+);
 ```
 
 The `getLowerCase` function should return a lowercase version of the string.
@@ -439,7 +467,21 @@ const file = await __helpers.getFile(
   project.dashedName,
   "case_converter/index.js",
 );
-assert.match(file, /function getSentenceCase\(|getSentenceCase\s*=\s*\(/);
+const babelisedCode = new __helpers.Babeliser(file);
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find((f) => f.id?.name === "getSentenceCase");
+const functionVariable = babelisedCode.getVariableDeclarations().find((v) =>
+  v.declarations.some(
+    (d) =>
+      d.id?.name === "getSentenceCase" &&
+      ["ArrowFunctionExpression", "FunctionExpression"].includes(d.init?.type),
+  ),
+);
+assert.exists(
+  functionDeclaration ?? functionVariable,
+  "A function named `getSentenceCase` should exist",
+);
 ```
 
 ### --seed--
@@ -534,7 +576,21 @@ const file = await __helpers.getFile(
   project.dashedName,
   "case_converter/index.js",
 );
-assert.match(file, /function getProperCase\(|getProperCase\s*=\s*\(/);
+const babelisedCode = new __helpers.Babeliser(file);
+const functionDeclaration = babelisedCode
+  .getFunctionDeclarations()
+  .find((f) => f.id?.name === "getProperCase");
+const functionVariable = babelisedCode.getVariableDeclarations().find((v) =>
+  v.declarations.some(
+    (d) =>
+      d.id?.name === "getProperCase" &&
+      ["ArrowFunctionExpression", "FunctionExpression"].includes(d.init?.type),
+  ),
+);
+assert.exists(
+  functionDeclaration ?? functionVariable,
+  "A function named `getProperCase` should exist",
+);
 ```
 
 ### --seed--
