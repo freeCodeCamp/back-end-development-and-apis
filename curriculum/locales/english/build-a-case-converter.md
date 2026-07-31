@@ -41,7 +41,7 @@ assert.include(dir, "case_converter");
 #### --cmd--
 
 ```bash
-cd build-a-case-converter && rm -r .
+cd build-a-case-converter && rm -rf case_converter
 ```
 
 ## 2
