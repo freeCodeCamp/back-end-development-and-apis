@@ -44,6 +44,7 @@ pluginEvents.onProjectFinished = async (project) => {
 pluginEvents.onLessonFailed = async (project) => {};
 
 pluginEvents.onLessonPassed = async (project) => {
+  if (project.id === 1) return;
   await resetLogs();
 };
 
