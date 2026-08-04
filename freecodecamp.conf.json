@@ -34,7 +34,8 @@
       "/target/",
       ".vscode",
       "freecodecamp.conf.json",
-      "__test"
+      "__test",
+      "build-a-file-processor/assets/"
     ]
   },
   "tooling": {
