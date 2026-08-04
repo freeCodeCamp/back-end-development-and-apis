@@ -70,7 +70,8 @@ assert.include(
 You should run `node server.js` to see the console output.
 
 ```js
-assert.fail();
+const __history = await __helpers.getBashHistory();
+assert.match(__history, /node\s+server\.js\, "Call `node server.js` from `build-a-file-processor/`");
 ```
 
 ### --seed--
@@ -133,7 +134,8 @@ assert.include(
 You should run `node server.js` to see the console output.
 
 ```js
-assert.fail();
+const __history = await __helpers.getBashHistory();
+assert.match(__history, /node\s+server\.js\, "Call `node server.js` from `build-a-file-processor/`");
 ```
 
 ### --seed--
