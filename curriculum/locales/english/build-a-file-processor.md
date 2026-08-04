@@ -43,12 +43,14 @@ Run the file with `node server.js` in the terminal to see the full API surface o
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-const __t = new __helpers.Tower(__file);
-const __fs = __t.getVariable("fs");
-assert.isDefined(__fs, "You should declare a variable called `fs`");
-assert.match(
-  __fs.compact,
-  /require\(["']fs["']\)/,
+const __i = new __helpers.Inspector(__file);
+assert.isDefined(
+  __i.getDeclarator("fs"),
+  "You should declare a variable called `fs`",
+);
+assert.include(
+  ["fs", "node:fs"],
+  __i.getRequiredModule("fs"),
   'You should assign `require("fs")` to `fs`',
 );
 ```
@@ -71,7 +73,11 @@ You should run `node server.js` to see the console output.
 
 ```js
 const __history = await __helpers.getBashHistory();
-assert.match(__history, /node\s+server\.js\, "Call `node server.js` from `build-a-file-processor/`");
+assert.match(
+  __history,
+  /node\s+server\.js/,
+  "Call `node server.js` from `build-a-file-processor/`",
+);
 ```
 
 ### --seed--
@@ -103,16 +109,16 @@ Run the file with `node server.js` - you should see a raw `Buffer` printed, not 
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls("fs.readFileSync");
+const __i = new __helpers.Inspector(__file);
+const __calls = __i.getCalls("fs.readFileSync");
 assert.isAbove(
   __calls.length,
   0,
   "You should call `fs.readFileSync` in `server.js`",
 );
 assert.match(
-  __calls.at(0).compact,
-  /assets[/\\]?poem\.txt/,
+  __i.argText(__calls.at(0).arguments.at(0)),
+  /assets[\s\S]*poem\.txt/,
   "The path passed to `fs.readFileSync` should point to `assets/poem.txt`",
 );
 ```
@@ -135,7 +141,11 @@ You should run `node server.js` to see the console output.
 
 ```js
 const __history = await __helpers.getBashHistory();
-assert.match(__history, /node\s+server\.js\, "Call `node server.js` from `build-a-file-processor/`");
+assert.match(
+  __history,
+  /node\s+server\.js/,
+  "Call `node server.js` from `build-a-file-processor/`",
+);
 ```
 
 ### --seed--
@@ -168,17 +178,30 @@ Run `node server.js` - the poem should now print as readable text instead of a B
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls("fs.readFileSync");
+const __i = new __helpers.Inspector(__file);
+const __calls = __i.getCalls("fs.readFileSync");
 assert.isAbove(
   __calls.length,
   0,
   "You should call `fs.readFileSync` in `server.js`",
 );
-assert.match(
-  __calls.at(0).compact,
-  /encoding.*utf.?8/,
+const __options = __calls.at(0).arguments.at(1);
+assert.equal(
+  __options?.type,
+  "ObjectExpression",
   'Pass `{ encoding: "utf8" }` as the second argument to `fs.readFileSync`',
+);
+const __encoding = __options.properties.find(
+  (p) => (p.key?.name ?? p.key?.value) === "encoding",
+);
+assert.isDefined(
+  __encoding,
+  "The options object should have an `encoding` property",
+);
+assert.match(
+  String(__encoding.value?.value),
+  /^utf-?8$/i,
+  'The `encoding` property should be `"utf8"`',
 );
 ```
 
@@ -223,16 +246,16 @@ Run `node server.js` to verify the poem prints.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls("fs.readFile");
+const __i = new __helpers.Inspector(__file);
+const __calls = __i.getCalls("fs.readFile");
 assert.isAbove(
   __calls.length,
   0,
   "You should call `fs.readFile` in `server.js`",
 );
 assert.match(
-  __calls.at(0).compact,
-  /assets[/\\]?poem\.txt/,
+  __i.argText(__calls.at(0).arguments.at(0)),
+  /assets[\s\S]*poem\.txt/,
   "The first argument to `fs.readFile` should be the path `assets/poem.txt`",
 );
 ```
@@ -241,9 +264,15 @@ assert.match(
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /fs\.readFile\s*\([^)]*function\s*\(|fs\.readFile\s*\([^)]*=>/,
+const __i = new __helpers.Inspector(__file);
+const __calls = __i.getCalls("fs.readFile");
+assert.isAbove(
+  __calls.length,
+  0,
+  "You should call `fs.readFile` in `server.js`",
+);
+assert.isTrue(
+  __calls.some((c) => __i.hasCallback(c)),
   "You should pass a callback function as the last argument to `fs.readFile`",
 );
 ```
@@ -291,9 +320,15 @@ Run `node server.js` to confirm the poem prints.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /require\(["']fs[/"'].*promises|fs\.promises|require\(["']fs\/promises["']\)/,
+const __i = new __helpers.Inspector(__file);
+const __requiresFsPromises = __i
+  .getCalls("require")
+  .some((c) => /^(node:)?fs\/promises$/.test(__i.argText(c.arguments.at(0))));
+const __usesPromisesProperty = __i.members.some(
+  (m) => m.property?.name === "promises",
+);
+assert.isTrue(
+  __requiresFsPromises || __usesPromisesProperty,
   "You should access `fs.promises` or require `fs/promises`",
 );
 ```
@@ -302,14 +337,15 @@ assert.match(
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /await/,
+const __i = new __helpers.Inspector(__file);
+assert.isAbove(
+  __i.getType("AwaitExpression").length,
+  0,
   "You should use `await` to read the file asynchronously",
 );
-assert.match(
-  __file,
-  /\.readFile\s*\(/,
+assert.isAbove(
+  __i.getMethodCalls("readFile").length,
+  0,
   "You should call `.readFile(...)` on the promises API",
 );
 ```
@@ -348,16 +384,16 @@ Run `node server.js` - the file should be created in the `assets/` directory.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls("fs.writeFileSync");
+const __i = new __helpers.Inspector(__file);
+const __calls = __i.getCalls("fs.writeFileSync");
 assert.isAbove(
   __calls.length,
   0,
   "You should call `fs.writeFileSync` in `server.js`",
 );
 assert.match(
-  __calls.at(0).compact,
-  /assets[/\\]?output\.txt/,
+  __i.argText(__calls.at(0).arguments.at(0)),
+  /assets[\s\S]*output\.txt/,
   "The first argument to `fs.writeFileSync` should be `assets/output.txt`",
 );
 ```
@@ -397,16 +433,16 @@ Run `node server.js` to verify the file now has two lines.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls("fs.appendFileSync");
+const __i = new __helpers.Inspector(__file);
+const __calls = __i.getCalls("fs.appendFileSync");
 assert.isAbove(
   __calls.length,
   0,
   "You should call `fs.appendFileSync` in `server.js`",
 );
 assert.match(
-  __calls.at(0).compact,
-  /assets[/\\]?output\.txt/,
+  __i.argText(__calls.at(0).arguments.at(0)),
+  /assets[\s\S]*output\.txt/,
   "The first argument to `fs.appendFileSync` should be `assets/output.txt`",
 );
 ```
@@ -471,16 +507,16 @@ Run `node server.js` - you should see `true` printed.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls("fs.existsSync");
+const __i = new __helpers.Inspector(__file);
+const __calls = __i.getCalls("fs.existsSync");
 assert.isAbove(
   __calls.length,
   0,
   "You should call `fs.existsSync` in `server.js`",
 );
 assert.match(
-  __calls.at(0).compact,
-  /assets[/\\]?output\.txt/,
+  __i.argText(__calls.at(0).arguments.at(0)),
+  /assets[\s\S]*output\.txt/,
   "The argument to `fs.existsSync` should be `assets/output.txt`",
 );
 ```
@@ -543,16 +579,16 @@ Run `node server.js` - you should see an array listing the files in the `assets/
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls("fs.readdirSync");
+const __i = new __helpers.Inspector(__file);
+const __calls = __i.getCalls("fs.readdirSync");
 assert.isAbove(
   __calls.length,
   0,
   "You should call `fs.readdirSync` in `server.js`",
 );
-assert.match(
-  __calls.at(0).compact,
-  /['"]assets['"]/,
+assert.include(
+  __i.argText(__calls.at(0).arguments.at(0)),
+  "assets",
   "The argument to `fs.readdirSync` should be `'assets'`",
 );
 ```
@@ -617,9 +653,12 @@ Run `node server.js` - you should see the raw byte values printed as a `Buffer`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /Buffer\.from\s*\(\s*['"]Hello,\s*Node!['"]\s*\)/,
+const __i = new __helpers.Inspector(__file);
+const __hasGreeting = __i
+  .getCalls("Buffer.from")
+  .some((c) => /^Hello,\s*Node!$/.test(__i.argText(c.arguments.at(0))));
+assert.isTrue(
+  __hasGreeting,
   'You should call `Buffer.from("Hello, Node!")` in `server.js`',
 );
 ```
@@ -687,9 +726,13 @@ Run `node server.js` to see both encoded forms.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /\.toString\s*\(\s*['"]hex['"]\s*\)/,
+const __i = new __helpers.Inspector(__file);
+const __encodings = __i
+  .getMethodCalls("toString")
+  .map((c) => __i.argText(c.arguments.at(0)));
+assert.include(
+  __encodings,
+  "hex",
   'You should call `.toString("hex")` on the buffer',
 );
 ```
@@ -698,9 +741,13 @@ assert.match(
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /\.toString\s*\(\s*['"]base64['"]\s*\)/,
+const __i = new __helpers.Inspector(__file);
+const __encodings = __i
+  .getMethodCalls("toString")
+  .map((c) => __i.argText(c.arguments.at(0)));
+assert.include(
+  __encodings,
+  "base64",
   'You should call `.toString("base64")` on the buffer',
 );
 ```
@@ -745,9 +792,15 @@ Run `node server.js` - you should see `<Buffer ff ff ff ff ff ff ff ff>`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /Buffer\.alloc\s*\(\s*8\s*,\s*0xff\s*\)/,
+const __i = new __helpers.Inspector(__file);
+// `0xff` and `255` are the same byte value once parsed.
+const __hasAlloc = __i
+  .getCalls("Buffer.alloc")
+  .some(
+    (c) => c.arguments.at(0)?.value === 8 && c.arguments.at(1)?.value === 255,
+  );
+assert.isTrue(
+  __hasAlloc,
   "You should call `Buffer.alloc(8, 0xff)` in `server.js`",
 );
 ```
@@ -791,9 +844,13 @@ Run `node server.js` - you should see the decoded text printed.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /Buffer\.from\s*\(\s*['"]ZnJlZUNvZGVDYW1w['"]\s*,\s*['"]base64['"]\s*\)/,
+const __i = new __helpers.Inspector(__file);
+const __hasDecode = __i.getCalls("Buffer.from").some((c) => {
+  const __args = __i.argTexts(c);
+  return __args.at(0) === "ZnJlZUNvZGVDYW1w" && __args.at(1) === "base64";
+});
+assert.isTrue(
+  __hasDecode,
   'You should call `Buffer.from("ZnJlZUNvZGVDYW1w", "base64")` in `server.js`',
 );
 ```
@@ -834,19 +891,20 @@ Run `node server.js` - you should see a 64-character hexadecimal string.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-const __t = new __helpers.Tower(__file);
-const __crypto = __t.getVariable("crypto");
-assert.isDefined(__crypto, "You should declare a variable called `crypto`");
-assert.match(
-  __crypto.compact,
-  /require\(["']crypto["']\)/,
+const __i = new __helpers.Inspector(__file);
+assert.isDefined(
+  __i.getDeclarator("crypto"),
+  "You should declare a variable called `crypto`",
+);
+assert.include(
+  ["crypto", "node:crypto"],
+  __i.getRequiredModule("crypto"),
   'You should assign `require("crypto")` to `crypto`',
 );
-assert.match(
-  __file,
-  /createHash\s*\(\s*['"]sha256['"]\s*\)/,
-  'You should call `crypto.createHash("sha256")`',
-);
+const __usesSha256 = __i
+  .getMethodCalls("createHash")
+  .some((c) => __i.argText(c.arguments.at(0)) === "sha256");
+assert.isTrue(__usesSha256, 'You should call `crypto.createHash("sha256")`');
 ```
 
 Running `server.js` should print a 64-character hex digest.
@@ -922,9 +980,12 @@ Run `node server.js` - you should see a 32-character random hex string on a new 
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /crypto\.randomBytes\s*\(\s*16\s*\)/,
+const __i = new __helpers.Inspector(__file);
+const __has16Bytes = __i
+  .getCalls("crypto.randomBytes")
+  .some((c) => c.arguments.at(0)?.value === 16);
+assert.isTrue(
+  __has16Bytes,
   "You should call `crypto.randomBytes(16)` in `server.js`",
 );
 ```
@@ -965,9 +1026,9 @@ Run `node server.js` - you should see a UUID printed on a new line.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /crypto\.randomUUID\s*\(\s*\)/,
+const __i = new __helpers.Inspector(__file);
+assert.isTrue(
+  __i.hasCall("crypto.randomUUID"),
   "You should call `crypto.randomUUID()` in `server.js`",
 );
 ```
@@ -1012,25 +1073,19 @@ Run `node server.js` to see the values for your system.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-const __t = new __helpers.Tower(__file);
-const __os = __t.getVariable("os");
-assert.isDefined(__os, "You should declare a variable called `os`");
-assert.match(
-  __os.compact,
-  /require\(["']os["']\)/,
+const __i = new __helpers.Inspector(__file);
+assert.isDefined(
+  __i.getDeclarator("os"),
+  "You should declare a variable called `os`",
+);
+assert.include(
+  ["os", "node:os"],
+  __i.getRequiredModule("os"),
   'You should assign `require("os")` to `os`',
 );
-assert.match(
-  __file,
-  /os\.platform\s*\(\s*\)/,
-  "You should call `os.platform()`",
-);
-assert.match(__file, /os\.arch\s*\(\s*\)/, "You should call `os.arch()`");
-assert.match(
-  __file,
-  /os\.hostname\s*\(\s*\)/,
-  "You should call `os.hostname()`",
-);
+assert.isTrue(__i.hasCall("os.platform"), "You should call `os.platform()`");
+assert.isTrue(__i.hasCall("os.arch"), "You should call `os.arch()`");
+assert.isTrue(__i.hasCall("os.hostname"), "You should call `os.hostname()`");
 ```
 
 Running `server.js` should print non-empty strings for platform, arch, and hostname.
@@ -1112,13 +1167,10 @@ Run `node server.js` - you should now see six lines of output.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /os\.totalmem\s*\(\s*\)/,
-  "You should call `os.totalmem()`",
-);
-assert.match(__file, /os\.freemem\s*\(\s*\)/, "You should call `os.freemem()`");
-assert.match(__file, /os\.uptime\s*\(\s*\)/, "You should call `os.uptime()`");
+const __i = new __helpers.Inspector(__file);
+assert.isTrue(__i.hasCall("os.totalmem"), "You should call `os.totalmem()`");
+assert.isTrue(__i.hasCall("os.freemem"), "You should call `os.freemem()`");
+assert.isTrue(__i.hasCall("os.uptime"), "You should call `os.uptime()`");
 ```
 
 Running `server.js` should print numeric values for total memory, free memory, and uptime.
@@ -1162,9 +1214,9 @@ Run `node server.js` - a positive integer should appear at the end of the output
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /os\.cpus\s*\(\s*\)\.length/,
+const __i = new __helpers.Inspector(__file);
+assert.isTrue(
+  __i.hasMember("os.cpus().length"),
   "You should log `os.cpus().length` in `server.js`",
 );
 ```
@@ -1209,29 +1261,33 @@ Run `node server.js` - you should see an absolute path to `assets/poem.txt`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-const __t = new __helpers.Tower(__file);
-const __path = __t.getVariable("path");
-assert.isDefined(__path, "You should declare a variable called `path`");
-assert.match(
-  __path.compact,
-  /require\(["']path["']\)/,
+const __i = new __helpers.Inspector(__file);
+assert.isDefined(
+  __i.getDeclarator("path"),
+  "You should declare a variable called `path`",
+);
+assert.include(
+  ["path", "node:path"],
+  __i.getRequiredModule("path"),
   'You should assign `require("path")` to `path`',
 );
-const __calls = __t.getCalls("path.join");
+const __calls = __i.getCalls("path.join");
 assert.isAbove(__calls.length, 0, "You should call `path.join` in `server.js`");
-assert.match(
-  __calls.at(0).compact,
-  /__dirname/,
+const __segments = __calls
+  .map((c) => __i.argTexts(c))
+  .find((s) => s.at(0) === "__dirname");
+assert.isDefined(
+  __segments,
   "The first argument to `path.join` should be `__dirname`",
 );
-assert.match(
-  __calls.at(0).compact,
-  /assets/,
+assert.include(
+  __segments,
+  "assets",
   "The path segments should include `assets`",
 );
-assert.match(
-  __calls.at(0).compact,
-  /poem\.txt/,
+assert.include(
+  __segments,
+  "poem.txt",
   "The path segments should include `poem.txt`",
 );
 ```
@@ -1318,19 +1374,17 @@ Run `node server.js` - you should see the filename, directory, and extension pri
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /path\.basename\s*\(/,
+const __i = new __helpers.Inspector(__file);
+assert.isTrue(
+  __i.hasCall("path.basename"),
   "You should call `path.basename(filePath)` in `server.js`",
 );
-assert.match(
-  __file,
-  /path\.dirname\s*\(/,
+assert.isTrue(
+  __i.hasCall("path.dirname"),
   "You should call `path.dirname(filePath)` in `server.js`",
 );
-assert.match(
-  __file,
-  /path\.extname\s*\(/,
+assert.isTrue(
+  __i.hasCall("path.extname"),
   "You should call `path.extname(filePath)` in `server.js`",
 );
 ```
@@ -1378,9 +1432,19 @@ Run `node server.js` to compare the outputs.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /path\.join\s*\(\s*['"]assets['"].*['"]\.\.['"].*['"]server\.js['"]\s*\)/,
+const __i = new __helpers.Inspector(__file);
+const __hasSegments = __i
+  .getCalls("path.join")
+  .map((c) => __i.argTexts(c))
+  .some(
+    (s) =>
+      s.length === 3 &&
+      s[0] === "assets" &&
+      s[1] === ".." &&
+      s[2] === "server.js",
+  );
+assert.isTrue(
+  __hasSegments,
   'You should call `path.join("assets", "..", "server.js")` in `server.js`',
 );
 ```
@@ -1389,9 +1453,19 @@ assert.match(
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /path\.resolve\s*\(\s*['"]assets['"].*['"]\.\.['"].*['"]server\.js['"]\s*\)/,
+const __i = new __helpers.Inspector(__file);
+const __hasSegments = __i
+  .getCalls("path.resolve")
+  .map((c) => __i.argTexts(c))
+  .some(
+    (s) =>
+      s.length === 3 &&
+      s[0] === "assets" &&
+      s[1] === ".." &&
+      s[2] === "server.js",
+  );
+assert.isTrue(
+  __hasSegments,
   'You should call `path.resolve("assets", "..", "server.js")` in `server.js`',
 );
 ```
@@ -1443,10 +1517,16 @@ Run `node server.js` - you should see an object with all five properties printed
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /path\.parse\s*\(\s*filePath\s*\)/,
+const __i = new __helpers.Inspector(__file);
+const __calls = __i.getCalls("path.parse");
+assert.isAbove(
+  __calls.length,
+  0,
   "You should call `path.parse(filePath)` in `server.js`",
+);
+assert.isTrue(
+  __calls.some((c) => c.arguments.length > 0),
+  "You should pass the path to `path.parse`",
 );
 ```
 
@@ -1494,19 +1574,17 @@ Run `node server.js` - you should see the version, platform, and `undefined` (or
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /process\.version/,
+const __i = new __helpers.Inspector(__file);
+assert.isTrue(
+  __i.hasMember("process.version"),
   "You should log `process.version` in `server.js`",
 );
-assert.match(
-  __file,
-  /process\.platform/,
+assert.isTrue(
+  __i.hasMember("process.platform"),
   "You should log `process.platform` in `server.js`",
 );
-assert.match(
-  __file,
-  /process\.env\.NODE_ENV/,
+assert.isTrue(
+  __i.hasMember("process.env.NODE_ENV"),
   "You should log `process.env.NODE_ENV` in `server.js`",
 );
 ```
@@ -1604,9 +1682,9 @@ Run `node server.js` and also try passing an extra argument like `node server.js
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /process\.argv/,
+const __i = new __helpers.Inspector(__file);
+assert.isTrue(
+  __i.hasMember("process.argv"),
   "You should log `process.argv` in `server.js`",
 );
 ```
@@ -1647,9 +1725,9 @@ Run `node server.js` - both messages should appear in the terminal.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /process\.stdout\.write\s*\(/,
+const __i = new __helpers.Inspector(__file);
+assert.isTrue(
+  __i.hasCall("process.stdout.write"),
   "You should call `process.stdout.write(...)` in `server.js`",
 );
 ```
@@ -1658,9 +1736,9 @@ assert.match(
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /process\.stderr\.write\s*\(/,
+const __i = new __helpers.Inspector(__file);
+assert.isTrue(
+  __i.hasCall("process.stderr.write"),
   "You should call `process.stderr.write(...)` in `server.js`",
 );
 ```
@@ -1708,16 +1786,16 @@ Run `node server.js` - the poem should print in chunks, followed by your end mes
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls("fs.createReadStream");
+const __i = new __helpers.Inspector(__file);
+const __calls = __i.getCalls("fs.createReadStream");
 assert.isAbove(
   __calls.length,
   0,
   "You should call `fs.createReadStream` in `server.js`",
 );
 assert.match(
-  __calls.at(0).compact,
-  /assets[/\\]?poem\.txt/,
+  __i.argText(__calls.at(0).arguments.at(0)),
+  /assets[\s\S]*poem\.txt/,
   "The path passed to `fs.createReadStream` should be `assets/poem.txt`",
 );
 ```
@@ -1726,14 +1804,18 @@ assert.match(
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /\.on\s*\(\s*['"]data['"]/,
+const __i = new __helpers.Inspector(__file);
+const __events = __i
+  .getMethodCalls("on")
+  .map((c) => __i.argText(c.arguments.at(0)));
+assert.include(
+  __events,
+  "data",
   "You should listen to the `data` event on the readable stream",
 );
-assert.match(
-  __file,
-  /\.on\s*\(\s*['"]end['"]/,
+assert.include(
+  __events,
+  "end",
   "You should listen to the `end` event on the readable stream",
 );
 ```
@@ -1838,16 +1920,16 @@ Run `node server.js` - the file `assets/stream-output.txt` should be created wit
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls("fs.createWriteStream");
+const __i = new __helpers.Inspector(__file);
+const __calls = __i.getCalls("fs.createWriteStream");
 assert.isAbove(
   __calls.length,
   0,
   "You should call `fs.createWriteStream` in `server.js`",
 );
 assert.match(
-  __calls.at(0).compact,
-  /assets[/\\]?stream-output\.txt/,
+  __i.argText(__calls.at(0).arguments.at(0)),
+  /assets[\s\S]*stream-output\.txt/,
   "The path passed to `fs.createWriteStream` should be `assets/stream-output.txt`",
 );
 ```
@@ -1889,9 +1971,10 @@ Run `node server.js` - `assets/stream-output.txt` should be overwritten with the
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /\.pipe\s*\(/,
+const __i = new __helpers.Inspector(__file);
+assert.isAbove(
+  __i.getMethodCalls("pipe").length,
+  0,
   "You should call `.pipe(writable)` on the readable stream",
 );
 ```
