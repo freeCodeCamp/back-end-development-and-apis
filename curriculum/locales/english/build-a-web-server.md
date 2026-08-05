@@ -736,7 +736,11 @@ const http_createServer = server.getCalls("http.createServer").at(0);
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const filePathVar = cbTower.getVariable("filePath");
-assert.equal(filePathVar.compact, 'const filePath=join("public",url);');
+assert.match(
+  filePathVar.compact,
+  /^const filePath=(?:path\.)?join\("public",url\);$/,
+  'You should have `const filePath = join("public", url)` (or `path.join("public", url)`) within the createServer callback function.',
+);
 ```
 
 ### --seed--
@@ -770,7 +774,13 @@ You should have `const { join } = require("path")` at the top of `server.js`.
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const joinVar = t.getVariable("join");
-assert.include(joinVar.compact, 'const{join}=require("path")');
+const pathVar = t.getVariable("path");
+const usesDestructure = joinVar?.compact.includes('require("path")');
+const usesNamespace = pathVar?.compact === 'const path=require("path");';
+assert.isTrue(
+  usesDestructure || usesNamespace,
+  'You should import `join` from "path", either with `const { join } = require("path")` or `const path = require("path")`',
+);
 ```
 
 ### --seed--
@@ -903,8 +913,11 @@ const server = t.getVariable("server");
 const http_createServer = server.getCalls("http.createServer").at(0);
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
-const readFiles = cbTower.getCalls("readFile");
-assert.equal(readFiles.at(0).compact, "readFile(filePath);");
+const readFiles = [
+  ...cbTower.getCalls("readFile"),
+  ...cbTower.getCalls("fs.readFile"),
+];
+assert.match(readFiles.at(0)?.compact, /^(?:fs\.)?readFile\(filePath\);$/);
 ```
 
 ## 29
@@ -921,7 +934,13 @@ You should have `const { readFile } = require("fs")` at the top of `server.js`.
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const readFileVar = t.getVariable("readFile");
-assert.include(readFileVar.compact, 'const{readFile}=require("fs")');
+const fsVar = t.getVariable("fs");
+const usesDestructure = readFileVar?.compact.includes('require("fs")');
+const usesNamespace = fsVar?.compact === 'const fs=require("fs");';
+assert.isTrue(
+  usesDestructure || usesNamespace,
+  'You should import `readFile` from "fs", either with `const { readFile } = require("fs")` or `const fs = require("fs")`',
+);
 ```
 
 ### --seed--
@@ -974,7 +993,10 @@ const server = t.getVariable("server");
 const http_createServer = server.getCalls("http.createServer").at(0);
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
-const readFiles = cbTower.getCalls("readFile");
+const readFiles = [
+  ...cbTower.getCalls("readFile"),
+  ...cbTower.getCalls("fs.readFile"),
+];
 const arg2 = readFiles.at(0).ast.expression.arguments[1];
 assert.equal(arg2.params[0].name, "error");
 assert.equal(arg2.params[1].name, "file");
@@ -1019,7 +1041,10 @@ const server = t.getVariable("server");
 const http_createServer = server.getCalls("http.createServer").at(0);
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
-const readFiles = cbTower.getCalls("readFile");
+const readFiles = [
+  ...cbTower.getCalls("readFile"),
+  ...cbTower.getCalls("fs.readFile"),
+];
 const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const errorIf = rfcbTower
@@ -1071,7 +1096,10 @@ const server = t.getVariable("server");
 const http_createServer = server.getCalls("http.createServer").at(0);
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
-const readFiles = cbTower.getCalls("readFile");
+const readFiles = [
+  ...cbTower.getCalls("readFile"),
+  ...cbTower.getCalls("fs.readFile"),
+];
 const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const ends = rfcbTower.getCalls("response.end");
@@ -1188,7 +1216,10 @@ const server = t.getVariable("server");
 const http_createServer = server.getCalls("http.createServer").at(0);
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
-const readFiles = cbTower.getCalls("readFile");
+const readFiles = [
+  ...cbTower.getCalls("readFile"),
+  ...cbTower.getCalls("fs.readFile"),
+];
 const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const errorIf = rfcbTower
@@ -1267,7 +1298,10 @@ const server = t.getVariable("server");
 const http_createServer = server.getCalls("http.createServer").at(0);
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
-const readFiles = cbTower.getCalls("readFile");
+const readFiles = [
+  ...cbTower.getCalls("readFile"),
+  ...cbTower.getCalls("fs.readFile"),
+];
 const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const errorIf = rfcbTower
@@ -1358,7 +1392,10 @@ const server = t.getVariable("server");
 const http_createServer = server.getCalls("http.createServer").at(0);
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
-const readFiles = cbTower.getCalls("readFile");
+const readFiles = [
+  ...cbTower.getCalls("readFile"),
+  ...cbTower.getCalls("fs.readFile"),
+];
 const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const errorIf = rfcbTower
@@ -1467,14 +1504,20 @@ const server = t.getVariable("server");
 const http_createServer = server.getCalls("http.createServer").at(0);
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
-const readFiles = cbTower.getCalls("readFile");
+const readFiles = [
+  ...cbTower.getCalls("readFile"),
+  ...cbTower.getCalls("fs.readFile"),
+];
 const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const errorIf = rfcbTower
   .getIfStatements()
   .find((i) => i.test.name === "error");
 const ifTower = new __helpers.Tower(errorIf.consequent);
-const nestedReadFiles = ifTower.getCalls("readFile");
+const nestedReadFiles = [
+  ...ifTower.getCalls("readFile"),
+  ...ifTower.getCalls("fs.readFile"),
+];
 assert.isTrue(
   nestedReadFiles.some((r) => r.compact.includes('"public/404.html"')),
   'You should have readFile("public/404.html", ...) within the if statement.',
@@ -1574,14 +1617,20 @@ const server = t.getVariable("server");
 const http_createServer = server.getCalls("http.createServer").at(0);
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
-const readFiles = cbTower.getCalls("readFile");
+const readFiles = [
+  ...cbTower.getCalls("readFile"),
+  ...cbTower.getCalls("fs.readFile"),
+];
 const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const errorIf = rfcbTower
   .getIfStatements()
   .find((i) => i.test.name === "error");
 const ifTower = new __helpers.Tower(errorIf.consequent);
-const nestedReadFiles = ifTower.getCalls("readFile");
+const nestedReadFiles = [
+  ...ifTower.getCalls("readFile"),
+  ...ifTower.getCalls("fs.readFile"),
+];
 const nestedCallback = nestedReadFiles.at(0).ast.expression.arguments[1];
 const ncbTower = new __helpers.Tower(nestedCallback);
 assert.isTrue(
@@ -1601,7 +1650,10 @@ const server = t.getVariable("server");
 const http_createServer = server.getCalls("http.createServer").at(0);
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
-const readFiles = cbTower.getCalls("readFile");
+const readFiles = [
+  ...cbTower.getCalls("readFile"),
+  ...cbTower.getCalls("fs.readFile"),
+];
 const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const successWrites = rfcbTower.getCalls("response.writeHead");
@@ -1797,9 +1849,12 @@ const pathImport =
   t.getVariable("{join,extname}") ||
   t.getVariable("{extname,join}") ||
   t.getVariable("{extname}");
+const pathVar = t.getVariable("path");
+const usesDestructure = pathImport?.compact.includes('require("path")');
+const usesNamespace = pathVar?.compact === 'const path=require("path");';
 assert.isTrue(
-  pathImport.compact.includes('require("path")'),
-  'You should import extname from "path"',
+  usesDestructure || usesNamespace,
+  'You should import extname from "path", either with `const { extname } = require("path")` or `const path = require("path")`',
 );
 ```
 
@@ -1813,7 +1868,7 @@ const http_createServer = server.getCalls("http.createServer").at(0);
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const ext = cbTower.getVariable("ext");
-assert.equal(ext.compact, "const ext=extname(filePath);");
+assert.match(ext.compact, /^const ext=(?:path\.)?extname\(filePath\);$/);
 ```
 
 ### --seed--
@@ -1938,14 +1993,20 @@ const server = t.getVariable("server");
 const http_createServer = server.getCalls("http.createServer").at(0);
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
-const readFiles = cbTower.getCalls("readFile");
+const readFiles = [
+  ...cbTower.getCalls("readFile"),
+  ...cbTower.getCalls("fs.readFile"),
+];
 const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const errorIf = rfcbTower
   .getIfStatements()
   .find((i) => i.test.name === "error");
 const ifTower = new __helpers.Tower(errorIf.consequent);
-const nestedReadFiles = ifTower.getCalls("readFile");
+const nestedReadFiles = [
+  ...ifTower.getCalls("readFile"),
+  ...ifTower.getCalls("fs.readFile"),
+];
 const nestedCallback = nestedReadFiles.at(0).ast.expression.arguments[1];
 const ncbTower = new __helpers.Tower(nestedCallback);
 const head = ncbTower.getCalls("response.writeHead").at(0);
@@ -1964,7 +2025,10 @@ const server = t.getVariable("server");
 const http_createServer = server.getCalls("http.createServer").at(0);
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
-const readFiles = cbTower.getCalls("readFile");
+const readFiles = [
+  ...cbTower.getCalls("readFile"),
+  ...cbTower.getCalls("fs.readFile"),
+];
 const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const successWrites = rfcbTower.getCalls("response.writeHead");
@@ -2109,7 +2173,10 @@ const http_createServer = server.getCalls("http.createServer").at(0);
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const ext = cbTower.getVariable("ext");
-assert.equal(ext.compact, "const ext=extname(filePath).toLowerCase();");
+assert.match(
+  ext.compact,
+  /^const ext=(?:path\.)?extname\(filePath\)\.toLowerCase\(\);$/,
+);
 ```
 
 ## 51
@@ -2208,7 +2275,14 @@ const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const pathImport =
   t.getVariable("{join,extname}") || t.getVariable("{extname,join}");
-assert.equal(pathImport.compact, 'import{join,extname}from"path";');
+const pathVar = t.getVariable("path");
+const usesDestructure =
+  pathImport?.compact === 'import{join,extname}from"path";';
+const usesNamespace = pathVar?.compact === 'import path from"path";';
+assert.isTrue(
+  usesDestructure || usesNamespace,
+  'You should have `import { join, extname } from "path"`, or `import path from "path"`',
+);
 ```
 
 You should have `import { readFile } from "fs"`.
@@ -2217,7 +2291,13 @@ You should have `import { readFile } from "fs"`.
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const fsImport = t.getVariable("{readFile}");
-assert.equal(fsImport.compact, 'import{readFile}from"fs";');
+const fsVar = t.getVariable("fs");
+const usesDestructure = fsImport?.compact === 'import{readFile}from"fs";';
+const usesNamespace = fsVar?.compact === 'import fs from"fs";';
+assert.isTrue(
+  usesDestructure || usesNamespace,
+  'You should have `import { readFile } from "fs"`, or `import fs from "fs"`',
+);
 ```
 
 You should not have any `require` statements in your file.
