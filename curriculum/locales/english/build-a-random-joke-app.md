@@ -273,19 +273,49 @@ Create a global variable `jokes` with the following value:
 You should have a `jokes` variable in the global scope.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const code = new __helpers.Tower(file);
+const jokesVar = code.getVariable("jokes");
+
+assert.exists(jokesVar, "You should create a variable named 'jokes'.");
 ```
 
 The `jokes` variable should be an array.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const code = new __helpers.Tower(file);
+const jokesVar = code.getVariable("jokes");
+
+const declaration = jokesVar.ast.declarations[0];
+
+assert.equal(
+  declaration.init.type,
+  "ArrayExpression",
+  "The 'jokes' variable should be an array.",
+);
 ```
 
 The value of `jokes` should match the above.
 
 ```js
-assert.fail();
+const file = await __helpers.getFile(project.dashedName, "server.js");
+const code = new __helpers.Tower(file);
+const jokesVar = code.getVariable("jokes");
+
+const declaration = jokesVar.ast.declarations[0];
+const jokes = declaration.init.elements.map((el) => el.value);
+
+assert.deepEqual(
+  jokes,
+  [
+    "Why do programmers prefer dark mode? Because light attracts bugs!",
+    "There are only 10 kinds of people in the world: those who understand binary and those who don't.",
+    "I told my computer I needed a break, and it said \"No problem, I'll go to sleep.",
+    "Why do Java developers wear glasses? Because they don't see sharp.",
+  ],
+  "The value of 'jokes' should match the given array.",
+);
 ```
 
 ## 6

@@ -42,16 +42,13 @@
       "open": true,
       "showLoader": true,
       "timeout": 4000,
-      "url": "https://solid-space-memory-xv6p94g4r7qh6x64-8080.app.github.dev"
+      "url": "http://localhost:8080"
     }
   ],
   "terminal.integrated.defaultProfile.linux": "bash",
   "terminal.integrated.profiles.linux": {
     "bash": {
-      "args": [
-        "--init-file",
-        "./bash/sourcerer.sh"
-      ],
+      "args": ["--init-file", "./bash/sourcerer.sh"],
       "icon": "terminal-bash",
       "path": "bash"
     }
