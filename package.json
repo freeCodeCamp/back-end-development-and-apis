@@ -15,5 +15,5 @@
     "start": "node ./node_modules/@freecodecamp/freecodecamp-os/.freeCodeCamp/tooling/server.js"
   },
   "type": "module",
-  "version": "1.0.9"
+  "version": "1.0.10"
 }

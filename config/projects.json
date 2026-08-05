@@ -14,6 +14,19 @@
   },
   {
     "id": 1,
+    "dashedName": "build-a-file-processor",
+    "isIntegrated": false,
+    "isPublic": true,
+    "currentLesson": 0,
+    "runTestsOnWatch": true,
+    "seedEveryLesson": false,
+    "isResetEnabled": false,
+    "blockingTests": null,
+    "breakOnFailure": null,
+    "numberOfLessons": 30
+  },
+  {
+    "id": 2,
     "dashedName": "build-a-case-converter",
     "isIntegrated": false,
     "isPublic": true,
@@ -26,7 +39,7 @@
     "numberOfLessons": 45
   },
   {
-    "id": 2,
+    "id": 3,
     "dashedName": "build-a-prime-number-checker-module",
     "isIntegrated": true,
     "isPublic": true,
@@ -37,19 +50,6 @@
     "blockingTests": true,
     "breakOnFailure": true,
     "numberOfLessons": 1
-  },
-  {
-    "id": 3,
-    "dashedName": "build-a-file-processor",
-    "isIntegrated": false,
-    "isPublic": true,
-    "currentLesson": 0,
-    "runTestsOnWatch": true,
-    "seedEveryLesson": false,
-    "isResetEnabled": false,
-    "blockingTests": null,
-    "breakOnFailure": null,
-    "numberOfLessons": 30
   },
   {
     "id": 4,
