@@ -1,4 +1,4 @@
-# Back End Development and APIs Certification
+# Back-End Development and APIs Certification
 
 This curriculum teaches you how to build back end applications and APIs using Node.js and Express. You will work through guided lessons that introduce new concepts step by step, then apply what you have learnt in independent practice projects.
 
@@ -6,7 +6,7 @@ This curriculum teaches you how to build back end applications and APIs using No
 
 ## Getting Started in VS Code
 
-Whether you are using **GitHub Codespaces**, **Ona**, or a **Local Dev Container**, follow these steps once your environment has finished loading:
+Whether you are using **GitHub Codespaces** or a **Local Dev Container**, follow these steps once your environment has finished loading:
 
 1. **Open the Command Palette**: Press `Ctrl+Shift+P` on Windows and Linux or `Cmd+Shift+P` on Mac.
 2. **Start the Course**: Search for and run `freeCodeCamp: Run Course`.
@@ -19,15 +19,15 @@ Whether you are using **GitHub Codespaces**, **Ona**, or a **Local Dev Container
 You do **not** need to create a new machine or environment to take another lab or workshop. To start a new lab or switch projects:
 
 1. Click the **freeCodeCamp** logo in the **Simple Browser** tab.
-2. Select any lab from the list (for example, *Build a Case Converter*, *Build a Prime Number Checker Module*).
+2. Select any lab from the list (for example, _Build a Case Converter_, _Build a Prime Number Checker Module_).
 
 ---
 
 ## Troubleshooting & Tips
 
-* **Blank Screen on Launch:** Click the refresh icon in the top toolbar of the **Simple Browser** tab.
-* **Reopening the Course Tab:** If you accidentally close the course panel, re-run `freeCodeCamp: Run Course` from the Command Palette.
-* **Environment Loading:** If `freeCodeCamp: Run Course` isn't found immediately upon opening the workspace, wait a minute for VS Code extensions to finish initializing.
+- **Blank Screen on Launch:** Click the refresh icon in the top toolbar of the **Simple Browser** tab.
+- **Reopening the Course Tab:** If you accidentally close the course panel, re-run `freeCodeCamp: Run Course` from the Command Palette.
+- **Environment Loading:** If `freeCodeCamp: Run Course` isn't found immediately upon opening the workspace, wait a minute for VS Code extensions to finish initializing.
 
 ## Projects
 
@@ -35,17 +35,17 @@ You do **not** need to create a new machine or environment to take another lab o
 
 You will learn the Node.js REPL and command-line interface by exploring the runtime from the terminal.
 
-### 2. Build a Case Converter
+### 2. Build a File Processor
+
+You will learn Node.js built-in modules like `fs`, `path`, and `crypto` by using them for file operations and data processing.
+
+### 3. Build a Case Converter
 
 You will learn how to initialize, configure, and publish an NPM module by building a case converter.
 
-### 3. Build a Prime Number Checker Module
+### 4. Build a Prime Number Checker Module
 
 Practice building and exporting an NPM module by creating a prime number checker.
-
-### 4. Build a File Processor
-
-You will learn Node.js built-in modules like `fs`, `path`, and `crypto` by using them for file operations and data processing.
 
 ### 5. Build a Web Server
 
