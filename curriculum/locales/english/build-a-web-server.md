@@ -687,7 +687,7 @@ You should restart the server, and make a request to it.
 
 ```js
 const temp = await __helpers.getTemp();
-assert.include(temp, "curl http://localhost:3001/");
+assert.include(temp, "curl http://localhost:3001");
 ```
 
 ## 24
@@ -698,6 +698,7 @@ Looking back at your project file structure:
 
 <details>
   <summary>File Structure:</summary>
+
 ```markdown
 public/
 ├── index.html
