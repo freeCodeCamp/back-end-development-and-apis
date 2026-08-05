@@ -686,7 +686,7 @@ Restart your server by stopping it with `Ctrl + C` and then running `node server
 You should restart the server, and make a request to it.
 
 ```js
-const temp = await __helpers.getTemp();
+const temp = await __helpers.getTerminalOutput();
 assert.include(temp, "curl http://localhost:3001");
 ```
 
