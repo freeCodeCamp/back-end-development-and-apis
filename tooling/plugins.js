@@ -12,6 +12,7 @@ pluginEvents.onProjectFinished = async (project) => {
   try {
     const token = await readFile("config/token.txt", "utf-8");
 
+    const tutorialId = "freeCodeCamp/" + project.dashedName;
     // Send request to POST /coderoad-challenge-completed
     // header: coderoad-user-token
     // body: tutorialId: freeCodeCamp/{project_dashed_name}
@@ -21,16 +22,17 @@ pluginEvents.onProjectFinished = async (project) => {
         method: "POST",
         headers: {
           "coderoad-user-token": token.trim(),
-          "content-type": "application/json"
+          "content-type": "application/json",
         },
         body: JSON.stringify({
-          tutorialId: "freeCodeCamp:" + project.dashedName,
+          tutorialId,
         }),
       },
     );
 
     const r = await res.json();
     if (r.type === "error") {
+      console.log({ tutorialId });
       console.error(r);
     }
   } catch (e) {
