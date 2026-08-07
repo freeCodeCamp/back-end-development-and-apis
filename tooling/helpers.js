@@ -405,21 +405,52 @@ export class Tower {
           }
 
           const identifier = variableDeclarator.id;
-          if (!is("Identifier", identifier)) {
-            return false;
+          if (is("Identifier", identifier)) {
+            return identifier.name === name;
           }
 
-          return identifier.name === name;
+          if (is("ObjectPattern", identifier)) {
+            if (generate(identifier, { compact: true }).code === name) {
+              return true;
+            }
+
+            return identifier.properties.some(
+              (p) => is("Identifier", p.key) && p.key.name === name,
+            );
+          }
+
+          return false;
+        }
+      }
+
+      if (type === "VariableDeclaration" && is("ImportDeclaration", node)) {
+        const matchesSpecifier = node.specifiers.some((s) => {
+          if (
+            is("ImportDefaultSpecifier", s) ||
+            is("ImportNamespaceSpecifier", s) ||
+            is("ImportSpecifier", s)
+          ) {
+            return s.local.name === name;
+          }
+
+          return false;
+        });
+        if (matchesSpecifier) {
+          return true;
+        }
+
+        if (node.specifiers.every((s) => is("ImportSpecifier", s))) {
+          const compact = `{${node.specifiers
+            .map((s) => s.local.name)
+            .join(",")}}`;
+          return compact === name;
         }
       }
 
       return false;
     });
-    if (!ast) {
-      throw new Error(`No AST found with name ${name}`);
-    }
 
-    return new Tower(ast);
+    return ast ? new Tower(ast) : undefined;
   }
 
   getFunction(name) {
@@ -428,6 +459,43 @@ export class Tower {
 
   getVariable(name) {
     return this.getType("VariableDeclaration", name);
+  }
+
+  getIfStatements() {
+    const body = this.extractBody(this.ast);
+    return body.filter((node) => is("IfStatement", node));
+  }
+
+  /**
+   * The property of an object-literal variable whose key is `key`
+   *
+   * ```js
+   * const mimeTypes = { ".html": "text/html" };
+   * getProperty(".html"); // `".html": "text/html"`
+   * ```
+   */
+  getProperty(key) {
+    const init =
+      this.ast.type === "VariableDeclaration"
+        ? this.ast.declarations[0]?.init
+        : this.ast;
+    if (!is("ObjectExpression", init)) {
+      return undefined;
+    }
+
+    const property = init.properties.find((p) => {
+      if (is("StringLiteral", p.key)) {
+        return p.key.value === key;
+      }
+
+      if (is("Identifier", p.key)) {
+        return p.key.name === key;
+      }
+
+      return false;
+    });
+
+    return property ? new Tower(property) : undefined;
   }
 
   getCalls(callSite) {

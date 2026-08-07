@@ -867,7 +867,7 @@ Restart your server, and make a request to `http://localhost:3001/index.html`.
 You should restart the server, and make a request to it.
 
 ```js
-const temp = await __helpers.getTemp();
+const temp = await __helpers.getTerminalOutput();
 assert.include(temp, "curl http://localhost:3001/index.html");
 ```
 
@@ -1083,7 +1083,7 @@ server.listen(3001);
 
 ### --description--
 
-If there is no error reading the file, the first callback argument will be `null`, and the second argument will be the file data. Change the `response.end` function to send the file data to the client.
+If there is no error reading the file, the first callback argument will be `null`, and the second argument will be the file data. Move your `response.end` call into the `readFile` callback function, and change it to send the file data (instead of `filePath`) to the client.
 
 ### --tests--
 
@@ -1147,7 +1147,7 @@ Restart your server, and make a request to it.
 You should restart the server, and make a request to it.
 
 ```js
-const temp = await __helpers.getTemp();
+const temp = await __helpers.getTerminalOutput();
 assert.include(temp, "curl http://localhost:3001/");
 ```
 
@@ -1244,7 +1244,7 @@ Restart your server, and make a request to an invalid path.
 You should restart the server, and make a request to it.
 
 ```js
-const temp = await __helpers.getTemp();
+const temp = await __helpers.getTerminalOutput();
 assert.include(temp, "curl http://localhost:3001/");
 ```
 
@@ -2621,7 +2621,7 @@ server.listen(3001, () => console.log("Server is listening on port 3001"));
 You should type `done` in the terminal.
 
 ```js
-const __temp = await __helpers.getTemp();
+const __temp = await __helpers.getTerminalOutput();
 assert.include(
   __temp,
   "done",
