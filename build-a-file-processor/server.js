@@ -2,5 +2,13 @@
 const fs = require('fs');
 console.log(fs);
 
- const data = fs.readFileSync('assets/poem.txt', { encoding: "utf8" });
- console.log(data);
+const fs = require('fs');
+
+fs.readFile('assets/poem.txt', { encoding: 'utf8' }, (err, data) => {
+  if (err) {
+    console.error(err);
+    return;
+  }
+
+  console.log(data);
+});
