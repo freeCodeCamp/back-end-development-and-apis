@@ -76,7 +76,7 @@ The `/api/profile` route should return a JSON response with the correct content 
 ```js
 const response = await fetch(`${__url}api/profile`);
 const headers = response.headers;
-assert.include(headers["content-type"], "application/json");
+assert.include(headers.get("content-type"), "application/json");
 ```
 
 The `/api/profile` route should return a JSON object with a `name` property set to `Camper Bot`.
