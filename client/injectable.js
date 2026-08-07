@@ -64,7 +64,7 @@ function showUpdateBanner(remoteVersion) {
     "box-shadow:0 2px 6px rgba(0,0,0,0.3);";
 
   const text = document.createElement("span");
-  text.innerHTML = `A newer version (${remoteVersion}) of this course is available. Consider updating with <code>git pull --ff</code>.`;
+  text.innerHTML = `A newer version (${remoteVersion}) of this course is available. Consider updating with <code>git pull -r --autostash</code>.`;
 
   const dismiss = document.createElement("button");
   dismiss.innerText = "Dismiss";
