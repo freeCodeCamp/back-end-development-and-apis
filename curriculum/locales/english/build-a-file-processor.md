@@ -398,18 +398,35 @@ assert.match(
 );
 ```
 
-Running `server.js` should create an `assets/output.txt` file.
+`server.js` should call `fs.writeFileSync` with the string `'Hello, freeCodeCamp!'`.
+
+```js
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+const __i = new __helpers.Inspector(__file);
+const __calls = __i.getCalls("fs.writeFileSync");
+assert.equal(
+  __i.argText(__calls.at(0).arguments.at(1)),
+  "Hello, freeCodeCamp!",
+  "The second argument to `fs.writeFileSync` should be 'Hello, freeCodeCamp!'",
+);
+```
+
+Running `server.js` should create an `assets/output.txt` file containing `'Hello, freeCodeCamp!'`.
 
 ```js
 const { join } = await import("path");
-const { existsSync } = await import("fs");
+const { existsSync, readFileSync } = await import("fs");
 await __helpers.getCommandOutput("node server.js", project.dashedName);
-const __exists = existsSync(
-  join(ROOT, project.dashedName, "assets", "output.txt"),
-);
+const __path = join(ROOT, project.dashedName, "assets", "output.txt");
+const __exists = existsSync(__path);
 assert.isTrue(
   __exists,
   "`assets/output.txt` should exist after running `node server.js`",
+);
+assert.equal(
+  readFileSync(__path, "utf-8"),
+  "Hello, freeCodeCamp!",
+  "`assets/output.txt` should contain 'Hello, freeCodeCamp!' after running `node server.js`",
 );
 ```
 
