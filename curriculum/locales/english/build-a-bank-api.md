@@ -86,17 +86,10 @@ assert.isDefined(__port, "`PORT` variable not found in `server.js`");
 assert.match(__port.compact, /9000/, "`PORT` should be set to `9000`");
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 2
@@ -137,17 +130,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 3
@@ -196,17 +182,10 @@ assert.isTrue(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 4
@@ -280,17 +259,11 @@ assert.equal(__bob.balance, 500, "Bob's balance should be 500");
 assert.equal(__charlie.balance, 250, "Charlie's balance should be 250");
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __raw = await __helpers.getFile(project.dashedName, "accounts.json");
-global.__accounts = JSON.parse(__raw);
-```
-
-### --after-all--
-
-```js
-delete global.__accounts;
+const __accounts = JSON.parse(__raw);
 ```
 
 ## 5
@@ -361,17 +334,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "db.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 6
@@ -417,17 +383,10 @@ const __hasJson = __useCalls.some((c) => {
 assert.isTrue(__hasJson, "`server.js` should call `app.use(express.json())`");
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 7
@@ -524,17 +483,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 9
@@ -612,17 +564,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 10
@@ -679,17 +624,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 11
@@ -730,17 +668,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 12
@@ -781,17 +712,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 13
@@ -846,17 +770,10 @@ assert.isAbove(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 14
@@ -900,17 +817,10 @@ assert.isAbove(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 15
@@ -949,17 +859,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 16
@@ -1021,17 +924,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 17
@@ -1112,17 +1008,10 @@ assert.isAbove(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 19
@@ -1166,17 +1055,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 20
@@ -1257,17 +1139,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 22
@@ -1384,17 +1259,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 25
@@ -1438,17 +1306,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 26
@@ -1528,17 +1389,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 28
@@ -1583,17 +1437,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 29
@@ -1658,17 +1505,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 30
@@ -1724,17 +1564,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 31
@@ -1801,17 +1634,10 @@ assert.isAtLeast(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 32
@@ -1912,17 +1738,10 @@ assert.match(
 );
 ```
 
-### --before-all--
+### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-global.__file = __file;
-```
-
-### --after-all--
-
-```js
-delete global.__file;
 ```
 
 ## 34
