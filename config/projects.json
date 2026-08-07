@@ -17,7 +17,7 @@
     "dashedName": "build-a-file-processor",
     "isIntegrated": false,
     "isPublic": true,
-    "currentLesson": 0,
+    "currentLesson": 1,
     "runTestsOnWatch": true,
     "seedEveryLesson": false,
     "isResetEnabled": false,
