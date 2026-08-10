@@ -553,6 +553,8 @@ export class Tower {
         }
 
         throw new Error(`Unimplemented for ${ast.type}`);
+      case "BlockStatement":
+        return ast.body;
       default:
         throw new Error(`Unimplemented for ${ast.type}`);
     }
