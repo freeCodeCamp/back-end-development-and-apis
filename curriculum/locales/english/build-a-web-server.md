@@ -434,17 +434,31 @@ Restart your server by stopping it with `Ctrl + C` and then running `node server
 You should restart the server.
 
 ```js
+// The server does not respond yet, so abort the request instead of waiting
+const controller = new AbortController();
+const timeout = setTimeout(() => controller.abort(), 500);
 try {
-  fetch("http://localhost:3001");
-  // Server does not respond, so catch the error
-} catch (_e) {}
+  await fetch("http://localhost:3001", { signal: controller.signal });
+} catch (_e) {
+} finally {
+  clearTimeout(timeout);
+}
 await new Promise((resolve) => {
   setTimeout(() => {
     resolve();
-  }, 50);
+  }, 500);
 });
 const temp = await __helpers.getTemp();
-assert.include(temp, "IncomingMessage {");
+assert.notInclude(
+  temp,
+  "IncomingMessage {",
+  "Your server is still logging the whole request object. You should restart it, so it uses your new code",
+);
+assert.include(
+  temp,
+  "host:",
+  "Your server should be running, and logging the request headers",
+);
 ```
 
 ## 16
@@ -459,6 +473,7 @@ You should run `curl --max-time 2 http://localhost:3001` in the terminal.
 
 ```js
 const lastCommand = await __helpers.getLastCommand();
+assert.exists(lastCommand, "a command should be input");
 const [command, ...args] = __helpers.parseCli(lastCommand);
 assert.equal(command, "curl");
 assert.include(args, "http://localhost:3001");

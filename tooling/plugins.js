@@ -13,6 +13,7 @@ pluginEvents.onProjectFinished = async (project) => {
     const token = await readFile("config/token.txt", "utf-8");
 
     const tutorialId = "freeCodeCamp/" + project.dashedName;
+    console.log("Submitting:", tutorialId);
     // Send request to POST /coderoad-challenge-completed
     // header: coderoad-user-token
     // body: tutorialId: freeCodeCamp/{project_dashed_name}
