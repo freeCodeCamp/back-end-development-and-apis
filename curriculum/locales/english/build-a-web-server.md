@@ -531,8 +531,15 @@ Restart your server by stopping it with `Ctrl + C` and then running `node server
 You should restart the server, and make a request to it.
 
 ```js
-const temp = await __helpers.getTemp();
-assert.include(temp, "curl http://localhost:3001/test-url");
+const lastCommand = await __helpers.getLastCommand();
+assert.exists(lastCommand, "a command should be input");
+const [command, ...args] = __helpers.parseCli(lastCommand);
+assert.equal(command, "curl", "You should use the curl command");
+assert.include(
+  args,
+  "http://localhost:3001/test-url",
+  "You should make a request to http://localhost:3001/test-url",
+);
 ```
 
 ### --seed--
