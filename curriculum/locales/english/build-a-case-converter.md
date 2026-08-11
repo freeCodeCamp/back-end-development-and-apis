@@ -151,10 +151,9 @@ Write `This package is used to convert strings to a specific case.`, then press 
 You should write `This package is used to convert strings to a specific case.` and press `Enter`.
 
 ```js
-const temp = await __helpers.getTemp();
-const description = temp.match(/description: (.*)/)[1];
 // Oddly, the typed values are not visible in the temp output
-assert.include(description, "entry point:");
+const temp = await __helpers.getTemp();
+assert.include(temp, "entry point:");
 ```
 
 ## 7
@@ -1187,6 +1186,39 @@ touch build-a-case-converter/case_converter/index.test.js
 
 ### --description--
 
+In order to use the `caseConverter` module in the `index.test.js` file, you need to import it:
+
+```js
+const caseConverter = require("./index");
+```
+
+### --tests--
+
+The `index.test.js` file should contain `const caseConverter = require("./index");`.
+
+```js
+const file = await __helpers.getFile(
+  project.dashedName,
+  "case_converter/index.test.js",
+);
+const t = new __helpers.Tower(file);
+const variableDeclaration = t.getVariable("caseConverter")?.compact;
+assert.exists(variableDeclaration);
+assert.equal(variableDeclaration, 'const caseConverter=require("./index");');
+```
+
+### --seed--
+
+#### --"build-a-case-converter/case_converter/index.test.js"--
+
+```js
+const assert = require("node:assert/strict");
+```
+
+## 35
+
+### --description--
+
 Create a test for the `getUpperCase` function:
 
 ```js
@@ -1215,39 +1247,7 @@ assert.equal(callExpression.callee.property.name, "getUpperCase");
 assert.equal(stringLiteral.value, "HELLO FREE CODE CAMP!");
 ```
 
-### --seed--
-
-#### --"build-a-case-converter/case_converter/index.test.js"--
-
-```js
-const assert = require("node:assert/strict");
-```
-
-## 35
-
-### --description--
-
-In order to use the `caseConverter` module in the `index.test.js` file, you need to import it:
-
-```js
-const caseConverter = require("./index");
-```
-
-### --tests--
-
-The `index.test.js` file should contain `const caseConverter = require("./index");`.
-
-```js
-const file = await __helpers.getFile(
-  project.dashedName,
-  "case_converter/index.test.js",
-);
-const t = new __helpers.Tower(file);
-const variableDeclaration = t.getVariable("caseConverter").compact;
-assert.equal(variableDeclaration, 'const caseConverter=require("./index");');
-```
-
-The import of `caseConverter` should be above the test.
+The test should be below the import of `caseConverter`.
 
 ```js
 const file = await __helpers.getFile(
@@ -1256,7 +1256,9 @@ const file = await __helpers.getFile(
 );
 const t = new __helpers.Tower(file);
 const variableDeclaration = t.getVariable("caseConverter");
-const expressionStatement = t.getCalls("assert.strictEqual").at(0);
+assert.exists(variableDeclaration);
+const expressionStatement = t.getCalls("assert.strictEqual")?.at(0);
+assert.exists(expressionStatement);
 assert.isBelow(
   variableDeclaration.ast.start,
   expressionStatement.ast.start,
@@ -1270,11 +1272,7 @@ assert.isBelow(
 
 ```js
 const assert = require("node:assert/strict");
-
-assert.strictEqual(
-  caseConverter.getUpperCase("hello free Code Camp!"),
-  "HELLO FREE CODE CAMP!",
-);
+const caseConverter = require("./index");
 ```
 
 ## 36
@@ -1375,8 +1373,8 @@ Run `npm test` to test your package. This will run the `test` command that you d
 You should run `npm test` in the terminal.
 
 ```js
-const lastCommand = await __helpers.getLastCommand();
-assert.equal(lastCommand.trim(), "npm test");
+const terminalOutput = await __helpers.getTerminalOutput();
+assert.include(terminalOutput, "node index.test.js");
 ```
 
 ### --seed--
@@ -1431,15 +1429,16 @@ try {
 
 ### --description--
 
-Run `npm test` to test your package.
+Run `npm test` to test your package, and see the failing assertion.
 
 ### --tests--
 
-You should run `npm test` in the terminal.
+You should run `npm test` in the terminal, and see the failing assertion.
 
 ```js
-const lastCommand = await __helpers.getLastCommand();
-assert.equal(lastCommand.trim(), "npm test");
+const terminalOutput = await __helpers.getTerminalOutput();
+assert.include(terminalOutput, "node index.test.js");
+assert.include(terminalOutput, "AssertionError");
 ```
 
 ### --seed--
@@ -1506,8 +1505,8 @@ npm publish --dry-run
 You should run `npm publish --dry-run` in the terminal.
 
 ```js
-const lastCommand = await __helpers.getLastCommand();
-assert.equal(lastCommand.trim(), "npm publish --dry-run");
+const terminalOutput = await __helpers.getTerminalOutput();
+assert.include(terminalOutput, "Tarball Contents");
 ```
 
 ### --seed--
@@ -1578,11 +1577,12 @@ Do another dry run to make sure the `index.test.js` file is excluded from the pa
 
 ### --tests--
 
-You should run `npm publish --dry-run` in the terminal.
+You should run `npm publish --dry-run` in the terminal, and the `index.test.js` file should not be included.
 
 ```js
-const lastCommand = await __helpers.getLastCommand();
-assert.equal(lastCommand.trim(), "npm publish --dry-run");
+const terminalOutput = await __helpers.getTerminalOutput();
+assert.include(terminalOutput, "Tarball Contents");
+assert.notInclude(terminalOutput, "index.test.js");
 ```
 
 ### --seed--
