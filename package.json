@@ -12,7 +12,10 @@
   "name": "back-end-development-and-apis",
   "private": true,
   "scripts": {
-    "start": "node ./node_modules/@freecodecamp/freecodecamp-os/.freeCodeCamp/tooling/server.js"
+    "start": "node ./node_modules/@freecodecamp/freecodecamp-os/.freeCodeCamp/tooling/server.js",
+    "test": "node test/run.mjs",
+    "test:lint": "node test/run.mjs --check lint",
+    "test:crash": "node test/run.mjs --check crash"
   },
   "type": "module",
   "version": "1.1.9"
