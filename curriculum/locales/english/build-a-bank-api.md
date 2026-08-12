@@ -1336,6 +1336,7 @@ This gives you a handle you can use to stop the server programmatically in the n
 const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __t = new __helpers.Tower(__file);
 const __server = __t.getVariable("server");
+assert.exists(__server, "Expected getVariable lookup to return a value.");
 assert.isDefined(
   __server,
   "A variable named `server` should be declared in `server.js`",
@@ -1479,6 +1480,7 @@ The `GET /accounts` route should no longer have a `try/catch` block.
 const __accountsRouteMatch = __file.match(
   /app\.get\s*\(\s*['"]\/accounts['"]\s*,[\s\S]*?\)\s*;/,
 );
+assert.exists(__accountsRouteMatch, "Expected match lookup to return a value.");
 assert.isNotNull(
   __accountsRouteMatch,
   "Could not find the `GET /accounts` route",

@@ -167,6 +167,12 @@ async function runState(project, lesson, state, throughLesson, options, snapshot
   }
 }
 
+function hasUsableSeed(seed = []) {
+  return seed.some(item =>
+    typeof item === 'string' ? item.trim() : item.fileSeed.trim()
+  );
+}
+
 function isLogBasedLesson(lesson) {
   return lesson.tests.some(([, code]) =>
     /\b__helpers\.(?:getBashHistory|getCWD|getLastCommand|getLastCWD|getRepl|getTemp|getTerminalOutput)\s*\(/.test(
@@ -204,7 +210,7 @@ async function runRuntime(projects, options) {
         options,
         true
       );
-    } else if (project.lessons[lesson.number + 1]?.seed?.length) {
+    } else if (hasUsableSeed(project.lessons[lesson.number + 1]?.seed)) {
       reference = 'next-seed';
       solution = await runState(
         project,

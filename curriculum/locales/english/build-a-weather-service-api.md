@@ -99,7 +99,7 @@ assert.isAbove(
   0,
   "You should call 'app.listen()' in 'index.js'.",
 );
-const __firstArg = __calls.at(0).ast.expression.arguments.at(0);
+const __firstArg = __calls.at(0)?.ast.expression.arguments.at(0);
 assert.equal(
   __firstArg?.name,
   "PORT",

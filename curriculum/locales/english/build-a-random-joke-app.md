@@ -286,6 +286,7 @@ The `jokes` variable should be an array.
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const code = new __helpers.Tower(file);
 const jokesVar = code.getVariable("jokes");
+assert.exists(jokesVar, "Expected getVariable lookup to return a value.");
 
 const declaration = jokesVar.ast.declarations[0];
 
@@ -302,6 +303,7 @@ The value of `jokes` should match the above.
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const code = new __helpers.Tower(file);
 const jokesVar = code.getVariable("jokes");
+assert.exists(jokesVar, "Expected getVariable lookup to return a value.");
 
 const declaration = jokesVar.ast.declarations[0];
 const jokes = declaration.init.elements.map((el) => el.value);

@@ -3,15 +3,36 @@ import { join } from "path";
 import { readFile, readdir, constants, access } from "fs/promises";
 import { createConnection } from "net";
 import { logover } from "@freecodecamp/freecodecamp-os/.freeCodeCamp/tooling/logger.js";
+import { AssertionError } from "chai";
 
 import { Babeliser } from "babeliser";
+
+function curriculumAssertion(message, error) {
+  const details = {};
+  if (error && typeof error === "object") {
+    for (const key of Object.getOwnPropertyNames(error)) {
+      if (typeof error[key] !== "function") details[key] = error[key];
+    }
+  }
+  throw new AssertionError(message, {
+    ...details,
+    actual: error?.message,
+    cause: error,
+  });
+}
 
 export { Babeliser };
 
 export async function getDir(path) {
   const rootPath = join(ROOT, path);
-  const dir = await readdir(rootPath);
-  return dir;
+  try {
+    return await readdir(rootPath);
+  } catch (error) {
+    curriculumAssertion(
+      `Expected directory '${path}' to exist and be readable.`,
+      error,
+    );
+  }
 }
 
 export async function fileExists(...path) {
@@ -26,8 +47,38 @@ export async function fileExists(...path) {
 
 export async function getFile(projectDashedName, pathRelativeToProject) {
   const rootPath = join(ROOT, projectDashedName, pathRelativeToProject);
-  const file = await readFile(rootPath, "utf-8");
-  return file;
+  try {
+    return await readFile(rootPath, "utf-8");
+  } catch (error) {
+    curriculumAssertion(
+      `Expected '${join(projectDashedName, pathRelativeToProject)}' to exist and be readable.`,
+      error,
+    );
+  }
+}
+
+export async function getCommandOutput(command, path = "") {
+  const { exec } = await import("node:child_process");
+  const { promisify } = await import("node:util");
+  try {
+    return await promisify(exec)(command, {
+      cwd: join(ROOT, path),
+      shell: "/bin/bash",
+    });
+  } catch (error) {
+    curriculumAssertion(
+      `Expected '${command}' to run successfully${path ? ` in '${path}'` : ""}.`,
+      error,
+    );
+  }
+}
+
+export async function importSansCache(path) {
+  try {
+    return await import(`${join(ROOT, path)}?update=${Date.now()}`);
+  } catch (error) {
+    curriculumAssertion(`Expected module '${path}' to load successfully.`, error);
+  }
 }
 
 export function isServerListening(port) {
@@ -160,6 +211,11 @@ export async function awaitExecution(
  * @returns {string[]} array of arguments where the first element is the command
  */
 export function parseCli(str) {
+  if (typeof str !== "string" || !str.trim()) {
+    curriculumAssertion(
+      "Expected a terminal command. Run the command requested by this lesson.",
+    );
+  }
   const args = [];
   const [command, ...rest] = str.split(" ");
   const iter = rest[Symbol.iterator]();

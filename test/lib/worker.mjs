@@ -142,13 +142,15 @@ export async function runLessonTests({
 }) {
   const records = [];
   let runner;
+  const needsLiveServer =
+    skipLiveServer &&
+    lesson.tests.some(([, code]) =>
+      isLiveServerTest(code, lesson.beforeEach ?? '')
+    );
 
   for (let testId = 0; testId < lesson.tests.length; testId++) {
     const [, testCode] = lesson.tests[testId];
-    if (
-      skipLiveServer &&
-      isLiveServerTest(testCode, lesson.beforeEach ?? '')
-    ) {
+    if (needsLiveServer) {
       records.push({
         project: project.dashedName,
         lesson: lesson.number,
@@ -242,6 +244,7 @@ function fetchHelpers(beforeEach) {
 
 function isLiveServerTest(code, beforeEach) {
   if (/\b__helpers\.isServerListening\s*\(/.test(code)) return true;
+  if (/\bnew\s+WebSocket\s*\(/.test(code)) return true;
   if (
     fetchHelpers(beforeEach).some(name =>
       new RegExp(`\\b${name}\\s*\\(`).test(code)

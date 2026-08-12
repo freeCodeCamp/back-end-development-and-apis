@@ -129,7 +129,8 @@ assert.isAbove(
   0,
   "app.listen() should be called in server.js.",
 );
-const __firstArg = __calls.at(0).ast.expression.arguments.at(0);
+const __firstArg = __calls.at(0)?.ast.expression.arguments.at(0);
+assert.exists(__firstArg, "Expected at lookup to return a value.");
 assert.equal(
   __firstArg.value,
   3000,

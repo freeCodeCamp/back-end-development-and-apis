@@ -25,10 +25,14 @@ async function exists(path) {
   }
 }
 
-async function copyFile(root, workspace, path) {
+async function copyFile(root, workspace, path, optional = false) {
   const destination = join(workspace, relative(root, path));
   await mkdir(dirname(destination), { recursive: true });
-  await cp(path, destination, { recursive: true });
+  try {
+    await cp(path, destination, { recursive: true });
+  } catch (error) {
+    if (!optional || error.code !== 'ENOENT') throw error;
+  }
 }
 
 async function trackedProjectFiles(root, project) {
@@ -58,11 +62,14 @@ export async function createWorkspace(root, project, throughLesson) {
       `curriculum/locales/english/${project.dashedName}.md`
     ];
     const projectFiles = await trackedProjectFiles(root, project);
-    await Promise.all(
-      [...supportFiles, ...projectFiles].map(path =>
+    await Promise.all([
+      ...supportFiles.map(path =>
         copyFile(root, workspace, join(root, path))
+      ),
+      ...projectFiles.map(path =>
+        copyFile(root, workspace, join(root, path), true)
       )
-    );
+    ]);
     await writeEmptyLogs(workspace);
 
     for (let number = 0; number <= throughLesson; number++) {
@@ -106,5 +113,10 @@ export async function hasLessonSnapshot(root, project, lesson) {
 }
 
 export async function removeWorkspace(workspace) {
-  await rm(workspace, { recursive: true, force: true, maxRetries: 3 });
+  await rm(workspace, {
+    recursive: true,
+    force: true,
+    maxRetries: 5,
+    retryDelay: 50
+  });
 }

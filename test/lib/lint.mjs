@@ -54,7 +54,9 @@ function collectGuards(nodes) {
     }
     const method = propertyName(node.callee);
     const first = node.arguments[0];
-    if (['exists', 'isOk', 'isNotEmpty', 'lengthOf'].includes(method)) {
+    if (
+      ['exists', 'isDefined', 'isOk', 'isNotEmpty', 'lengthOf'].includes(method)
+    ) {
       if (first?.type === 'Identifier') add(first.name, node.start);
     }
     if (

@@ -372,10 +372,13 @@ const file = await __helpers.getFile(
   project.dashedName,
   "case_converter/index.js",
 );
-const evalCode = `${file}
-assert.strictEqual(getUpperCase("hello"), "HELLO");
-`;
-const _ = eval(evalCode);
+let result;
+try {
+  result = eval(`${file}\ngetUpperCase("hello");`);
+} catch (_error) {
+  assert.fail("getUpperCase should be defined and run without errors.");
+}
+assert.strictEqual(result, "HELLO");
 ```
 
 ### --seed--
@@ -415,10 +418,13 @@ const file = await __helpers.getFile(
   project.dashedName,
   "case_converter/index.js",
 );
-const evalCode = `${file}
-assert.strictEqual(getLowerCase("HELLO"), "hello");
-`;
-const _ = eval(evalCode);
+let result;
+try {
+  result = eval(`${file}\ngetLowerCase("HELLO");`);
+} catch (_error) {
+  assert.fail("getLowerCase should be defined and run without errors.");
+}
+assert.strictEqual(result, "hello");
 ```
 
 ### --seed--
@@ -1552,11 +1558,12 @@ index.test.js
 You should have a file named `.npmignore` in the `case_converter/` directory.
 
 ```js
-const { access, constants } = await import("fs/promises");
-await access(
-  join(ROOT, project.dashedName, "case_converter", ".npmignore"),
-  constants.F_OK,
+const exists = await __helpers.fileExists(
+  project.dashedName,
+  "case_converter",
+  ".npmignore",
 );
+assert.isTrue(exists, "Create a .npmignore file in case_converter.");
 ```
 
 You should have `index.test.js` in the `.npmignore` file.

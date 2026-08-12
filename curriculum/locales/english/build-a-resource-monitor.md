@@ -197,7 +197,8 @@ assert.isAbove(
   0,
   "server.listen() should be called in server.js.",
 );
-const __firstArg = __calls.at(0).ast.expression.arguments.at(0);
+const __firstArg = __calls.at(0)?.ast.expression.arguments.at(0);
+assert.exists(__firstArg, "Expected at lookup to return a value.");
 assert.equal(
   __firstArg.name,
   "PORT",
@@ -211,7 +212,7 @@ The `server.listen` callback should log a message containing the server URL.
 const __t = new __helpers.Tower(__file);
 const __listenCalls = __t.getCalls("server.listen");
 assert.isAbove(__listenCalls.length, 0, "server.listen() should be called.");
-const __listenCb = __listenCalls.at(0).ast.expression.arguments.at(1);
+const __listenCb = __listenCalls.at(0)?.ast.expression.arguments.at(1);
 const __listenT = new __helpers.Tower(__listenCb);
 const __logCalls = __listenT.getCalls("console.log");
 assert.isAbove(
@@ -220,7 +221,7 @@ assert.isAbove(
   "The server.listen callback should log a message.",
 );
 assert.match(
-  __logCalls.at(0).compact,
+  __logCalls.at(0)?.compact,
   /localhost/,
   "The server.listen callback should log the server URL.",
 );
@@ -351,6 +352,7 @@ The `WebSocketServer` should be passed `{ server }` as its argument.
 ```js
 const __t = new __helpers.Tower(__file);
 const __wss = __t.getVariable("wss");
+assert.exists(__wss, "Expected getVariable lookup to return a value.");
 const __newExpr = __wss.ast.declarations[0].init;
 const __arg = __newExpr?.arguments?.at(0);
 const __serverProp = __arg?.properties?.find((p) => p.key?.name === "server");
@@ -418,7 +420,8 @@ Place this after the `wss` declaration and before `server.listen`.
 const __t = new __helpers.Tower(__file);
 const __calls = __t.getCalls("wss.on");
 assert.isAbove(__calls.length, 0, "wss.on() should be called in server.js.");
-const __firstArg = __calls.at(0).ast.expression.arguments.at(0);
+const __firstArg = __calls.at(0)?.ast.expression.arguments.at(0);
+assert.exists(__firstArg, "Expected at lookup to return a value.");
 assert.equal(
   __firstArg.value,
   "connection",
@@ -432,7 +435,7 @@ The `'connection'` callback should accept a `socket` parameter.
 const __t = new __helpers.Tower(__file);
 const __wssOnCalls = __t.getCalls("wss.on");
 assert.isAbove(__wssOnCalls.length, 0, "wss.on() should be called.");
-const __connCb = __wssOnCalls.at(0).ast.expression.arguments.at(1);
+const __connCb = __wssOnCalls.at(0)?.ast.expression.arguments.at(1);
 assert.equal(
   __connCb?.params?.at(0)?.name,
   "socket",
@@ -496,7 +499,7 @@ socket.on("message", (data) => {
 
 ```js
 const __t = new __helpers.Tower(__file);
-const __connCb = __t.getCalls("wss.on").at(0).ast.expression.arguments.at(1);
+const __connCb = __t.getCalls("wss.on").at(0)?.ast.expression.arguments.at(1);
 const __connT = new __helpers.Tower(__connCb);
 const __msgCalls = __connT
   .getCalls("socket.on")
@@ -512,7 +515,7 @@ The `'message'` callback should log the received data as a string.
 
 ```js
 const __t = new __helpers.Tower(__file);
-const __connCb = __t.getCalls("wss.on").at(0).ast.expression.arguments.at(1);
+const __connCb = __t.getCalls("wss.on").at(0)?.ast.expression.arguments.at(1);
 const __connT = new __helpers.Tower(__connCb);
 const __msgCalls = __connT
   .getCalls("socket.on")
@@ -522,9 +525,9 @@ assert.isAbove(
   0,
   "socket.on('message', ...) should be called.",
 );
-const __msgCb = __msgCalls.at(0).ast.expression.arguments.at(1);
-const __msgT = new __helpers.Tower(__msgCb);
-const __toStringCalls = __msgT.getCalls("data.toString");
+const __msgCb = __msgCalls.at(0)?.ast.expression.arguments.at(1);
+const __msgI = new __helpers.Inspector(__helpers.generate(__msgCb).code);
+const __toStringCalls = __msgI.getCalls("data.toString");
 assert.isAbove(
   __toStringCalls.length,
   0,
@@ -590,7 +593,7 @@ socket.on("close", () => {
 
 ```js
 const __t = new __helpers.Tower(__file);
-const __connCb = __t.getCalls("wss.on").at(0).ast.expression.arguments.at(1);
+const __connCb = __t.getCalls("wss.on").at(0)?.ast.expression.arguments.at(1);
 const __connT = new __helpers.Tower(__connCb);
 const __closeCalls = __connT
   .getCalls("socket.on")
@@ -606,7 +609,7 @@ The `'close'` callback should log `'Client disconnected'`.
 
 ```js
 const __t = new __helpers.Tower(__file);
-const __connCb = __t.getCalls("wss.on").at(0).ast.expression.arguments.at(1);
+const __connCb = __t.getCalls("wss.on").at(0)?.ast.expression.arguments.at(1);
 const __connT = new __helpers.Tower(__connCb);
 const __closeCalls = __connT
   .getCalls("socket.on")
@@ -616,7 +619,7 @@ assert.isAbove(
   0,
   "socket.on('close', ...) should be called.",
 );
-const __closeCb = __closeCalls.at(0).ast.expression.arguments.at(1);
+const __closeCb = __closeCalls.at(0)?.ast.expression.arguments.at(1);
 const __closeT = new __helpers.Tower(__closeCb);
 const __logCalls = __closeT.getCalls("console.log");
 assert.isAbove(
@@ -625,7 +628,7 @@ assert.isAbove(
   "The close handler should log 'Client disconnected'.",
 );
 assert.equal(
-  __logCalls.at(0).ast.expression.arguments.at(0)?.value,
+  __logCalls.at(0)?.ast.expression.arguments.at(0)?.value,
   "Client disconnected",
   "The close handler should log 'Client disconnected'.",
 );
@@ -693,7 +696,7 @@ socket.on("error", (err) => {
 
 ```js
 const __t = new __helpers.Tower(__file);
-const __connCb = __t.getCalls("wss.on").at(0).ast.expression.arguments.at(1);
+const __connCb = __t.getCalls("wss.on").at(0)?.ast.expression.arguments.at(1);
 const __connT = new __helpers.Tower(__connCb);
 const __errCalls = __connT
   .getCalls("socket.on")
@@ -709,7 +712,7 @@ The `'error'` callback should call `console.error`.
 
 ```js
 const __t = new __helpers.Tower(__file);
-const __connCb = __t.getCalls("wss.on").at(0).ast.expression.arguments.at(1);
+const __connCb = __t.getCalls("wss.on").at(0)?.ast.expression.arguments.at(1);
 const __connT = new __helpers.Tower(__connCb);
 const __errCalls = __connT
   .getCalls("socket.on")
@@ -719,7 +722,7 @@ assert.isAbove(
   0,
   "socket.on('error', ...) should be called.",
 );
-const __errCb = __errCalls.at(0).ast.expression.arguments.at(1);
+const __errCb = __errCalls.at(0)?.ast.expression.arguments.at(1);
 const __errT = new __helpers.Tower(__errCb);
 const __consoleErrCalls = __errT.getCalls("console.error");
 assert.isAbove(
@@ -835,6 +838,7 @@ assert.isDefined(__fn, "A function named getMetrics should be declared.");
 ```js
 const __t = new __helpers.Tower(__file);
 const __fn = __t.getFunction("getMetrics");
+assert.exists(__fn, "A function named getMetrics should be declared.");
 assert.match(
   __fn.compact,
   /loadAvg:os\.loadavg\(\)/,
@@ -847,6 +851,7 @@ assert.match(
 ```js
 const __t = new __helpers.Tower(__file);
 const __fn = __t.getFunction("getMetrics");
+assert.exists(__fn, "A function named getMetrics should be declared.");
 assert.match(__fn.compact, /freeMemMB/, "getMetrics should include freeMemMB.");
 assert.match(
   __fn.compact,
@@ -926,9 +931,10 @@ Inside the `'connection'` callback, use `setInterval` to call `socket.send` with
 
 ```js
 const __t = new __helpers.Tower(__file);
-const __connCb = __t.getCalls("wss.on").at(0).ast.expression.arguments.at(1);
+const __connCb = __t.getCalls("wss.on").at(0)?.ast.expression.arguments.at(1);
 const __connT = new __helpers.Tower(__connCb);
 const __interval = __connT.getVariable("interval");
+assert.exists(__interval, "Expected getVariable lookup to return a value.");
 assert.isDefined(
   __interval,
   "setInterval should be stored in a const named interval.",
@@ -944,9 +950,10 @@ The `setInterval` callback should call `socket.send` with `JSON.stringify(getMet
 
 ```js
 const __t = new __helpers.Tower(__file);
-const __connCb = __t.getCalls("wss.on").at(0).ast.expression.arguments.at(1);
+const __connCb = __t.getCalls("wss.on").at(0)?.ast.expression.arguments.at(1);
 const __connT = new __helpers.Tower(__connCb);
 const __interval = __connT.getVariable("interval");
+assert.exists(__interval, "Expected getVariable lookup to return a value.");
 const __setIntervalInit = __interval.ast.declarations[0].init;
 const __intervalCb = __setIntervalInit?.arguments?.at(0);
 const __intervalT = new __helpers.Tower(__intervalCb);
@@ -957,7 +964,7 @@ assert.isAbove(
   "socket.send() should be called inside setInterval.",
 );
 assert.match(
-  __sendCalls.at(0).compact,
+  __sendCalls.at(0)?.compact,
   /JSON\.stringify\(getMetrics\(\)\)/,
   "socket.send(JSON.stringify(getMetrics())) should be called inside setInterval.",
 );
@@ -967,9 +974,10 @@ The interval delay should be `1000` milliseconds.
 
 ```js
 const __t = new __helpers.Tower(__file);
-const __connCb = __t.getCalls("wss.on").at(0).ast.expression.arguments.at(1);
+const __connCb = __t.getCalls("wss.on").at(0)?.ast.expression.arguments.at(1);
 const __connT = new __helpers.Tower(__connCb);
 const __interval = __connT.getVariable("interval");
+assert.exists(__interval, "Expected getVariable lookup to return a value.");
 const __setIntervalInit = __interval.ast.declarations[0].init;
 const __delay = __setIntervalInit?.arguments?.at(1);
 assert.equal(__delay?.value, 1000, "The setInterval delay should be 1000ms.");
@@ -1054,7 +1062,7 @@ Update the `'close'` handler to cancel the interval as soon as the client discon
 
 ```js
 const __t = new __helpers.Tower(__file);
-const __connCb = __t.getCalls("wss.on").at(0).ast.expression.arguments.at(1);
+const __connCb = __t.getCalls("wss.on").at(0)?.ast.expression.arguments.at(1);
 const __connT = new __helpers.Tower(__connCb);
 const __closeCalls = __connT
   .getCalls("socket.on")
@@ -1064,7 +1072,7 @@ assert.isAbove(
   0,
   "socket.on('close', ...) should be called.",
 );
-const __closeCb = __closeCalls.at(0).ast.expression.arguments.at(1);
+const __closeCb = __closeCalls.at(0)?.ast.expression.arguments.at(1);
 const __closeT = new __helpers.Tower(__closeCb);
 const __clearCalls = __closeT.getCalls("clearInterval");
 assert.isAbove(
@@ -1073,7 +1081,7 @@ assert.isAbove(
   "clearInterval(interval) should be called inside the socket 'close' handler.",
 );
 assert.equal(
-  __clearCalls.at(0).ast.expression.arguments.at(0)?.name,
+  __clearCalls.at(0)?.ast.expression.arguments.at(0)?.name,
   "interval",
   "clearInterval should be called with interval.",
 );
@@ -1328,7 +1336,7 @@ assert.isAbove(
   "The onopen handler should call setStatus.",
 );
 assert.equal(
-  __setStatusCalls.at(0).ast.expression.arguments.at(0)?.value,
+  __setStatusCalls.at(0)?.ast.expression.arguments.at(0)?.value,
   "Connected",
   "The onopen handler should call setStatus('Connected').",
 );
@@ -1414,6 +1422,7 @@ const __onmsgStmt = __t.ast.body.find(
 assert.isDefined(__onmsgStmt, "socket.onmessage should be assigned.");
 const __onmsgT = new __helpers.Tower(__onmsgStmt.expression.right);
 const __dataVar = __onmsgT.getVariable("data");
+assert.exists(__dataVar, "Expected getVariable lookup to return a value.");
 assert.match(
   __dataVar.compact,
   /JSON\.parse\(event\.data\)/,
@@ -1441,7 +1450,7 @@ assert.isAbove(
   "The onmessage handler should call updateMetrics.",
 );
 assert.equal(
-  __updateCalls.at(0).ast.expression.arguments.at(0)?.name,
+  __updateCalls.at(0)?.ast.expression.arguments.at(0)?.name,
   "data",
   "The onmessage handler should call updateMetrics(data).",
 );
@@ -1536,7 +1545,7 @@ assert.isAbove(
   "The onclose handler should call setStatus.",
 );
 assert.equal(
-  __setStatusCalls.at(0).ast.expression.arguments.at(0)?.value,
+  __setStatusCalls.at(0)?.ast.expression.arguments.at(0)?.value,
   "Disconnected",
   "The onclose handler should call setStatus('Disconnected').",
 );

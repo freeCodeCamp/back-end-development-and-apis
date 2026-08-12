@@ -192,7 +192,10 @@ It should read `DB_PATH` synchronously as a UTF-8 string and `.trim()` it. If th
 const { readFile, writeFile } = await import("fs/promises");
 const { join } = await import("path");
 const __dataPath = join(ROOT, project.dashedName, "data/users.json");
-const __backup = await readFile(__dataPath, "utf-8");
+const __backup = await __helpers.getFile(
+  project.dashedName,
+  "data/users.json",
+);
 try {
   await writeFile(
     __dataPath,
@@ -298,7 +301,10 @@ return readUsers().find((u) => u.email === email) || null;
 const { readFile, writeFile } = await import("fs/promises");
 const { join } = await import("path");
 const __dataPath = join(ROOT, project.dashedName, "data/users.json");
-const __backup = await readFile(__dataPath, "utf-8");
+const __backup = await __helpers.getFile(
+  project.dashedName,
+  "data/users.json",
+);
 try {
   await writeFile(
     __dataPath,
@@ -2075,10 +2081,15 @@ const __errHandler = __b
     );
     return __fn?.params?.length === 4;
   });
+assert.exists(
+  __errHandler,
+  "Register an Express error middleware function with four parameters.",
+);
 const __fn = __errHandler?.arguments?.find(
   (a) =>
     a.type === "ArrowFunctionExpression" || a.type === "FunctionExpression",
 );
+assert.exists(__fn, "Register an Express error middleware function.");
 const __fnSrc = __b.generateCode(__fn);
 const __mockRes = () => {
   const r = { statusCode: 200, send: () => {} };

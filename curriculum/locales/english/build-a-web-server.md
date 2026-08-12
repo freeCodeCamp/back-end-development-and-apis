@@ -54,6 +54,7 @@ You should have `const http = require("http")` within `server.js`.
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const http = t.getVariable("http");
+assert.exists(http, "Expected getVariable lookup to return a value.");
 assert.equal(http.compact, 'const http=require("http");');
 ```
 
@@ -79,6 +80,7 @@ You should have `const server = http.createServer()` within `server.js`.
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 assert.equal(server.compact, "const server=http.createServer();");
 ```
 
@@ -106,10 +108,14 @@ You should have `http.createServer((request, response) => {})` within `server.js
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer_calls = server.getCalls("http.createServer");
 const http_createServer = http_createServer_calls.at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const arg1 = http_createServer.ast?.init?.arguments.at(0);
-const [request, response] = arg1?.params;
+assert.exists(arg1, "Pass a callback to http.createServer.");
+assert.lengthOf(arg1.params, 2, "The callback should accept two parameters.");
+const [request, response] = arg1.params;
 assert.equal(request.name, "request");
 assert.equal(response.name, "response");
 ```
@@ -165,7 +171,8 @@ You should have `server.listen(3001)` at the bottom of `server.js`.
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server_listen = t.getCalls("server.listen");
-const arg = server_listen.at(0).ast.expression.arguments.at(0);
+const arg = server_listen.at(0)?.ast.expression.arguments.at(0);
+assert.exists(arg, "Expected at lookup to return a value.");
 assert.equal(arg.value, 3001);
 ```
 
@@ -300,7 +307,8 @@ await cp(join(ROOT, project.dashedName), join(ROOT, "__test"), {
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server_listen = t.getCalls("server.listen");
-const arg = server_listen.at(0).ast.expression.arguments.at(0);
+const arg = server_listen.at(0)?.ast.expression.arguments.at(0);
+assert.exists(arg, "Expected at lookup to return a value.");
 arg.value = 3002;
 
 const testServerPath = join(ROOT, "__test", "server.js");
@@ -400,7 +408,8 @@ await cp(join(ROOT, project.dashedName), join(ROOT, "__test"), {
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server_listen = t.getCalls("server.listen");
-const arg = server_listen.at(0).ast.expression.arguments.at(0);
+const arg = server_listen.at(0)?.ast.expression.arguments.at(0);
+assert.exists(arg, "Expected at lookup to return a value.");
 arg.value = 3002;
 
 const testServerPath = join(ROOT, "__test", "server.js");
@@ -511,7 +520,9 @@ You should log `request.url` to the console within the `createServer` callback f
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const logs = cbTower.getCalls("console.log");
@@ -577,11 +588,13 @@ You should have `response.end(request.url)` within the `createServer` callback f
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const ends = cbTower.getCalls("response.end");
-assert.equal(ends.at(0).compact, "response.end(request.url);");
+assert.equal(ends.at(0)?.compact, "response.end(request.url);");
 ```
 
 ## 20
@@ -647,10 +660,13 @@ You should have `const url = request.url === "/" ? "/index.html" : request.url` 
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const urlVar = cbTower.getVariable("url");
+assert.exists(urlVar, "Expected getVariable lookup to return a value.");
 assert.include(
   urlVar.compact,
   'const url=request.url==="/"?"/index.html":request.url',
@@ -673,11 +689,13 @@ You should have `response.end(url, "utf-8")` within the `createServer` callback 
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const ends = cbTower.getCalls("response.end");
-assert.equal(ends.at(0).compact, 'response.end(url,"utf-8");');
+assert.equal(ends.at(0)?.compact, 'response.end(url,"utf-8");');
 ```
 
 ### --seed--
@@ -796,7 +814,9 @@ You should have `const filePath = join("public", url)` within the `createServer`
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const filePathVar = cbTower.getVariable("filePath");
@@ -817,7 +837,9 @@ You should define `filePath` before calling `response.end`.
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const filePathVar = cbTower.getVariable("filePath");
@@ -826,7 +848,7 @@ assert.exists(
   "You should have a `filePath` variable within the createServer callback function",
 );
 const ends = cbTower.getCalls("response.end");
-assert.isBelow(filePathVar.ast.start, ends.at(0).ast.start);
+assert.isBelow(filePathVar.ast.start, ends.at(0)?.ast.start);
 ```
 
 ### --seed--
@@ -861,11 +883,13 @@ You should have `response.end(filePath, "utf-8")` within the `createServer` call
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const ends = cbTower.getCalls("response.end");
-assert.equal(ends.at(0).compact, 'response.end(filePath,"utf-8");');
+assert.equal(ends.at(0)?.compact, 'response.end(filePath,"utf-8");');
 ```
 
 You should define `filePath` before calling `response.end`.
@@ -874,7 +898,9 @@ You should define `filePath` before calling `response.end`.
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const filePathVar = cbTower.getVariable("filePath");
@@ -883,7 +909,7 @@ assert.exists(
   "You should have a `filePath` variable within the createServer callback function",
 );
 const ends = cbTower.getCalls("response.end");
-assert.isBelow(filePathVar.ast.start, ends.at(0).ast.start);
+assert.isBelow(filePathVar.ast.start, ends.at(0)?.ast.start);
 ```
 
 ### --seed--
@@ -1003,7 +1029,9 @@ You should have `readFile(filePath)` within the `createServer` callback function
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const readFiles = [
@@ -1014,7 +1042,7 @@ assert.exists(
   readFiles.at(0),
   "You should call `readFile` within the createServer callback function",
 );
-assert.match(readFiles.at(0).compact, /^(?:fs\.)?readFile\(filePath\);$/);
+assert.match(readFiles.at(0)?.compact, /^(?:fs\.)?readFile\(filePath\);$/);
 ```
 
 ### --seed--
@@ -1063,14 +1091,18 @@ You should have `readFile(filePath, (error, file) => {})` within the `createServ
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const readFiles = [
   ...cbTower.getCalls("readFile"),
   ...cbTower.getCalls("fs.readFile"),
 ];
-const arg2 = readFiles.at(0).ast.expression.arguments[1];
+const arg2 = readFiles.at(0)?.ast.expression.arguments[1];
+assert.exists(arg2, "Pass a callback to readFile.");
+assert.lengthOf(arg2.params, 2, "The callback should accept error and file.");
 assert.equal(arg2.params[0].name, "error");
 assert.equal(arg2.params[1].name, "file");
 ```
@@ -1111,14 +1143,16 @@ You should have `if (error) { console.error(error); return; }` within the `readF
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const readFiles = [
   ...cbTower.getCalls("readFile"),
   ...cbTower.getCalls("fs.readFile"),
 ];
-const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
+const readFileCallback = readFiles.at(0)?.ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const errorIf = rfcbTower
   .getIfStatements()
@@ -1166,14 +1200,16 @@ You should have `response.end(file, "utf-8")` within the `readFile` callback fun
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const readFiles = [
   ...cbTower.getCalls("readFile"),
   ...cbTower.getCalls("fs.readFile"),
 ];
-const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
+const readFileCallback = readFiles.at(0)?.ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const ends = rfcbTower.getCalls("response.end");
 assert.isTrue(
@@ -1286,14 +1322,16 @@ You should have `response.end(error, "utf-8")` within the `readFile` callback fu
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const readFiles = [
   ...cbTower.getCalls("readFile"),
   ...cbTower.getCalls("fs.readFile"),
 ];
-const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
+const readFileCallback = readFiles.at(0)?.ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const errorIf = rfcbTower
   .getIfStatements()
@@ -1368,14 +1406,16 @@ You should have `response.end(error.message, "utf-8")` within the `readFile` cal
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const readFiles = [
   ...cbTower.getCalls("readFile"),
   ...cbTower.getCalls("fs.readFile"),
 ];
-const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
+const readFileCallback = readFiles.at(0)?.ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const errorIf = rfcbTower
   .getIfStatements()
@@ -1462,14 +1502,16 @@ You should return from the function after calling `response.end` within the `if`
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const readFiles = [
   ...cbTower.getCalls("readFile"),
   ...cbTower.getCalls("fs.readFile"),
 ];
-const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
+const readFileCallback = readFiles.at(0)?.ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const errorIf = rfcbTower
   .getIfStatements()
@@ -1574,14 +1616,16 @@ You should have `readFile("public/404.html", (error, file) => {response.end(file
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const readFiles = [
   ...cbTower.getCalls("readFile"),
   ...cbTower.getCalls("fs.readFile"),
 ];
-const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
+const readFileCallback = readFiles.at(0)?.ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const errorIf = rfcbTower
   .getIfStatements()
@@ -1595,7 +1639,7 @@ assert.isTrue(
   nestedReadFiles.some((r) => r.compact.includes('"public/404.html"')),
   'You should have readFile("public/404.html", ...) within the if statement.',
 );
-const nestedCallback = nestedReadFiles.at(0).ast.expression.arguments[1];
+const nestedCallback = nestedReadFiles.at(0)?.ast.expression.arguments[1];
 const ncbTower = new __helpers.Tower(nestedCallback);
 assert.isTrue(
   ncbTower
@@ -1687,14 +1731,16 @@ You should have `response.writeHead(404)` within the `if` statement.
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const readFiles = [
   ...cbTower.getCalls("readFile"),
   ...cbTower.getCalls("fs.readFile"),
 ];
-const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
+const readFileCallback = readFiles.at(0)?.ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const errorIf = rfcbTower
   .getIfStatements()
@@ -1704,7 +1750,7 @@ const nestedReadFiles = [
   ...ifTower.getCalls("readFile"),
   ...ifTower.getCalls("fs.readFile"),
 ];
-const nestedCallback = nestedReadFiles.at(0).ast.expression.arguments[1];
+const nestedCallback = nestedReadFiles.at(0)?.ast.expression.arguments[1];
 const ncbTower = new __helpers.Tower(nestedCallback);
 assert.isTrue(
   ncbTower
@@ -1720,14 +1766,16 @@ You should have `response.writeHead(200)` after the `if` statement.
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const readFiles = [
   ...cbTower.getCalls("readFile"),
   ...cbTower.getCalls("fs.readFile"),
 ];
-const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
+const readFileCallback = readFiles.at(0)?.ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const successWrites = rfcbTower.getCalls("response.writeHead");
 assert.isTrue(
@@ -1833,7 +1881,9 @@ You should have `const mimeTypes = { ... }` within the `createServer` callback f
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const mimeTypes = cbTower.getVariable("mimeTypes");
@@ -1849,10 +1899,13 @@ assert.isDefined(
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const mimeTypes = cbTower.getVariable("mimeTypes");
+assert.exists(mimeTypes, "Expected getVariable lookup to return a value.");
 const html = mimeTypes.getProperty(".html");
 assert.equal(html.compact, '".html":"text/html"');
 ```
@@ -1863,10 +1916,13 @@ assert.equal(html.compact, '".html":"text/html"');
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const mimeTypes = cbTower.getVariable("mimeTypes");
+assert.exists(mimeTypes, "Expected getVariable lookup to return a value.");
 const css = mimeTypes.getProperty(".css");
 assert.equal(css.compact, '".css":"text/css"');
 ```
@@ -1877,10 +1933,13 @@ assert.equal(css.compact, '".css":"text/css"');
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const mimeTypes = cbTower.getVariable("mimeTypes");
+assert.exists(mimeTypes, "Expected getVariable lookup to return a value.");
 const png = mimeTypes.getProperty(".png");
 assert.equal(png.compact, '".png":"image/png"');
 ```
@@ -1891,10 +1950,13 @@ assert.equal(png.compact, '".png":"image/png"');
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const mimeTypes = cbTower.getVariable("mimeTypes");
+assert.exists(mimeTypes, "Expected getVariable lookup to return a value.");
 const js = mimeTypes.getProperty(".js");
 assert.equal(js.compact, '".js":"text/javascript"');
 ```
@@ -1937,10 +1999,13 @@ You should have `const ext = extname(filePath)` within the `createServer` callba
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const ext = cbTower.getVariable("ext");
+assert.exists(ext, "Expected getVariable lookup to return a value.");
 assert.match(ext.compact, /^const ext=(?:path\.)?extname\(filePath\);$/);
 ```
 
@@ -1998,10 +2063,13 @@ You should have `const contentType = mimeTypes[ext] || "application/octet-stream
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const contentType = cbTower.getVariable("contentType");
+assert.exists(contentType, "Expected getVariable lookup to return a value.");
 assert.equal(
   contentType.compact,
   'const contentType=mimeTypes[ext]||"application/octet-stream";',
@@ -2063,14 +2131,16 @@ You should have `response.writeHead(404, { "Content-Type": "text/html" })` withi
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const readFiles = [
   ...cbTower.getCalls("readFile"),
   ...cbTower.getCalls("fs.readFile"),
 ];
-const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
+const readFileCallback = readFiles.at(0)?.ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const errorIf = rfcbTower
   .getIfStatements()
@@ -2080,9 +2150,10 @@ const nestedReadFiles = [
   ...ifTower.getCalls("readFile"),
   ...ifTower.getCalls("fs.readFile"),
 ];
-const nestedCallback = nestedReadFiles.at(0).ast.expression.arguments[1];
+const nestedCallback = nestedReadFiles.at(0)?.ast.expression.arguments[1];
 const ncbTower = new __helpers.Tower(nestedCallback);
 const head = ncbTower.getCalls("response.writeHead").at(0);
+assert.exists(head, "Expected at lookup to return a value.");
 assert.equal(
   head.compact,
   'response.writeHead(404,{"Content-Type":"text/html"});',
@@ -2095,14 +2166,16 @@ You should have `response.writeHead(200, { "Content-Type": contentType })` after
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const readFiles = [
   ...cbTower.getCalls("readFile"),
   ...cbTower.getCalls("fs.readFile"),
 ];
-const readFileCallback = readFiles.at(0).ast.expression.arguments[1];
+const readFileCallback = readFiles.at(0)?.ast.expression.arguments[1];
 const rfcbTower = new __helpers.Tower(readFileCallback);
 const successWrites = rfcbTower.getCalls("response.writeHead");
 assert.isTrue(
@@ -2242,10 +2315,13 @@ You should have `const ext = extname(filePath).toLowerCase()` within the `create
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const server = t.getVariable("server");
+assert.exists(server, "Expected getVariable lookup to return a value.");
 const http_createServer = server.getCalls("http.createServer").at(0);
+assert.exists(http_createServer, "Expected at lookup to return a value.");
 const callback = http_createServer.ast.init.arguments[0];
 const cbTower = new __helpers.Tower(callback);
 const ext = cbTower.getVariable("ext");
+assert.exists(ext, "Expected getVariable lookup to return a value.");
 assert.match(
   ext.compact,
   /^const ext=(?:path\.)?extname\(filePath\)\.toLowerCase\(\);$/,
@@ -2272,6 +2348,7 @@ You should have `server.listen(3001, () => console.log("Server is listening on p
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const listen = t.getCalls("server.listen").at(0);
+assert.exists(listen, "Expected at lookup to return a value.");
 assert.isTrue(
   listen.compact.includes(
     '()=>console.log("Server is listening on port 3001")',
@@ -2338,6 +2415,7 @@ You should have `import http from "http"`.
 const file = await __helpers.getFile(project.dashedName, "server.js");
 const t = new __helpers.Tower(file);
 const httpImport = t.getVariable("http");
+assert.exists(httpImport, "Expected getVariable lookup to return a value.");
 assert.equal(httpImport.compact, 'import http from"http";');
 ```
 
@@ -2618,7 +2696,9 @@ You should not have any `console.log` calls within `server.js`.
 const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __t = new __helpers.Tower(__file);
 const __server = __t.getVariable("server");
+assert.exists(__server, "Expected getVariable lookup to return a value.");
 const __createServer = __server.getCalls("http.createServer").at(0);
+assert.exists(__createServer, "Expected at lookup to return a value.");
 const __callback = __createServer.ast.init.arguments[0];
 const __cbTower = new __helpers.Tower(__callback);
 const __logs = __cbTower.getCalls("console.log");
