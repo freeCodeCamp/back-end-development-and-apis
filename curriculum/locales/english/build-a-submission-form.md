@@ -492,7 +492,7 @@ assert.isTrue(
 
 ### --description--
 
-When you call the `NextFunction` parameter of a route handler with an error object, Express skips all remaining regular middleware and routes, and jumps directly to the nearest <dfn title="a special Express middleware with four parameters: err, req, res, next - used to handle errors passed via next(err)">error-handling middleware</dfn>:
+When you call the `next` function parameter of a route handler with an error object, Express skips all remaining regular middleware and routes, and jumps directly to the nearest <dfn title="a special Express middleware with four parameters: err, req, res, next - used to handle errors passed via next(err)">error-handling middleware</dfn>:
 
 ```js
 app.get("/", (req, res, next) => {
@@ -500,7 +500,7 @@ app.get("/", (req, res, next) => {
 });
 ```
 
-In `routes/api.routes.js`, add a `GET /crash` route that creates a new `Error` with the message `'Database connection failed.'` and passes it to the . Do not set a status on the error - it should default to `500`.
+In `routes/api.routes.js`, add a `GET /crash` route that creates a new `Error` with the message `'Database connection failed.'` and passes it to `next`. Do not set a status on the error - it should default to `500`.
 
 ### --tests--
 
