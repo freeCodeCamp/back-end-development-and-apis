@@ -103,15 +103,20 @@ A WebSocket client should be able to connect to the server.
 
 ```js
 await new Promise((resolve, reject) => {
-  const WebSocket = new WebSocket("ws://localhost:3001?username=Tester");
-  WebSocket.once("open", () => {
-    WebSocket.close();
+  const __ws = new WebSocket("ws://localhost:3001?username=Tester");
+  const __timer = setTimeout(() => {
+    __ws.close();
+    reject(new Error("WebSocket connection timed out"));
+  }, 3000);
+  __ws.once("open", () => {
+    clearTimeout(__timer);
+    __ws.close();
     resolve();
   });
-  WebSocket.once("error", (err) =>
-    reject(new Error(`WebSocket connection failed: ${err.message}`)),
-  );
-  setTimeout(() => reject(new Error("WebSocket connection timed out")), 3000);
+  __ws.once("error", (err) => {
+    clearTimeout(__timer);
+    reject(new Error(`WebSocket connection failed: ${err.message}`));
+  });
 });
 ```
 
