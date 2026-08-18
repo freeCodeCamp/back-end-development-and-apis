@@ -1,9 +1,5 @@
 # Build a Data Sanitizer
 
-```json
-{ "tags": ["Certification Project"] }
-```
-
 Practice creating custom Express middleware by building a data sanitizer and validator.
 
 ## 0
