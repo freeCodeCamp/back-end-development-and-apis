@@ -133,9 +133,19 @@ const server = http.createServer((req, res) => {
 `server.js` should import `http` using an ESM `import` statement.
 
 ```js
-assert.match(
-  __file,
-  /import\s+http\s+from\s+['"]http['"]/,
+const __t = new __helpers.Tower(__file);
+const __hasHttpImport = __t.ast.body.some(
+  (node) =>
+    node.type === "ImportDeclaration" &&
+    node.source.value === "http" &&
+    node.specifiers.some(
+      (specifier) =>
+        specifier.type === "ImportDefaultSpecifier" &&
+        specifier.local.name === "http",
+    ),
+);
+assert.isTrue(
+  __hasHttpImport,
   'server.js should have: import http from "http"',
 );
 ```
@@ -143,11 +153,18 @@ assert.match(
 `server.js` should import `fs` using an ESM `import` statement.
 
 ```js
-assert.match(
-  __file,
-  /import\s+fs\s+from\s+['"]fs['"]/,
-  'server.js should have: import fs from "fs"',
+const __t = new __helpers.Tower(__file);
+const __hasFsImport = __t.ast.body.some(
+  (node) =>
+    node.type === "ImportDeclaration" &&
+    node.source.value === "fs" &&
+    node.specifiers.some(
+      (specifier) =>
+        specifier.type === "ImportDefaultSpecifier" &&
+        specifier.local.name === "fs",
+    ),
 );
+assert.isTrue(__hasFsImport, 'server.js should have: import fs from "fs"');
 ```
 
 `server.js` should declare a `const server` initialised by calling `http.createServer()`.
@@ -156,11 +173,84 @@ assert.match(
 const __t = new __helpers.Tower(__file);
 const __server = __t.getVariable("server");
 assert.isDefined(__server, "A variable named server should be declared.");
-assert.match(
-  __server.compact,
-  /server=http\.createServer\(/,
+assert.equal(__server.ast.kind, "const", "server should be declared with const.");
+const __init = __server.ast.declarations.at(0)?.init;
+assert.equal(
+  __init?.type,
+  "CallExpression",
+  "server should be initialised with a function call.",
+);
+assert.equal(
+  __init?.callee?.object?.name,
+  "http",
   "server should be initialised with http.createServer().",
 );
+assert.equal(
+  __init?.callee?.property?.name,
+  "createServer",
+  "server should be initialised with http.createServer().",
+);
+```
+
+The request handler should read `./public/index.html` and send its contents with a `200` status and a `Content-Type` of `text/html`.
+
+```js
+const __t = new __helpers.Tower(__file);
+const __server = __t.getVariable("server");
+assert.exists(__server, "A variable named server should be declared.");
+const __createServer = __server.ast.declarations.at(0)?.init;
+let __callback = __createServer?.arguments?.at(0);
+if (__callback?.type === "Identifier") {
+  const __name = __callback.name;
+  __callback =
+    __t.getFunction(__name)?.ast ??
+    __t.getVariable(__name)?.ast.declarations.at(0)?.init;
+}
+assert.include(
+  ["ArrowFunctionExpression", "FunctionExpression", "FunctionDeclaration"],
+  __callback?.type,
+  "http.createServer() should receive a request handler.",
+);
+const __page = "<h1>Resource Monitor</h1>";
+let __readPath;
+let __status = 200;
+let __headers = {};
+let __body;
+const __handler = Function(
+  "fs",
+  `"use strict"; return (${__helpers.generate(__callback).code});`,
+)({
+  readFile: (path, ...args) => {
+    __readPath = path;
+    args.at(-1)(null, __page);
+  },
+});
+const __response = {
+  get statusCode() {
+    return __status;
+  },
+  set statusCode(value) {
+    __status = value;
+  },
+  setHeader: (name, value) => {
+    __headers[name] = value;
+  },
+  writeHead: (status, headers = {}) => {
+    __status = status;
+    __headers = { ...__headers, ...headers };
+  },
+  end: (body) => {
+    __body = body;
+  },
+};
+__handler({ url: "/" }, __response);
+const __contentType = Object.entries(__headers).find(
+  ([name]) => name.toLowerCase() === "content-type",
+)?.[1];
+assert.equal(__readPath, "./public/index.html", "Read public/index.html.");
+assert.equal(__status, 200, "Respond with a 200 status.");
+assert.equal(__contentType, "text/html", "Respond with text/html.");
+assert.equal(String(__body), __page, "Send the file contents in the response.");
 ```
 
 ### --before-each--
@@ -214,9 +304,11 @@ const { stdout } = await __helpers.awaitExecution(
   "http://localhost:3000",
   { dataTimeout: 3000, fetchTimeout: 3000 },
 );
-assert.match(
-  stdout,
-  /(?:localhost|127\.0\.0\.1).*3000|3000.*(?:localhost|127\.0\.0\.1)/,
+const __output = stdout.toLowerCase();
+const __hasHost =
+  __output.includes("localhost") || __output.includes("127.0.0.1");
+assert.isTrue(
+  __hasHost && __output.includes("3000"),
   "The server.listen callback should log the server URL.",
 );
 ```
@@ -334,9 +426,16 @@ Place this declaration after `http.createServer` and before `server.listen`.
 const __t = new __helpers.Tower(__file);
 const __wss = __t.getVariable("wss");
 assert.isDefined(__wss, "A variable named wss should be declared.");
-assert.match(
-  __wss.compact,
-  /wss=new WebSocketServer\(/,
+assert.equal(__wss.ast.kind, "const", "wss should be declared with const.");
+const __init = __wss.ast.declarations.at(0)?.init;
+assert.equal(
+  __init?.type,
+  "NewExpression",
+  "wss should be initialised with new WebSocketServer(...).",
+);
+assert.equal(
+  __init?.callee?.name,
+  "WebSocketServer",
   "wss should be initialised with new WebSocketServer(...).",
 );
 ```
@@ -434,6 +533,40 @@ assert.equal(
   __connCb?.params?.at(0)?.name,
   "socket",
   "The connection callback should accept a socket parameter.",
+);
+```
+
+The `'connection'` callback should log `'Client connected'`.
+
+```js
+const __t = new __helpers.Tower(__file);
+const __connectionCall = __t
+  .getCalls("wss.on")
+  .find((call) => call.ast.expression.arguments.at(0)?.value === "connection");
+assert.exists(__connectionCall, "Register a connection listener on wss.");
+let __callback = __connectionCall.ast.expression.arguments.at(1);
+if (__callback?.type === "Identifier") {
+  const __name = __callback?.name;
+  __callback =
+    __t.getFunction(__name)?.ast ??
+    __t.getVariable(__name)?.ast.declarations.at(0)?.init;
+}
+assert.include(
+  ["ArrowFunctionExpression", "FunctionExpression", "FunctionDeclaration"],
+  __callback?.type,
+  "wss.on() should receive a connection callback.",
+);
+const __logs = [];
+const __handler = Function(
+  "console",
+  `"use strict"; return (${__helpers.generate(__callback).code});`,
+)({
+  log: (...values) => __logs.push(values.map(String).join(" ")),
+});
+__handler({ on: () => {} });
+assert.isTrue(
+  __logs.some((message) => message.includes("Client connected")),
+  "The connection callback should log 'Client connected'.",
 );
 ```
 
@@ -812,11 +945,18 @@ Place `getMetrics` before the `wss` declaration.
 `server.js` should import `os` using an ESM `import` statement.
 
 ```js
-assert.match(
-  __file,
-  /import\s+os\s+from\s+['"]os['"]/,
-  'server.js should have: import os from "os"',
+const __t = new __helpers.Tower(__file);
+const __hasOsImport = __t.ast.body.some(
+  (node) =>
+    node.type === "ImportDeclaration" &&
+    node.source.value === "os" &&
+    node.specifiers.some(
+      (specifier) =>
+        specifier.type === "ImportDefaultSpecifier" &&
+        specifier.local.name === "os",
+    ),
 );
+assert.isTrue(__hasOsImport, 'server.js should have: import os from "os"');
 ```
 
 `server.js` should declare a function named `getMetrics`.
@@ -833,10 +973,22 @@ assert.isDefined(__fn, "A function named getMetrics should be declared.");
 const __t = new __helpers.Tower(__file);
 const __fn = __t.getFunction("getMetrics");
 assert.exists(__fn, "A function named getMetrics should be declared.");
-assert.match(
-  __fn.compact,
-  /loadAvg:os\.loadavg\(\)/,
-  "getMetrics should return { loadAvg: os.loadavg(), ... }.",
+const __loadAvg = [0.25, 0.5, 0.75];
+const __os = {
+  loadavg: () => __loadAvg,
+  freemem: () => 64 * 1024 ** 2,
+  totalmem: () => 256 * 1024 ** 2,
+};
+const __getMetrics = Function(
+  "os",
+  `"use strict"; return (${__fn.generate});`,
+)(__os);
+const __result = __getMetrics();
+assert.exists(__result, "getMetrics should return an object.");
+assert.deepEqual(
+  __result.loadAvg,
+  __loadAvg,
+  "getMetrics should source loadAvg from os.loadavg().",
 );
 ```
 
@@ -846,15 +998,26 @@ assert.match(
 const __t = new __helpers.Tower(__file);
 const __fn = __t.getFunction("getMetrics");
 assert.exists(__fn, "A function named getMetrics should be declared.");
-assert.match(__fn.compact, /freeMemMB/, "getMetrics should include freeMemMB.");
-assert.match(
-  __fn.compact,
-  /totalMemMB/,
+const __os = {
+  loadavg: () => [0.25, 0.5, 0.75],
+  freemem: () => 64 * 1024 ** 2,
+  totalmem: () => 256 * 1024 ** 2,
+};
+const __getMetrics = Function(
+  "os",
+  `"use strict"; return (${__fn.generate});`,
+)(__os);
+const __result = __getMetrics();
+assert.exists(__result, "getMetrics should return an object.");
+assert.equal(__result.freeMemMB, "64", "getMetrics should include freeMemMB.");
+assert.equal(
+  __result.totalMemMB,
+  "256",
   "getMetrics should include totalMemMB.",
 );
-assert.match(
-  __fn.compact,
-  /memUsagePct/,
+assert.equal(
+  __result.memUsagePct,
+  "75.0",
   "getMetrics should include memUsagePct.",
 );
 ```
@@ -929,13 +1092,20 @@ const __connCb = __t.getCalls("wss.on").at(0)?.ast.expression.arguments.at(1);
 const __connT = new __helpers.Tower(__connCb);
 const __interval = __connT.getVariable("interval");
 assert.exists(__interval, "Expected getVariable lookup to return a value.");
-assert.isDefined(
-  __interval,
+assert.equal(
+  __interval.ast.kind,
+  "const",
   "setInterval should be stored in a const named interval.",
 );
-assert.match(
-  __interval.compact,
-  /setInterval\(/,
+const __init = __interval.ast.declarations.at(0)?.init;
+assert.equal(
+  __init?.type,
+  "CallExpression",
+  "interval should be initialized with setInterval().",
+);
+assert.equal(
+  __init?.callee?.name,
+  "setInterval",
   "interval should be initialized with setInterval().",
 );
 ```
@@ -950,17 +1120,27 @@ const __interval = __connT.getVariable("interval");
 assert.exists(__interval, "Expected getVariable lookup to return a value.");
 const __setIntervalInit = __interval.ast.declarations[0].init;
 const __intervalCb = __setIntervalInit?.arguments?.at(0);
-const __intervalT = new __helpers.Tower(__intervalCb);
-const __sendCalls = __intervalT.getCalls("socket.send");
+assert.exists(__intervalCb, "setInterval should receive a callback.");
+const __sent = [];
+const __metrics = { loadAvg: [0.25, 0.5, 0.75], freeMemMB: "64" };
+const __runInterval = Function(
+  "socket",
+  "getMetrics",
+  `"use strict"; return (${__helpers.generate(__intervalCb).code});`,
+)(
+  { send: (value) => __sent.push(value) },
+  () => __metrics,
+);
+__runInterval();
 assert.isAbove(
-  __sendCalls.length,
+  __sent.length,
   0,
   "socket.send() should be called inside setInterval.",
 );
-assert.match(
-  __sendCalls.at(0)?.compact,
-  /JSON\.stringify\(getMetrics\(\)\)/,
-  "socket.send(JSON.stringify(getMetrics())) should be called inside setInterval.",
+assert.equal(
+  __sent.at(0),
+  JSON.stringify(__metrics),
+  "socket.send() should receive the serialized result of getMetrics().",
 );
 ```
 
@@ -1154,7 +1334,9 @@ server.listen(PORT, () => {
 
 ### --description--
 
-The server is complete. Now open `public/script.js` to add the browser-side WebSocket client. The helper functions `updateMetrics` and `setStatus` are already provided - do not modify them.
+The server is complete. Its HTTP request handler has been updated for you to serve `public/index.html` at `/` and `public/script.js` at `/script.js` with the appropriate content types.
+
+Now open `public/script.js` to add the browser-side WebSocket client. The helper functions `updateMetrics` and `setStatus` are already provided - do not modify them.
 
 WebSocket URIs use `ws://` for plain connections and `wss://` for <dfn title="Transport Layer Security - encrypts data in transit">TLS</dfn>-encrypted connections (analogous to `http://` and `https://`). Because the server is running locally without TLS, use `ws://`.
 
@@ -1185,6 +1367,95 @@ assert.equal(
 );
 ```
 
+The HTTP server should serve HTML at `/` and JavaScript at `/script.js`.
+
+```js
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+const __t = new __helpers.Tower(__file);
+const __server = __t.getVariable("server");
+assert.exists(__server, "A variable named server should be declared.");
+const __createServer = __server.ast.declarations.at(0)?.init;
+let __callback = __createServer?.arguments?.at(0);
+if (__callback?.type === "Identifier") {
+  const __name = __callback.name;
+  __callback =
+    __t.getFunction(__name)?.ast ??
+    __t.getVariable(__name)?.ast.declarations.at(0)?.init;
+}
+assert.include(
+  ["ArrowFunctionExpression", "FunctionExpression", "FunctionDeclaration"],
+  __callback?.type,
+  "http.createServer() should receive a request handler.",
+);
+let __readPath;
+const __handler = Function(
+  "fs",
+  `"use strict"; return (${__helpers.generate(__callback).code});`,
+)({
+  readFile: (path, ...args) => {
+    __readPath = path;
+    args.at(-1)(
+      null,
+      path.endsWith("script.js") ? "const socket = 1;" : "<h1>Monitor</h1>",
+    );
+  },
+});
+const __request = (url) => {
+  let status = 200;
+  let headers = {};
+  let body;
+  const response = {
+    get statusCode() {
+      return status;
+    },
+    set statusCode(value) {
+      status = value;
+    },
+    setHeader: (name, value) => {
+      headers[name] = value;
+    },
+    writeHead: (value, values = {}) => {
+      status = value;
+      headers = { ...headers, ...values };
+    },
+    end: (value) => {
+      body = value;
+    },
+  };
+  __handler({ url }, response);
+  const contentType = Object.entries(headers).find(
+    ([name]) => name.toLowerCase() === "content-type",
+  )?.[1];
+  return { body, contentType, path: __readPath, status };
+};
+const __index = __request("/");
+assert.equal(__index.path, "./public/index.html", "Serve public/index.html at '/'.");
+assert.equal(__index.status, 200, "Respond to '/' with status 200.");
+assert.equal(__index.contentType, "text/html", "Serve '/' as text/html.");
+assert.equal(String(__index.body), "<h1>Monitor</h1>", "Send index.html at '/'.");
+const __scriptResult = __request("/script.js");
+assert.equal(
+  __scriptResult.path,
+  "./public/script.js",
+  "Serve public/script.js at '/script.js'.",
+);
+assert.equal(
+  __scriptResult.status,
+  200,
+  "Respond to '/script.js' with status 200.",
+);
+assert.include(
+  __scriptResult.contentType,
+  "javascript",
+  "Serve '/script.js' with a JavaScript content type.",
+);
+assert.equal(
+  String(__scriptResult.body),
+  "const socket = 1;",
+  "Send script.js at '/script.js'.",
+);
+```
+
 ### --before-each--
 
 ```js
@@ -1207,13 +1478,29 @@ import os from "os";
 const PORT = 3000;
 
 const server = http.createServer((req, res) => {
-  fs.readFile("./public/index.html", (err, data) => {
+  const files = {
+    "/": { path: "./public/index.html", contentType: "text/html" },
+    "/index.html": { path: "./public/index.html", contentType: "text/html" },
+    "/script.js": {
+      path: "./public/script.js",
+      contentType: "text/javascript",
+    },
+  };
+  const file = files[req.url];
+
+  if (!file) {
+    res.writeHead(404, { "Content-Type": "text/plain" });
+    res.end("Not found");
+    return;
+  }
+
+  fs.readFile(file.path, (err, data) => {
     if (err) {
       res.writeHead(500);
       res.end("Error loading page");
       return;
     }
-    res.writeHead(200, { "Content-Type": "text/html" });
+    res.writeHead(200, { "Content-Type": file.contentType });
     res.end(data);
   });
 });
@@ -1414,12 +1701,25 @@ const __onmsgStmt = __t.ast.body.find(
     n.expression.left?.property?.name === "onmessage",
 );
 assert.isDefined(__onmsgStmt, "socket.onmessage should be assigned.");
-const __onmsgT = new __helpers.Tower(__onmsgStmt.expression.right);
-const __dataVar = __onmsgT.getVariable("data");
-assert.exists(__dataVar, "Expected getVariable lookup to return a value.");
-assert.match(
-  __dataVar.compact,
-  /JSON\.parse\(event\.data\)/,
+const __event = { data: '{"freeMemMB":"64"}' };
+let __parseArg;
+const __handler = Function(
+  "JSON",
+  "updateMetrics",
+  `"use strict"; return (${__helpers.generate(__onmsgStmt.expression.right).code});`,
+)(
+  {
+    parse: (value) => {
+      __parseArg = value;
+      return {};
+    },
+  },
+  () => {},
+);
+__handler(__event);
+assert.equal(
+  __parseArg,
+  __event.data,
   "The onmessage handler should call JSON.parse(event.data).",
 );
 ```
@@ -1436,17 +1736,23 @@ const __onmsgStmt = __t.ast.body.find(
     n.expression.left?.property?.name === "onmessage",
 );
 assert.isDefined(__onmsgStmt, "socket.onmessage should be assigned.");
-const __onmsgT = new __helpers.Tower(__onmsgStmt.expression.right);
-const __updateCalls = __onmsgT.getCalls("updateMetrics");
-assert.isAbove(
-  __updateCalls.length,
-  0,
-  "The onmessage handler should call updateMetrics.",
+const __parsed = { freeMemMB: "64" };
+let __updatedWith;
+const __handler = Function(
+  "JSON",
+  "updateMetrics",
+  `"use strict"; return (${__helpers.generate(__onmsgStmt.expression.right).code});`,
+)(
+  { parse: () => __parsed },
+  (value) => {
+    __updatedWith = value;
+  },
 );
-assert.equal(
-  __updateCalls.at(0)?.ast.expression.arguments.at(0)?.name,
-  "data",
-  "The onmessage handler should call updateMetrics(data).",
+__handler({ data: '{"freeMemMB":"64"}' });
+assert.strictEqual(
+  __updatedWith,
+  __parsed,
+  "The onmessage handler should pass the parsed data to updateMetrics().",
 );
 ```
 
