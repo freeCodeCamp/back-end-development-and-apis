@@ -13,6 +13,7 @@
   "private": true,
   "scripts": {
     "start": "node ./node_modules/@freecodecamp/freecodecamp-os/.freeCodeCamp/tooling/server.js",
+    "curriculum:extract": "node test/extract.mjs",
     "test": "node test/run.mjs",
     "test:lint": "node test/run.mjs --check lint",
     "test:crash": "node test/run.mjs --check crash"
