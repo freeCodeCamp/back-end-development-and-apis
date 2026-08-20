@@ -14,10 +14,11 @@
   "scripts": {
     "start": "node ./node_modules/@freecodecamp/freecodecamp-os/.freeCodeCamp/tooling/server.js",
     "curriculum:extract": "node test/extract.mjs",
-    "test": "node test/run.mjs",
+    "test": "node --test test/plugins.test.mjs && node test/run.mjs",
     "test:lint": "node test/run.mjs --check lint",
+    "test:plugins": "node --test test/plugins.test.mjs",
     "test:crash": "node test/run.mjs --check crash"
   },
   "type": "module",
-  "version": "1.1.12"
+  "version": "1.1.13"
 }

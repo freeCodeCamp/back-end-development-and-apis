@@ -19,6 +19,7 @@ AST lint remains limited to mechanically provable authoring errors:
 npm test
 npm run test:lint
 npm run test:crash
+npm run test:plugins
 node test/run.mjs --project build-a-web-server --lesson 15 --check crash
 ```
 

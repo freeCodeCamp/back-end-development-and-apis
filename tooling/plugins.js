@@ -47,7 +47,7 @@ pluginEvents.onProjectFinished = async (project) => {
 pluginEvents.onLessonFailed = async (project) => {};
 
 pluginEvents.onLessonPassed = async (project) => {
-  if (project.id === 1) return;
+  if (project.dashedName === "build-a-case-converter") return;
   await resetLogs();
 };
 
