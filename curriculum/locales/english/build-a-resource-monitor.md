@@ -209,20 +209,14 @@ assert.equal(
 The `server.listen` callback should log a message containing the server URL.
 
 ```js
-const __t = new __helpers.Tower(__file);
-const __listenCalls = __t.getCalls("server.listen");
-assert.isAbove(__listenCalls.length, 0, "server.listen() should be called.");
-const __listenCb = __listenCalls.at(0)?.ast.expression.arguments.at(1);
-const __listenT = new __helpers.Tower(__listenCb);
-const __logCalls = __listenT.getCalls("console.log");
-assert.isAbove(
-  __logCalls.length,
-  0,
-  "The server.listen callback should log a message.",
+const { stdout } = await __helpers.awaitExecution(
+  ["node", `${project.dashedName}/server.js`],
+  "http://localhost:3000",
+  { dataTimeout: 3000, fetchTimeout: 3000 },
 );
 assert.match(
-  __logCalls.at(0)?.compact,
-  /localhost/,
+  stdout,
+  /(?:localhost|127\.0\.0\.1).*3000|3000.*(?:localhost|127\.0\.0\.1)/,
   "The server.listen callback should log the server URL.",
 );
 ```
