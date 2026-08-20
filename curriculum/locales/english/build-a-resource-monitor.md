@@ -173,7 +173,11 @@ assert.isTrue(__hasFsImport, 'server.js should have: import fs from "fs"');
 const __t = new __helpers.Tower(__file);
 const __server = __t.getVariable("server");
 assert.isDefined(__server, "A variable named server should be declared.");
-assert.equal(__server.ast.kind, "const", "server should be declared with const.");
+assert.equal(
+  __server.ast.kind,
+  "const",
+  "server should be declared with const.",
+);
 const __init = __server.ast.declarations.at(0)?.init;
 assert.equal(
   __init?.type,
@@ -304,12 +308,18 @@ const { stdout } = await __helpers.awaitExecution(
   "http://localhost:3000",
   { dataTimeout: 3000, fetchTimeout: 3000 },
 );
-const __output = stdout.toLowerCase();
-const __hasHost =
-  __output.includes("localhost") || __output.includes("127.0.0.1");
-assert.isTrue(
-  __hasHost && __output.includes("3000"),
-  "The server.listen callback should log the server URL.",
+const __logs = stdout
+  .split("\n")
+  .map((message) => message.trim())
+  .filter(Boolean);
+const __hasServerUrl = __logs.some((message) => {
+  const lower = message.toLowerCase();
+  const hasHost = lower.includes("localhost") || lower.includes("127.0.0.1");
+  return hasHost && lower.includes("3000");
+});
+assert(
+  __hasServerUrl,
+  `Expected ${JSON.stringify(__logs)} to include a server URL on port 3000`,
 );
 ```
 
@@ -564,9 +574,9 @@ const __handler = Function(
   log: (...values) => __logs.push(values.map(String).join(" ")),
 });
 __handler({ on: () => {} });
-assert.isTrue(
-  __logs.some((message) => message.includes("Client connected")),
-  "The connection callback should log 'Client connected'.",
+assert(
+  __logs.some((message) => message.toLowerCase().includes("client connected")),
+  `Expected ${JSON.stringify(__logs)} to include "Client connected"`,
 );
 ```
 
@@ -652,13 +662,32 @@ assert.isAbove(
   0,
   "socket.on('message', ...) should be called.",
 );
-const __msgCb = __msgCalls.at(0)?.ast.expression.arguments.at(1);
-const __msgI = new __helpers.Inspector(__helpers.generate(__msgCb).code);
-const __toStringCalls = __msgI.getCalls("data.toString");
-assert.isAbove(
-  __toStringCalls.length,
-  0,
-  "The message handler should call data.toString() to read the message.",
+let __callback = __msgCalls.at(0)?.ast.expression.arguments.at(1);
+if (__callback?.type === "Identifier") {
+  const __name = __callback?.name;
+  __callback =
+    __connT.getFunction(__name)?.ast ??
+    __connT.getVariable(__name)?.ast.declarations.at(0)?.init;
+}
+assert.include(
+  ["ArrowFunctionExpression", "FunctionExpression", "FunctionDeclaration"],
+  __callback?.type,
+  "socket.on() should receive a message callback.",
+);
+const __logs = [];
+const __handler = Function(
+  "console",
+  `"use strict"; return (${__helpers.generate(__callback).code});`,
+)({
+  log: (...values) => __logs.push(values.map(String).join(" ")),
+});
+const __message = "resource update";
+__handler({ toString: () => __message });
+assert(
+  __logs.some((message) =>
+    message.toLowerCase().includes(__message.toLowerCase()),
+  ),
+  `Expected ${JSON.stringify(__logs)} to include "${__message}"`,
 );
 ```
 
@@ -746,18 +775,31 @@ assert.isAbove(
   0,
   "socket.on('close', ...) should be called.",
 );
-const __closeCb = __closeCalls.at(0)?.ast.expression.arguments.at(1);
-const __closeT = new __helpers.Tower(__closeCb);
-const __logCalls = __closeT.getCalls("console.log");
-assert.isAbove(
-  __logCalls.length,
-  0,
-  "The close handler should log 'Client disconnected'.",
+let __callback = __closeCalls.at(0)?.ast.expression.arguments.at(1);
+if (__callback?.type === "Identifier") {
+  const __name = __callback?.name;
+  __callback =
+    __connT.getFunction(__name)?.ast ??
+    __connT.getVariable(__name)?.ast.declarations.at(0)?.init;
+}
+assert.include(
+  ["ArrowFunctionExpression", "FunctionExpression", "FunctionDeclaration"],
+  __callback?.type,
+  "socket.on() should receive a close callback.",
 );
-assert.equal(
-  __logCalls.at(0)?.ast.expression.arguments.at(0)?.value,
-  "Client disconnected",
-  "The close handler should log 'Client disconnected'.",
+const __logs = [];
+const __handler = Function(
+  "console",
+  `"use strict"; return (${__helpers.generate(__callback).code});`,
+)({
+  log: (...values) => __logs.push(values.map(String).join(" ")),
+});
+__handler();
+assert(
+  __logs.some((message) =>
+    message.toLowerCase().includes("client disconnected"),
+  ),
+  `Expected ${JSON.stringify(__logs)} to include "Client disconnected"`,
 );
 ```
 
@@ -937,8 +979,6 @@ function getMetrics() {
   };
 }
 ```
-
-Place `getMetrics` before the `wss` declaration.
 
 ### --tests--
 
@@ -1127,10 +1167,7 @@ const __runInterval = Function(
   "socket",
   "getMetrics",
   `"use strict"; return (${__helpers.generate(__intervalCb).code});`,
-)(
-  { send: (value) => __sent.push(value) },
-  () => __metrics,
-);
+)({ send: (value) => __sent.push(value) }, () => __metrics);
 __runInterval();
 assert.isAbove(
   __sent.length,
@@ -1429,10 +1466,18 @@ const __request = (url) => {
   return { body, contentType, path: __readPath, status };
 };
 const __index = __request("/");
-assert.equal(__index.path, "./public/index.html", "Serve public/index.html at '/'.");
+assert.equal(
+  __index.path,
+  "./public/index.html",
+  "Serve public/index.html at '/'.",
+);
 assert.equal(__index.status, 200, "Respond to '/' with status 200.");
 assert.equal(__index.contentType, "text/html", "Serve '/' as text/html.");
-assert.equal(String(__index.body), "<h1>Monitor</h1>", "Send index.html at '/'.");
+assert.equal(
+  String(__index.body),
+  "<h1>Monitor</h1>",
+  "Send index.html at '/'.",
+);
 const __scriptResult = __request("/script.js");
 assert.equal(
   __scriptResult.path,
@@ -1466,6 +1511,8 @@ const __script = await __helpers.getFile(
 ```
 
 ### --seed--
+
+#### --force--
 
 #### --"build-a-resource-monitor/server.js"--
 
@@ -1742,12 +1789,9 @@ const __handler = Function(
   "JSON",
   "updateMetrics",
   `"use strict"; return (${__helpers.generate(__onmsgStmt.expression.right).code});`,
-)(
-  { parse: () => __parsed },
-  (value) => {
-    __updatedWith = value;
-  },
-);
+)({ parse: () => __parsed }, (value) => {
+  __updatedWith = value;
+});
 __handler({ data: '{"freeMemMB":"64"}' });
 assert.strictEqual(
   __updatedWith,
@@ -1908,6 +1952,8 @@ socket.onerror = (err) => {
 
 The resource monitor is now complete. Run `npm start` to start the server, then open `http://localhost:3000` in a browser. You should see live CPU load averages and memory usage updating every second.
 
+Type `done` in the terminal, when you are done.
+
 ### --tests--
 
 `public/script.js` should assign a function to `socket.onerror`.
@@ -1946,6 +1992,13 @@ assert.isAbove(
   0,
   "The onerror handler should call console.error.",
 );
+```
+
+You should type `done` in the terminal.
+
+```js
+const lastCommand = await __helpers.getLastCommand();
+assert.include(lastCommand, "done");
 ```
 
 ### --before-each--
