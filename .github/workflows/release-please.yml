@@ -27,12 +27,21 @@ jobs:
       # without creating GitHub Releases or publishing a package.
       - name: Tag current version
         run: |
-          tag="v$(node --print "require('./package.json').version")"
-          if ! git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
+          version="$(node --print "require('./package.json').version")"
+          tag="v$version"
+          version_line="\"version\": \"$version\""
+          release_commit="$(git log -1 --format=%H -S "$version_line" -- package.json)"
+          remote_commit="$(git ls-remote --tags origin "refs/tags/$tag^{}" | cut -f1)"
+
+          if [ -z "$remote_commit" ]; then
+            remote_commit="$(git ls-remote --tags origin "refs/tags/$tag" | cut -f1)"
+          fi
+
+          if [ "$remote_commit" != "$release_commit" ]; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git tag --annotate "$tag" --message "Release $tag"
-            git push origin "$tag"
+            git tag --force --annotate "$tag" --message "Release $tag" "$release_commit"
+            git push --force origin "refs/tags/$tag"
           fi
 
       - name: Open or update release PR
