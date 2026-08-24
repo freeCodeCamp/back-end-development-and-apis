@@ -1,0 +1,77 @@
+name: Release Please
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: release-please-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        # v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          fetch-depth: 0
+
+      # Release Please uses tags to find the previous release. Keep that state
+      # without creating GitHub Releases or publishing a package.
+      - name: Tag current version
+        run: |
+          tag="v$(node --print "require('./package.json').version")"
+          if ! git ls-remote --exit-code --tags origin "refs/tags/$tag" >/dev/null 2>&1; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git tag --annotate "$tag" --message "Release $tag"
+            git push origin "$tag"
+          fi
+
+      - name: Open or update release PR
+        id: release
+        # v5.0.0
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7
+        with:
+          release-type: node
+          skip-github-release: true
+
+      # Node releases normally update package-lock.json and CHANGELOG.md too.
+      # This repository's release signal is exclusively package.json#version.
+      - name: Keep only package.json version change
+        if: steps.release.outputs.pr != ''
+        env:
+          RELEASE_PR: ${{ steps.release.outputs.pr }}
+        run: |
+          branch="$(node --input-type=module --eval "console.log(JSON.parse(process.env.RELEASE_PR).headBranchName)")"
+          git fetch origin "refs/heads/$branch"
+          git checkout --force -B "$branch" FETCH_HEAD
+
+          while IFS= read -r -d '' file; do
+            if [ "$file" = package.json ]; then
+              continue
+            fi
+
+            if git cat-file -e "origin/main:$file" 2>/dev/null; then
+              git checkout origin/main -- "$file"
+            else
+              git rm --force --ignore-unmatch -- "$file"
+            fi
+          done < <(git diff --name-only --null origin/main...HEAD)
+
+          git add --all
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --message "chore: keep release version-only"
+          git push origin "HEAD:$branch"
