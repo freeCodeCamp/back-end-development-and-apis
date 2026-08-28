@@ -4,7 +4,7 @@
 { "tags": ["Certification Project"] }
 ```
 
-Practice building and exporting an NPM module by creating a prime number checker.
+For this project, you will build a prime number checker as an NPM module.
 
 ## 0
 
