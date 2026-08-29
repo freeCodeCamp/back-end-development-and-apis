@@ -4,7 +4,7 @@
 { "tags": ["Certification Project"] }
 ```
 
-Practice authentication and authorization by building a family movie watchlist HTTP API.
+For this project, you will build a family movie watchlist HTTP API with authentication and authorization.
 
 ## 0
 

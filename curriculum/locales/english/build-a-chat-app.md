@@ -4,7 +4,7 @@
 { "tags": ["Certification Project"] }
 ```
 
-Practice building a real-time multi-client chat server using Node.js WebSockets.
+For this project, you will build a real-time multi-client chat server using Node.js WebSockets.
 
 ## 0
 
