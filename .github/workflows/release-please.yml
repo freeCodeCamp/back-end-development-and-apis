@@ -61,6 +61,27 @@ jobs:
             git push --force origin "refs/tags/$tag"
           fi
 
+      # Release Please refuses to open or update a release PR while any merged
+      # release PR is still labelled "autorelease: pending". That label is
+      # normally cleared by the GitHub Release step, which skip-github-release
+      # disables, so clear it here once the tag for that release exists.
+      - name: Mark merged release PRs as tagged
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create "autorelease: tagged" --repo "$GITHUB_REPOSITORY" \
+            --color ededed \
+            --description "Release PR whose version tag has been pushed" \
+            --force
+
+          gh pr list --repo "$GITHUB_REPOSITORY" --state merged \
+            --label "autorelease: pending" --json number --jq '.[].number' \
+          | while IFS= read -r number; do
+              gh pr edit "$number" --repo "$GITHUB_REPOSITORY" \
+                --remove-label "autorelease: pending" \
+                --add-label "autorelease: tagged"
+            done
+
       - name: Open or update release PR
         id: release
         # v5.0.0
