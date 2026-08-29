@@ -163,6 +163,8 @@ assert.match(
 app.use((req, res, next) => {});
 ```
 
+`req`, `res`, and `next` are just conventional parameter names. Express does not require these exact names. What matters is their position: the first parameter is always a `Request` object, the second is always a `Response` object, and the third is always the `NextFunction` callback function.
+
 In `server.js`, register a logger middleware using `app.use` that logs the request method and URL, then calls `next()`.
 
 ### --tests--
@@ -500,7 +502,7 @@ app.get("/", (req, res, next) => {
 });
 ```
 
-In `routes/api.routes.js`, add a `GET /crash` route that creates a new `Error` with the message `'Database connection failed.'` and passes it to the . Do not set a status on the error - it should default to `500`.
+In `routes/api.routes.js`, add a `GET /crash` route that creates a new `Error` with the message `'Database connection failed.'` and passes it to the `NextFunction` callback. Do not set a status on the error - it should default to `500`.
 
 ### --tests--
 
