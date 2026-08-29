@@ -26,11 +26,28 @@ jobs:
       # Release Please uses tags to find the previous release. Keep that state
       # without creating GitHub Releases or publishing a package.
       - name: Tag current version
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           version="$(node --print "require('./package.json').version")"
           tag="v$version"
-          version_line="\"version\": \"$version\""
-          release_commit="$(git log -1 --format=%H -S "$version_line" -- package.json)"
+
+          # Release Please keys release detection off the release PR's merge
+          # commit SHA, so that is what must be tagged - not whichever commit
+          # happens to contain the package.json diff. A squash merge makes
+          # those the same commit, but a merge commit does not, so look up
+          # the actual merge commit first and only fall back to the pickaxe
+          # search when no matching merged release PR is found.
+          release_commit="$(gh pr list --repo "$GITHUB_REPOSITORY" --state merged \
+            --search "\"chore(main): release $version\" in:title" \
+            --json title,mergeCommit \
+            --jq "[.[] | select(.title == \"chore(main): release $version\")][0].mergeCommit.oid")"
+
+          if [ -z "$release_commit" ]; then
+            version_line="\"version\": \"$version\""
+            release_commit="$(git log -1 --format=%H -S "$version_line" -- package.json)"
+          fi
+
           remote_commit="$(git ls-remote --tags origin "refs/tags/$tag^{}" | cut -f1)"
 
           if [ -z "$remote_commit" ]; then
