@@ -8,7 +8,7 @@ app.use(cors({ optionsSuccessStatus: 200 }));
 app.use(express.static("public"));
 
 app.get("/", (_req, res) => {
-  res.sendFile(__dirname + "/views/index.html");
+  res.sendFile(import.meta.dirname + "/views/index.html");
 });
 
 // Do not change code above this line
