@@ -163,6 +163,8 @@ assert.match(
 app.use((req, res, next) => {});
 ```
 
+`req`, `res`, and `next` are just conventional parameter names. Express does not require these exact names. What matters is their position: the first parameter is always a `Request` object, the second is always a `Response` object, and the third is always the `NextFunction` callback function.
+
 In `server.js`, register a logger middleware using `app.use` that logs the request method and URL, then calls `next()`.
 
 ### --tests--
@@ -492,7 +494,7 @@ assert.isTrue(
 
 ### --description--
 
-When you call the `next` function parameter of a route handler with an error object, Express skips all remaining regular middleware and routes, and jumps directly to the nearest <dfn title="a special Express middleware with four parameters: err, req, res, next - used to handle errors passed via next(err)">error-handling middleware</dfn>:
+When you call the `NextFunction` parameter of a route handler with an error object, Express skips all remaining regular middleware and routes, and jumps directly to the nearest <dfn title="a special Express middleware with four parameters: err, req, res, next - used to handle errors passed via next(err)">error-handling middleware</dfn>:
 
 ```js
 app.get("/", (req, res, next) => {
@@ -500,7 +502,7 @@ app.get("/", (req, res, next) => {
 });
 ```
 
-In `routes/api.routes.js`, add a `GET /crash` route that creates a new `Error` with the message `'Database connection failed.'` and passes it to `next`. Do not set a status on the error - it should default to `500`.
+In `routes/api.routes.js`, add a `GET /crash` route that creates a new `Error` with the message `'Database connection failed.'` and passes it to the `NextFunction` callback. Do not set a status on the error - it should default to `500`.
 
 ### --tests--
 
