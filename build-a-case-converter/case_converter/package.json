@@ -1,0 +1,18 @@
+{
+  "name": "case_converter",
+  "version": "1.0.0",
+  "description": "Write This package is used to convert strings to a specific case",
+  "keywords": [
+    "case",
+    "converter",
+    "uppercase",
+    "lowercase"
+  ],
+  "license": "MIT",
+  "author": "Armand",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "node index.test.js"
+  }
+}

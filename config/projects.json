@@ -17,26 +17,28 @@
     "dashedName": "build-a-file-processor",
     "isIntegrated": false,
     "isPublic": true,
-    "currentLesson": 0,
+    "currentLesson": 29,
     "runTestsOnWatch": true,
     "seedEveryLesson": false,
     "isResetEnabled": false,
     "blockingTests": null,
     "breakOnFailure": null,
-    "numberOfLessons": 30
+    "numberOfLessons": 30,
+    "completedDate": 1788205696760
   },
   {
     "id": 2,
     "dashedName": "build-a-case-converter",
     "isIntegrated": false,
     "isPublic": true,
-    "currentLesson": 0,
+    "currentLesson": 44,
     "runTestsOnWatch": true,
     "seedEveryLesson": false,
     "isResetEnabled": false,
     "blockingTests": null,
     "breakOnFailure": null,
-    "numberOfLessons": 45
+    "numberOfLessons": 45,
+    "completedDate": 1788238447268
   },
   {
     "id": 3,
@@ -49,7 +51,8 @@
     "isResetEnabled": false,
     "blockingTests": true,
     "breakOnFailure": true,
-    "numberOfLessons": 1
+    "numberOfLessons": 1,
+    "completedDate": 1788242287760
   },
   {
     "id": 4,
