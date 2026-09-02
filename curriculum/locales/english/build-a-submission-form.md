@@ -84,9 +84,8 @@ In `server.js`, import `express` using ESM syntax, and create an Express app ins
 `server.js` should import `express` using an ESM `import` statement.
 
 ```js
-assert.match(
-  __file,
-  /import\s+express\s+from\s+['"]express['"]/,
+assert.isTrue(
+  __i.hasDefaultImport("express", "express"),
   'server.js should have: import express from "express"',
 );
 ```
@@ -94,12 +93,16 @@ assert.match(
 `server.js` should declare a `const app` initialised by calling `express()`.
 
 ```js
-const __t = new __helpers.Tower(__file);
-const __app = __t.getVariable("app");
-assert.isDefined(__app, "A variable named app should be declared.");
-assert.match(
-  __app.compact,
-  /app=express\(\)/,
+const __app = __i.getDeclarator("app");
+assert.exists(__app, "A variable named app should be declared.");
+assert.equal(
+  __app.init?.type,
+  "CallExpression",
+  "app should be initialised by calling express().",
+);
+assert.equal(
+  __i.argText(__app.init?.callee),
+  "express",
   "app should be initialised with express().",
 );
 ```
@@ -108,6 +111,7 @@ assert.match(
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
+const __i = new __helpers.Inspector(__file);
 ```
 
 ## 4
@@ -122,19 +126,23 @@ In `server.js`, call `app.listen` with `3000` as the first argument and a callba
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
-const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls("app.listen");
+const __i = new __helpers.Inspector(__file);
+const __calls = __i.getCalls("app.listen");
 assert.isAbove(
   __calls.length,
   0,
   "app.listen() should be called in server.js.",
 );
-const __firstArg = __calls.at(0)?.ast.expression.arguments.at(0);
-assert.exists(__firstArg, "Expected at lookup to return a value.");
+const __firstArg = __calls.at(0)?.arguments?.at(0);
+assert.exists(__firstArg, "Pass the port as the first argument to app.listen.");
 assert.equal(
   __firstArg.value,
   3000,
   "The first argument to app.listen should be the number 3000.",
+);
+assert.isTrue(
+  __i.hasCallback(__calls.at(0)),
+  "Pass a callback as the second argument to app.listen.",
 );
 ```
 
@@ -146,10 +154,15 @@ const { stdout } = await __helpers.awaitExecution(
   "http://localhost:3000",
   { dataTimeout: 3000, fetchTimeout: 3000 },
 );
-assert.match(
-  stdout,
-  /localhost.*3000|3000.*localhost/,
+assert.include(
+  stdout.toLowerCase(),
+  "localhost",
   "The app.listen callback should output the server URL.",
+);
+assert.include(
+  stdout,
+  "3000",
+  "The app.listen callback should output the port the server listens on.",
 );
 ```
 
@@ -169,35 +182,79 @@ In `server.js`, register a logger middleware using `app.use` that logs the reque
 
 ### --tests--
 
-`server.js` should call `app.use` with a middleware function.
+`server.js` should call `app.use` with a middleware function that takes three parameters.
 
 ```js
-const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls("app.use");
-assert.isAbove(__calls.length, 0, "app.use() should be called in server.js.");
+assert.isAbove(
+  __i.getCalls("app.use").length,
+  0,
+  "app.use() should be called in server.js.",
+);
+assert.exists(
+  __middlewareSrc,
+  "Pass a middleware function taking three parameters to app.use.",
+);
 ```
 
-The middleware should log `req.method` and `req.url`.
+The middleware should log the request method and URL.
 
 ```js
-assert.match(
-  __file,
-  /req\.method/,
-  "The middleware should reference req.method.",
+assert.exists(
+  __middlewareSrc,
+  "Pass a middleware function taking three parameters to app.use.",
 );
-assert.match(__file, /req\.url/, "The middleware should reference req.url.");
+const logger = eval(`(${__middlewareSrc})`);
+const __logged = await __helpers.captureLogs(() =>
+  logger(
+    __helpers.mockReq({ method: "PATCH", url: "/logger-check" }),
+    __helpers.mockRes(),
+    __helpers.mockNext(),
+  ),
+);
+assert.include(
+  __logged,
+  "PATCH",
+  "The middleware should log the request method.",
+);
+assert.include(
+  __logged,
+  "/logger-check",
+  "The middleware should log the request URL.",
+);
 ```
 
 The middleware should call `next()`.
 
 ```js
-assert.match(__file, /next\(\)/, "The middleware should call next().");
+assert.exists(
+  __middlewareSrc,
+  "Pass a middleware function taking three parameters to app.use.",
+);
+const logger = eval(`(${__middlewareSrc})`);
+const __next = __helpers.mockNext();
+await __helpers.captureLogs(() =>
+  logger(__helpers.mockReq(), __helpers.mockRes(), __next),
+);
+assert.isTrue(__next.called, "The middleware should call next().");
+assert.isNotOk(
+  __next.error,
+  "The logger middleware should call next() with no arguments.",
+);
 ```
 
 ### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
+const __i = new __helpers.Inspector(__file);
+// The logger is the middleware function mounted with `app.use`. Express
+// identifies middleware by position, not by parameter name, so match on the
+// three parameters rather than on what they are called.
+const __middleware = __i
+  .getCalls("app.use")
+  .flatMap((c) => __i.getCallbacks(c))
+  .find((fn) => fn.params.length === 3);
+const __middlewareSrc = __middleware ? __i.generateCode(__middleware) : null;
 ```
 
 ## 6
@@ -217,12 +274,19 @@ In `server.js`, mount the `json` middleware to parse incoming JSON request bodie
 `server.js` should have `app.use(express.json())`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /app\.use\(\s*express\.json\(\s*\)\s*\)/,
-  "server.js should call app.use(express.json()).",
+const __mounted = __i.getCalls("app.use").map((c) => c.arguments?.at(0));
+const __json = __mounted.find(
+  (a) =>
+    a?.type === "CallExpression" && __i.argText(a.callee) === "express.json",
 );
+assert.exists(__json, "server.js should call app.use(express.json()).");
+```
+
+### --before-each--
+
+```js
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+const __i = new __helpers.Inspector(__file);
 ```
 
 ## 7
@@ -238,12 +302,37 @@ The `extended` option enables parsing more complex JSON formats.
 `server.js` should use `express.urlencoded({ extended: true })` as middleware with `app.use`.
 
 ```js
-const __file = await __helpers.getFile(project.dashedName, "server.js");
-assert.match(
-  __file,
-  /app\.use\(\s*express\.urlencoded\(\s*\{\s*extended\s*:\s*true\s*\}\s*\)\s*\)/,
-  "server.js should call app.use(express.urlencoded({ extended: true })).",
+const __mounted = __i.getCalls("app.use").map((c) => c.arguments?.at(0));
+const __urlencoded = __mounted.find(
+  (a) =>
+    a?.type === "CallExpression" &&
+    __i.argText(a.callee) === "express.urlencoded",
 );
+assert.exists(
+  __urlencoded,
+  "server.js should call app.use(express.urlencoded(...)).",
+);
+const __options = __urlencoded.arguments?.at(0);
+assert.equal(
+  __options?.type,
+  "ObjectExpression",
+  "Pass an options object to express.urlencoded().",
+);
+const __extended = __options.properties.find(
+  (property) => (property.key?.name ?? property.key?.value) === "extended",
+);
+assert.strictEqual(
+  __extended?.value?.value,
+  true,
+  "The options object should set extended to true.",
+);
+```
+
+### --before-each--
+
+```js
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+const __i = new __helpers.Inspector(__file);
 ```
 
 ## 8
@@ -277,9 +366,8 @@ In `routes/api.routes.js`, import the named export `Router` from `express` and u
 `routes/api.routes.js` should import `Router` from `express` using an ESM `import` statement.
 
 ```js
-assert.match(
-  __file,
-  /import\s+.*\bRouter\b.*\s+from\s+['"]express['"]/,
+assert.isTrue(
+  __i.hasNamedImport("Router", "express"),
   'api.routes.js should import Router from "express".',
 );
 ```
@@ -287,12 +375,18 @@ assert.match(
 `routes/api.routes.js` should declare a `const router` initialised by calling `Router()`.
 
 ```js
-const __t = new __helpers.Tower(__file);
-const __router = __t.getVariable("router");
-assert.isDefined(__router, "A variable named router should be declared.");
-assert.match(
-  __router.compact,
-  /router=Router\(\)/,
+const __router = __i.getDeclarator("router");
+assert.exists(__router, "A variable named router should be declared.");
+assert.equal(
+  __router.init?.type,
+  "CallExpression",
+  "router should be initialised by calling Router().",
+);
+// Follow the import, so `import { Router as makeRouter }` works too.
+const __local = __i.getImportLocal("Router", "express") ?? "Router";
+assert.equal(
+  __i.argText(__router.init?.callee),
+  __local,
   "router should be initialised with Router().",
 );
 ```
@@ -304,6 +398,7 @@ const __file = await __helpers.getFile(
   project.dashedName,
   "routes/api.routes.js",
 );
+const __i = new __helpers.Inspector(__file);
 ```
 
 ## 10
@@ -317,14 +412,8 @@ In `routes/api.routes.js`, add a `GET /` route on `router` that responds with th
 `routes/api.routes.js` should define a `GET /` route on `router`.
 
 ```js
-const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls("router.get");
-const __rootRoute = __calls.find((c) => {
-  const __arg = c.ast?.expression?.arguments?.[0];
-  return __arg?.value === "/";
-});
-assert.isDefined(
-  __rootRoute,
+assert.exists(
+  __route("get", "/"),
   'router.get("/", ...) should be defined in api.routes.js.',
 );
 ```
@@ -338,10 +427,10 @@ const { join } = await import("path");
 const __testDir = join(ROOT, project.dashedName, "__test");
 await mkdir(__testDir, { recursive: true });
 
-const __routesContent = __file;
-const __routesWithExport = /export\s+default\s+router/.test(__routesContent)
-  ? __routesContent
-  : __routesContent.trimEnd() + "\nexport default router;\n";
+// The default export comes in a later lesson, so add one when it is missing.
+const __routesWithExport = __i.hasDefaultExport()
+  ? __file
+  : __file.trimEnd() + "\nexport default router;\n";
 
 await writeFile(join(__testDir, "api.routes.js"), __routesWithExport);
 await writeFile(
@@ -393,6 +482,11 @@ const __file = await __helpers.getFile(
   project.dashedName,
   "routes/api.routes.js",
 );
+const __i = new __helpers.Inspector(__file);
+const __route = (method, path) =>
+  __i
+    .getCalls(`router.${method}`)
+    .find((c) => __i.argText(c.arguments?.at(0)) === path);
 ```
 
 ## 11
@@ -410,9 +504,9 @@ const __file = await __helpers.getFile(
   project.dashedName,
   "routes/api.routes.js",
 );
-assert.match(
-  __file,
-  /export\s+default\s+router/,
+const __i = new __helpers.Inspector(__file);
+assert.isTrue(
+  __i.hasDefaultExport("router"),
   "api.routes.js should have: export default router",
 );
 ```
@@ -434,17 +528,8 @@ In `server.js`, import `apiRouter` from `routes/api.routes.js` and mount it to t
 `server.js` should import `apiRouter` from `./routes/api.routes.js`.
 
 ```js
-const __t = new __helpers.Tower(__file);
-const __imports = __t.ast.body.filter((n) => n.type === "ImportDeclaration");
-const __apiRouterImport = __imports.find(
-  (n) =>
-    n.specifiers.some(
-      (s) =>
-        s.type === "ImportDefaultSpecifier" && s.local.name === "apiRouter",
-    ) && n.source.value === "./routes/api.routes.js",
-);
-assert.isDefined(
-  __apiRouterImport,
+assert.isTrue(
+  __i.hasDefaultImport("apiRouter", "./routes/api.routes.js"),
   'server.js should import apiRouter from "./routes/api.routes.js".',
 );
 ```
@@ -452,22 +537,21 @@ assert.isDefined(
 `server.js` should mount `apiRouter` at the `/api` path using `app.use`.
 
 ```js
-const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls("app.use");
-const __mounted = __calls.find((c) => {
-  const __args = c.ast?.expression?.arguments;
-  return __args?.[0]?.value === "/api" && __args?.[1]?.name === "apiRouter";
+const __mounted = __i.getCalls("app.use").find((c) => {
+  const __args = c.arguments ?? [];
+  return (
+    __i.argText(__args.at(0)) === "/api" &&
+    __i.argText(__args.at(1)) === "apiRouter"
+  );
 });
-assert.isDefined(
-  __mounted,
-  'server.js should call app.use("/api", apiRouter).',
-);
+assert.exists(__mounted, 'server.js should call app.use("/api", apiRouter).');
 ```
 
 ### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
+const __i = new __helpers.Inspector(__file);
 ```
 
 ## 13
@@ -509,14 +593,8 @@ In `routes/api.routes.js`, add a `GET /crash` route that creates a new `Error` w
 `routes/api.routes.js` should define a `GET /crash` route on `router`.
 
 ```js
-const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls("router.get");
-const __crashRoute = __calls.find((c) => {
-  const __arg = c.ast?.expression?.arguments?.[0];
-  return __arg?.value === "/crash";
-});
-assert.isDefined(
-  __crashRoute,
+assert.exists(
+  __route("get", "/crash"),
   'router.get("/crash", ...) should be defined in api.routes.js.',
 );
 ```
@@ -524,15 +602,34 @@ assert.isDefined(
 The `/crash` route handler should create a `new Error` with message `'Database connection failed.'` and pass it to `next`.
 
 ```js
-assert.match(
-  __file,
-  /new\s+Error\(['"]Database connection failed\.['"]\)/,
+const __src = __handlerSrc("get", "/crash");
+assert.exists(__src, 'Define the GET "/crash" route handler.');
+const crashHandler = eval(`(${__src})`);
+const __next = __helpers.mockNext();
+await __helpers.captureLogs(() =>
+  crashHandler(
+    __helpers.mockReq({ url: "/crash", originalUrl: "/api/crash" }),
+    __helpers.mockRes(),
+    __next,
+  ),
+);
+assert.isTrue(
+  __next.called,
+  "The /crash handler should pass the error to next.",
+);
+assert.instanceOf(
+  __next.error,
+  Error,
+  "The /crash handler should pass a new Error to next.",
+);
+assert.strictEqual(
+  __next.error.message,
+  "Database connection failed.",
   'The /crash handler should create new Error("Database connection failed.").',
 );
-assert.match(
-  __file,
-  /next\(\s*err\s*\)/,
-  "The /crash handler should call next(err).",
+assert.isUndefined(
+  __next.error.status,
+  "The /crash error should not set a status - it defaults to 500.",
 );
 ```
 
@@ -543,6 +640,16 @@ const __file = await __helpers.getFile(
   project.dashedName,
   "routes/api.routes.js",
 );
+const __i = new __helpers.Inspector(__file);
+const __route = (method, path) =>
+  __i
+    .getCalls(`router.${method}`)
+    .find((c) => __i.argText(c.arguments?.at(0)) === path);
+// The route handler is the last function passed to router[method](path, ...).
+const __handlerSrc = (method, path) => {
+  const __fn = __i.getCallbacks(__route(method, path)).at(-1);
+  return __fn ? __i.generateCode(__fn) : null;
+};
 ```
 
 ## 15
@@ -566,14 +673,8 @@ In `routes/api.routes.js`, add a `GET /bad-request` route that creates an `Error
 `routes/api.routes.js` should define a `GET /bad-request` route on `router`.
 
 ```js
-const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls("router.get");
-const __badRoute = __calls.find((c) => {
-  const __arg = c.ast?.expression?.arguments?.[0];
-  return __arg?.value === "/bad-request";
-});
-assert.isDefined(
-  __badRoute,
+assert.exists(
+  __route("get", "/bad-request"),
   'router.get("/bad-request", ...) should be defined in api.routes.js.',
 );
 ```
@@ -581,9 +682,25 @@ assert.isDefined(
 The `/bad-request` handler should set the error `status` to `400`.
 
 ```js
-assert.match(
-  __file,
-  /\.status\s*=\s*400/,
+const __src = __handlerSrc("get", "/bad-request");
+assert.exists(__src, 'Define the GET "/bad-request" route handler.');
+const badRequestHandler = eval(`(${__src})`);
+const __next = __helpers.mockNext();
+await __helpers.captureLogs(() =>
+  badRequestHandler(
+    __helpers.mockReq({ url: "/bad-request", originalUrl: "/api/bad-request" }),
+    __helpers.mockRes(),
+    __next,
+  ),
+);
+assert.instanceOf(
+  __next.error,
+  Error,
+  "The /bad-request handler should pass a new Error to next.",
+);
+assert.strictEqual(
+  __next.error.status,
+  400,
   "The /bad-request handler should set err.status = 400.",
 );
 ```
@@ -591,9 +708,29 @@ assert.match(
 The `/bad-request` handler should create a `new Error` with message `'Client-side data is missing.'` and pass it to `next`.
 
 ```js
-assert.match(
-  __file,
-  /new\s+Error\(['"]Client-side data is missing\.['"]\)/,
+const __src = __handlerSrc("get", "/bad-request");
+assert.exists(__src, 'Define the GET "/bad-request" route handler.');
+const badRequestHandler = eval(`(${__src})`);
+const __next = __helpers.mockNext();
+await __helpers.captureLogs(() =>
+  badRequestHandler(
+    __helpers.mockReq({ url: "/bad-request", originalUrl: "/api/bad-request" }),
+    __helpers.mockRes(),
+    __next,
+  ),
+);
+assert.isTrue(
+  __next.called,
+  "The /bad-request handler should pass the error to next.",
+);
+assert.instanceOf(
+  __next.error,
+  Error,
+  "The /bad-request handler should pass a new Error to next.",
+);
+assert.strictEqual(
+  __next.error.message,
+  "Client-side data is missing.",
   'The /bad-request handler should create new Error("Client-side data is missing.").',
 );
 ```
@@ -605,6 +742,16 @@ const __file = await __helpers.getFile(
   project.dashedName,
   "routes/api.routes.js",
 );
+const __i = new __helpers.Inspector(__file);
+const __route = (method, path) =>
+  __i
+    .getCalls(`router.${method}`)
+    .find((c) => __i.argText(c.arguments?.at(0)) === path);
+// The route handler is the last function passed to router[method](path, ...).
+const __handlerSrc = (method, path) => {
+  const __fn = __i.getCallbacks(__route(method, path)).at(-1);
+  return __fn ? __i.generateCode(__fn) : null;
+};
 ```
 
 ## 16
@@ -647,36 +794,63 @@ function notFoundHandler(req, res, next) {
 
 ### --tests--
 
-`middleware/error.middleware.js` should declare a `notFoundHandler` function.
+`middleware/error.middleware.js` should declare a `notFoundHandler` function with three parameters.
 
 ```js
-const __t = new __helpers.Tower(__file);
-const __fn = __t.getVariable("notFoundHandler");
-assert.isDefined(__fn, "A variable named notFoundHandler should be declared.");
+assert.exists(
+  __handlerSrc,
+  "Declare a notFoundHandler function in middleware/error.middleware.js.",
+);
+const notFoundHandler = eval(`(${__handlerSrc})`);
+assert.isFunction(notFoundHandler, "notFoundHandler should be a function.");
+assert.lengthOf(
+  __handler.params,
+  3,
+  "notFoundHandler should have three parameters: req, res, next.",
+);
 ```
 
 The `notFoundHandler` should create a `new Error` that includes `req.originalUrl`.
 
 ```js
-assert.match(
-  __file,
-  /new\s+Error\(.*req\.originalUrl/,
-  "notFoundHandler should create an error message using req.originalUrl.",
+assert.exists(
+  __handlerSrc,
+  "Declare a notFoundHandler function in middleware/error.middleware.js.",
+);
+const notFoundHandler = eval(`(${__handlerSrc})`);
+const __next = await __passTo(notFoundHandler, "/does-not-exist");
+assert.isTrue(__next.called, "notFoundHandler should call next.");
+assert.instanceOf(
+  __next.error,
+  Error,
+  "notFoundHandler should pass a new Error to next.",
+);
+assert.include(
+  __next.error.message,
+  "/does-not-exist",
+  "The error message should include req.originalUrl.",
 );
 ```
 
 The `notFoundHandler` should set `error.status` to `404` and call `next` with the error.
 
 ```js
-assert.match(
-  __file,
-  /\.status\s*=\s*404/,
-  "notFoundHandler should set error.status = 404.",
+assert.exists(
+  __handlerSrc,
+  "Declare a notFoundHandler function in middleware/error.middleware.js.",
 );
-assert.match(
-  __file,
-  /next\(\s*error\s*\)/,
-  "notFoundHandler should call next(error).",
+const notFoundHandler = eval(`(${__handlerSrc})`);
+const __next = await __passTo(notFoundHandler, "/missing");
+assert.isTrue(__next.called, "notFoundHandler should call next(error).");
+assert.instanceOf(
+  __next.error,
+  Error,
+  "notFoundHandler should call next with the error it created.",
+);
+assert.strictEqual(
+  __next.error.status,
+  404,
+  "notFoundHandler should set error.status = 404.",
 );
 ```
 
@@ -687,6 +861,32 @@ const __file = await __helpers.getFile(
   project.dashedName,
   "middleware/error.middleware.js",
 );
+const __i = new __helpers.Inspector(__file);
+const __handler = __i.getFunction("notFoundHandler");
+const __handlerSrc = __handler ? __i.generateCode(__handler) : null;
+const __mockRes = () => ({
+  send() {},
+  statusCode: 200,
+  status(code) {
+    this.statusCode = code;
+    return this;
+  },
+  json(body) {
+    this.body = body;
+    return this;
+  },
+});
+// Call the handler with a request for `originalUrl`, and report what it passed
+// to `next`.
+const __passTo = async (handler, originalUrl) => {
+  const next = (error) => {
+    next.called = true;
+    next.error = error;
+  };
+  next.called = false;
+  await handler({ originalUrl, method: "GET" }, __mockRes(), next);
+  return next;
+};
 ```
 
 ## 18
@@ -695,63 +895,116 @@ const __file = await __helpers.getFile(
 
 Express identifies an error handler by its **four parameters**: `err, req, res, next`. Any middleware with that signature is treated as an error handler and only called when an error is passed to `next`.
 
-In `middleware/error.middleware.js`, declare `finalErrorHandler` with four parameters. It should derive the HTTP status from `err.status || 500`, log the error, and respond with a JSON body containing `error: true`, the `status`, and a `message`. For `500` responses, use the generic message `'Internal Server Error (Check Server Logs)'`; otherwise use `err.message`.
+In `middleware/error.middleware.js`, declare `finalErrorHandler` with four parameters. It should derive the HTTP response status from `err.status || 500`, log the error, and respond with a JSON body containing `error: true`, the `status`, and a `message`. For `500` responses, use the generic message `'Internal Server Error (Check Server Logs)'`; otherwise use `err.message`.
 
 ### --tests--
 
 `middleware/error.middleware.js` should declare a `finalErrorHandler` function with four parameters.
 
 ```js
-const __t = new __helpers.Tower(__file);
-const __fn = __t.getVariable("finalErrorHandler");
-assert.isDefined(
-  __fn,
-  "A variable named finalErrorHandler should be declared.",
+assert.exists(
+  __handlerSrc,
+  "Declare a finalErrorHandler function in middleware/error.middleware.js.",
 );
-assert.match(
-  __file,
-  /finalErrorHandler\s*=\s*\(\s*err\s*,\s*req\s*,\s*res\s*,\s*next\s*\)/,
+const finalErrorHandler = eval(`(${__handlerSrc})`);
+assert.isFunction(finalErrorHandler, "finalErrorHandler should be a function.");
+assert.lengthOf(
+  __handler.params,
+  4,
   "finalErrorHandler should have four parameters: err, req, res, next.",
 );
 ```
 
-`finalErrorHandler` should derive `status` from `err.status || 500`.
+`finalErrorHandler` should derive the response `status` from `err.status || 500`.
 
 ```js
-assert.match(
-  __file,
-  /err\.status\s*\|\|\s*500/,
-  "finalErrorHandler should use err.status || 500 to determine the status code.",
+assert.exists(
+  __handlerSrc,
+  "Declare a finalErrorHandler function in middleware/error.middleware.js.",
+);
+const finalErrorHandler = eval(`(${__handlerSrc})`);
+const __client = await __respondTo(
+  finalErrorHandler,
+  __errorWith("Cannot find /nope", 404),
+);
+assert.strictEqual(
+  __client.statusCode,
+  404,
+  "finalErrorHandler should respond with err.status when the error has one.",
+);
+const __server = await __respondTo(finalErrorHandler, __errorWith("Boom"));
+assert.strictEqual(
+  __server.statusCode,
+  500,
+  "finalErrorHandler should respond with 500 when the error has no status.",
 );
 ```
 
 `finalErrorHandler` should send a JSON response with `error: true`, `status`, and `message` properties.
 
 ```js
-assert.match(
-  __file,
-  /res\.status\(status\)\.json\(/,
-  "finalErrorHandler should call res.status(status).json(...).",
+assert.exists(
+  __handlerSrc,
+  "Declare a finalErrorHandler function in middleware/error.middleware.js.",
 );
-assert.match(
-  __file,
-  /error\s*:\s*true/,
+const finalErrorHandler = eval(`(${__handlerSrc})`);
+const __res = await __respondTo(
+  finalErrorHandler,
+  __errorWith("Name is required", 400),
+);
+assert.isObject(
+  __res.body,
+  "finalErrorHandler should respond with res.status(status).json(...).",
+);
+assert.strictEqual(
+  __res.body.error,
+  true,
   "The JSON response should include error: true.",
+);
+assert.strictEqual(
+  __res.body.status,
+  400,
+  "The JSON response should include the status.",
+);
+assert.isString(
+  __res.body.message,
+  "The JSON response should include a message.",
 );
 ```
 
 `finalErrorHandler` should use a generic message `'Internal Server Error (Check Server Logs)'` when `status` is `500`, and `err.message` otherwise.
 
 ```js
-assert.match(
-  __file,
-  /Internal Server Error \(Check Server Logs\)/,
-  "finalErrorHandler should use a generic message for 500 errors.",
+assert.exists(
+  __handlerSrc,
+  "Declare a finalErrorHandler function in middleware/error.middleware.js.",
 );
-assert.match(
-  __file,
-  /err\.message/,
+const finalErrorHandler = eval(`(${__handlerSrc})`);
+const __client = await __respondTo(
+  finalErrorHandler,
+  __errorWith("Name is required", 400),
+);
+assert.isObject(
+  __client.body,
+  "finalErrorHandler should respond with res.status(status).json(...).",
+);
+assert.strictEqual(
+  __client.body.message,
+  "Name is required",
   "finalErrorHandler should use err.message for non-500 errors.",
+);
+const __server = await __respondTo(
+  finalErrorHandler,
+  __errorWith("Database connection lost"),
+);
+assert.isObject(
+  __server.body,
+  "finalErrorHandler should respond with res.status(status).json(...).",
+);
+assert.strictEqual(
+  __server.body.message,
+  "Internal Server Error (Check Server Logs)",
+  "finalErrorHandler should use a generic message for 500 errors.",
 );
 ```
 
@@ -762,6 +1015,39 @@ const __file = await __helpers.getFile(
   project.dashedName,
   "middleware/error.middleware.js",
 );
+const __i = new __helpers.Inspector(__file);
+const __handler = __i.getFunction("finalErrorHandler");
+const __handlerSrc = __handler ? __i.generateCode(__handler) : null;
+const __mockRes = () => ({
+  send() {},
+  statusCode: 200,
+  status(code) {
+    this.statusCode = code;
+    return this;
+  },
+  json(body) {
+    this.body = body;
+    return this;
+  },
+});
+const __errorWith = (message, status) => {
+  const error = new Error(message);
+  if (status) {
+    error.status = status;
+  }
+  return error;
+};
+// Call the handler with `err`, and report the response it built.
+const __respondTo = async (handler, err) => {
+  const res = __mockRes();
+  await handler(
+    err,
+    { originalUrl: "/api/submissions", method: "POST", body: {} },
+    res,
+    () => {},
+  );
+  return res;
+};
 ```
 
 ## 19
@@ -775,9 +1061,9 @@ Export both `notFoundHandler` and `finalErrorHandler` as named exports from `mid
 `middleware/error.middleware.js` should export `notFoundHandler` as a named export.
 
 ```js
-assert.match(
-  __file,
-  /export\s*\{[^}]*\bnotFoundHandler\b[^}]*\}/,
+const __i = new __helpers.Inspector(__file);
+assert.isTrue(
+  __i.hasNamedExport("notFoundHandler"),
   "error.middleware.js should export notFoundHandler as a named export.",
 );
 ```
@@ -785,9 +1071,9 @@ assert.match(
 `middleware/error.middleware.js` should export `finalErrorHandler` as a named export.
 
 ```js
-assert.match(
-  __file,
-  /export\s*\{[^}]*\bfinalErrorHandler\b[^}]*\}/,
+const __i = new __helpers.Inspector(__file);
+assert.isTrue(
+  __i.hasNamedExport("finalErrorHandler"),
   "error.middleware.js should export finalErrorHandler as a named export.",
 );
 ```
@@ -812,14 +1098,12 @@ In `server.js`, import `notFoundHandler` and `finalErrorHandler` from `./middlew
 `server.js` should import `notFoundHandler` and `finalErrorHandler` from `./middleware/error.middleware.js`.
 
 ```js
-assert.match(
-  __file,
-  /import\s*\{[^}]*\bnotFoundHandler\b[^}]*\}\s*from\s*['"]\.\/middleware\/error\.middleware\.js['"]/,
+assert.isTrue(
+  __i.hasNamedImport("notFoundHandler", "./middleware/error.middleware.js"),
   'server.js should import notFoundHandler from "./middleware/error.middleware.js".',
 );
-assert.match(
-  __file,
-  /import\s*\{[^}]*\bfinalErrorHandler\b[^}]*\}\s*from\s*['"]\.\/middleware\/error\.middleware\.js['"]/,
+assert.isTrue(
+  __i.hasNamedImport("finalErrorHandler", "./middleware/error.middleware.js"),
   'server.js should import finalErrorHandler from "./middleware/error.middleware.js".',
 );
 ```
@@ -827,31 +1111,31 @@ assert.match(
 `server.js` should mount `notFoundHandler` with `app.use`.
 
 ```js
-const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls("app.use");
-const __nfh = __calls.find((c) => {
-  const __arg = c.ast?.expression?.arguments?.[0];
-  return __arg?.name === "notFoundHandler";
-});
-assert.isDefined(__nfh, "server.js should call app.use(notFoundHandler).");
+assert.exists(__nfh, "server.js should call app.use(notFoundHandler).");
 ```
 
 `server.js` should mount `finalErrorHandler` with `app.use`.
 
 ```js
-const __t = new __helpers.Tower(__file);
-const __calls = __t.getCalls("app.use");
-const __feh = __calls.find((c) => {
-  const __arg = c.ast?.expression?.arguments?.[0];
-  return __arg?.name === "finalErrorHandler";
-});
-assert.isDefined(__feh, "server.js should call app.use(finalErrorHandler).");
+const __feh = __i
+  .getCalls("app.use")
+  .find((c) => __i.argText(c.arguments?.at(0)) === "finalErrorHandler");
+assert.exists(__feh, "server.js should call app.use(finalErrorHandler).");
+assert.isAbove(
+  __feh.start,
+  __nfh?.start ?? -1,
+  "Mount finalErrorHandler after notFoundHandler.",
+);
 ```
 
 ### --before-each--
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
+const __i = new __helpers.Inspector(__file);
+const __nfh = __i
+  .getCalls("app.use")
+  .find((c) => __i.argText(c.arguments?.at(0)) === "notFoundHandler");
 ```
 
 ## 21

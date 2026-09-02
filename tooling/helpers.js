@@ -2,6 +2,7 @@ import { ROOT } from "@freecodecamp/freecodecamp-os/.freeCodeCamp/tooling/env.js
 import { join } from "path";
 import { readFile, readdir, constants, access } from "fs/promises";
 import { createConnection } from "net";
+import { inspect } from "util";
 import { logover } from "@freecodecamp/freecodecamp-os/.freeCodeCamp/tooling/logger.js";
 import { AssertionError } from "chai";
 
@@ -397,21 +398,124 @@ export class Inspector extends Babeliser {
   }
 
   /**
-   * Whether a function `name` exists, declared with `function`, or assigned as
-   * an arrow function or function expression.
+   * The node of a function `name`, declared with `function`, or assigned as an
+   * arrow function or function expression. Lets a test read `params` or the
+   * body without caring which form was used.
    */
-  hasFunction(name) {
-    const declared = this.getFunctionDeclarations().some(
+  getFunction(name) {
+    const declared = this.getFunctionDeclarations().find(
       (f) => f.id?.name === name,
     );
-    const assigned = this.declarators.some(
+    if (declared) {
+      return declared;
+    }
+    const assigned = this.declarators.find(
       (d) =>
         d.id?.name === name &&
         ["ArrowFunctionExpression", "FunctionExpression"].includes(
           d.init?.type,
         ),
     );
-    return declared || assigned;
+    return assigned?.init;
+  }
+
+  /**
+   * Whether a function `name` exists, declared with `function`, or assigned as
+   * an arrow function or function expression.
+   */
+  hasFunction(name) {
+    return Boolean(this.getFunction(name));
+  }
+
+  /** The function arguments of `call` - its callbacks, or route handlers. */
+  getCallbacks(call) {
+    return (call?.arguments ?? []).filter((a) =>
+      ["ArrowFunctionExpression", "FunctionExpression"].includes(a.type),
+    );
+  }
+
+  /** The `import` declarations that load `source`. */
+  getImports(source) {
+    return this.getImportDeclarations().filter(
+      (i) => i.source?.value === source,
+    );
+  }
+
+  /**
+   * Whether `source` is imported as a default import bound to `name`, as in
+   * `import express from "express"`.
+   */
+  hasDefaultImport(name, source) {
+    return this.getImports(source).some((i) =>
+      i.specifiers?.some(
+        (s) => is("ImportDefaultSpecifier", s) && s.local?.name === name,
+      ),
+    );
+  }
+
+  /**
+   * Whether `name` is imported from `source` as a named import, as in
+   * `import { Router } from "express"`. An alias still counts, because which
+   * export is imported is what matters.
+   */
+  hasNamedImport(name, source) {
+    return this.getImports(source).some((i) =>
+      i.specifiers?.some(
+        (s) => is("ImportSpecifier", s) && s.imported?.name === name,
+      ),
+    );
+  }
+
+  /**
+   * The local name `name` is bound to when imported from `source`, so a test
+   * can follow `import { Router as makeRouter }` to the `makeRouter` calls.
+   * Returns `undefined` when `source` does not export `name` to this file.
+   */
+  getImportLocal(name, source) {
+    for (const declaration of this.getImports(source)) {
+      for (const specifier of declaration.specifiers ?? []) {
+        if (
+          is("ImportSpecifier", specifier) &&
+          specifier.imported?.name === name
+        ) {
+          return specifier.local?.name;
+        }
+      }
+    }
+    return undefined;
+  }
+
+  /**
+   * Whether there is a default export, and when `name` is given, whether that
+   * is what it exports.
+   */
+  hasDefaultExport(name) {
+    return this.getType("ExportDefaultDeclaration").some((e) => {
+      if (name === undefined) {
+        return true;
+      }
+      const declaration = e.declaration;
+      return declaration?.name === name || declaration?.id?.name === name;
+    });
+  }
+
+  /**
+   * Whether `name` is exported by name, as `export { name }`, or inline as
+   * `export function name` or `export const name`.
+   */
+  hasNamedExport(name) {
+    return this.getType("ExportNamedDeclaration").some((e) => {
+      if (e.specifiers?.some((s) => s.exported?.name === name)) {
+        return true;
+      }
+      const declaration = e.declaration;
+      if (declaration?.id?.name === name) {
+        return true;
+      }
+      return Boolean(
+        declaration?.declarations?.some((d) => d.id?.name === name),
+      );
+    });
   }
 
   /**
@@ -623,4 +727,132 @@ export class Tower {
   get compact() {
     return generate(this.ast, { compact: true }).code;
   }
+}
+
+/**
+ * Express stand-ins, for tests that call a camper's middleware or route handler
+ * directly instead of matching its source text. A handler extracted with
+ * `Inspector#getFunction` or `Inspector#getCallbacks` and rebuilt with `eval`
+ * can then be driven with real requests, so any syntax that behaves correctly
+ * passes.
+ *
+ * **Example**:
+ *
+ * ```js
+ * const handler = eval(`(${i.generateCode(node)})`);
+ * const res = __helpers.mockRes();
+ * const next = __helpers.mockNext();
+ * await handler(__helpers.mockReq({ originalUrl: "/nope" }), res, next);
+ * assert.instanceOf(next.error, Error);
+ * ```
+ */
+export function mockReq(overrides = {}) {
+  return {
+    method: "GET",
+    url: "/",
+    originalUrl: "/",
+    path: "/",
+    params: {},
+    query: {},
+    body: {},
+    headers: {},
+    get(field) {
+      return this.headers[String(field).toLowerCase()];
+    },
+    ...overrides,
+  };
+}
+
+/**
+ * A `res` stand-in that records what the handler sent. `status` and `set`
+ * return it, so `res.status(404).json(...)` chains as it does in Express.
+ */
+export function mockRes() {
+  return {
+    statusCode: 200,
+    headers: {},
+    body: undefined,
+    text: undefined,
+    ended: false,
+    status(code) {
+      this.statusCode = code;
+      return this;
+    },
+    set(field, value) {
+      this.headers[String(field).toLowerCase()] = value;
+      return this;
+    },
+    type(value) {
+      return this.set("content-type", value);
+    },
+    json(body) {
+      this.body = body;
+      this.ended = true;
+      return this;
+    },
+    send(body) {
+      if (body !== null && typeof body === "object") {
+        this.body = body;
+      } else {
+        this.text = body;
+      }
+      this.ended = true;
+      return this;
+    },
+    end(body) {
+      if (body !== undefined) {
+        this.text = body;
+      }
+      this.ended = true;
+      return this;
+    },
+  };
+}
+
+/**
+ * A `next` stand-in. After the handler runs, `next.called` says whether it
+ * continued the cycle, `next.error` is the first argument it passed, and
+ * `next.calls` holds the arguments of every call.
+ */
+export function mockNext() {
+  const next = (...args) => {
+    next.called = true;
+    next.calls.push(args);
+    if (next.error === undefined) {
+      next.error = args[0];
+    }
+  };
+  next.called = false;
+  next.error = undefined;
+  next.calls = [];
+  return next;
+}
+
+/**
+ * Runs `fn` with the `console` methods captured, and returns everything it
+ * logged as one string. Lets a test assert what a handler logged without
+ * caring which console method, quotes, or template it used.
+ */
+export async function captureLogs(fn) {
+  const methods = ["log", "info", "warn", "error", "debug", "trace"];
+  const original = {};
+  const output = [];
+  for (const method of methods) {
+    original[method] = console[method];
+    console[method] = (...args) => {
+      output.push(
+        args
+          .map((arg) => (typeof arg === "string" ? arg : inspect(arg)))
+          .join(" "),
+      );
+    };
+  }
+  try {
+    await fn();
+  } finally {
+    for (const method of methods) {
+      console[method] = original[method];
+    }
+  }
+  return output.join("\n");
 }
