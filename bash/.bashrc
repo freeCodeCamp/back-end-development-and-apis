@@ -124,6 +124,14 @@ for i in $(ls -A $HOME/.bashrc.d/); do source $HOME/.bashrc.d/$i; done
 # freeCodeCamp - Needed for most tests to work
 WD="$PWD"
 
+# Drop `ignoredups` from the Debian default `ignoreboth` set above. Tests read
+# .logs/.bash_history.log, which is emptied whenever a lesson passes, and
+# `history -a` only appends entries that are new to the in-memory history list.
+# With `ignoredups`, re-running the previous command (e.g. `node server.js` in
+# consecutive lessons) never enters that list, so nothing is appended and the
+# emptied log stays empty until a new terminal is opened.
+HISTCONTROL=ignorespace
+
 mkdir -p $WD/.logs/
 touch $WD/.logs/.bash_history.log $WD/.logs/.cwd.log $WD/.logs/.history_cwd.log $WD/.logs/.terminal_out.log $WD/.logs/.temp.log
 
