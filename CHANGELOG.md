@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.16](https://github.com/freeCodeCamp/back-end-development-and-apis/compare/v1.1.15...v1.1.16) (2026-09-02)
+
+
+### Bug Fixes
+
+* **bash:** ignore space in histcontrol ([e90612a](https://github.com/freeCodeCamp/back-end-development-and-apis/commit/e90612a556bbcc00952f73689a47e0c312f9a4ca))
+* **curriculum:** submission-form refactor regex tests ([6ce04c6](https://github.com/freeCodeCamp/back-end-development-and-apis/commit/6ce04c6b06240493967cc2948949e8f1236a5729))
+
 ## [1.1.15](https://github.com/freeCodeCamp/back-end-development-and-apis/compare/v1.1.14...v1.1.15) (2026-08-29)
 
 
