@@ -304,11 +304,11 @@ assert.isTrue(packageJsonExists, "The package.json file does not exist");
 
 ### --description--
 
-Within the `case_converter/` directory, create the entry point file `index.js`.
+Within the `build-a-case-converter/case_converter/` directory, create the entry point file `index.js`.
 
 ### --tests--
 
-You should have a file named `index.js` in the `case_converter/` directory.
+You should have a file named `index.js` in the `build-a-case-converter/case_converter/` directory.
 
 ```js
 const fileExists = await __helpers.fileExists(
