@@ -359,16 +359,8 @@ JWT_SECRET=replace_with_a_long_random_string
 
 ```js
 const __env = await __helpers.getFile(project.dashedName, ".env");
-const __vars = Object.fromEntries(
-  __env
-    .split("\n")
-    .map((l) => l.trim())
-    .filter((l) => l && !l.startsWith("#"))
-    .map((l) => {
-      const __i = l.indexOf("=");
-      return [l.slice(0, __i).trim(), l.slice(__i + 1).trim()];
-    }),
-);
+const { parseEnv } = await import("node:util");
+const __vars = parseEnv(__env);
 assert.property(__vars, "JWT_SECRET", "Add a JWT_SECRET variable to .env.");
 assert.isNotEmpty(
   __vars.JWT_SECRET,
@@ -2259,16 +2251,8 @@ const { join } = await import("path");
 const __require = createRequire(join(ROOT, project.dashedName, "package.json"));
 const __jwt = __require("jsonwebtoken");
 const __env = await __helpers.getFile(project.dashedName, ".env");
-const __secret = Object.fromEntries(
-  __env
-    .split("\n")
-    .map((l) => l.trim())
-    .filter((l) => l && !l.startsWith("#"))
-    .map((l) => {
-      const __i = l.indexOf("=");
-      return [l.slice(0, __i).trim(), l.slice(__i + 1).trim()];
-    }),
-).JWT_SECRET;
+const { parseEnv } = await import("node:util");
+const __secret = parseEnv(__env).JWT_SECRET;
 const __adminToken = __jwt.sign(
   { id: "admin-test", email: "admin@test.dev", role: "admin" },
   __secret,
