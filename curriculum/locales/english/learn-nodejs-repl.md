@@ -296,7 +296,7 @@ assert.isTrue(
 const __file = await __helpers.getFile(project.dashedName, "hello.js");
 assert.match(
   __file,
-  /console\.log\(/,
+  /console\.log\s*\(/,
   "`hello.js` should contain a `console.log(...)` call.",
 );
 ```
