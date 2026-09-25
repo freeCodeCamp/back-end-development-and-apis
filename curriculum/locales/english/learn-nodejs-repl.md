@@ -405,14 +405,14 @@ assert.match(
 
 ### --description--
 
-You are now in the REPL. Typing any expression and pressing `Enter` will cause the REPL to evaluate it, and print the result immediately, without needing `console.log`.
+You are now in the REPL. Typing any expression and pressing <kbd>Enter</kbd> will cause the REPL to evaluate it, and print the result immediately, without needing `console.log`.
 
 ```bash
 > 2 ** 8
 256
 ```
 
-Type an arithmetic expression of your choice and press `Enter`.
+Type an arithmetic expression of your choice and press <kbd>Enter</kbd>.
 
 **NOTE:** Keep the REPL open and click _Run Tests_ when done.
 
@@ -474,7 +474,7 @@ assert.match(
 
 ### --description--
 
-Previously, you declared a variable in the REPL. Because it is still in scope, you can read it back simply by typing its name and pressing `Enter`.
+Previously, you declared a variable in the REPL. Because it is still in scope, you can read it back simply by typing its name and pressing <kbd>Enter</kbd>.
 
 ```bash
 > city
@@ -709,7 +709,7 @@ assert.include(
 
 ### --description--
 
-To leave the REPL and return to the regular terminal, type `.exit` and press `Enter`. You can also press `Ctrl+D` to achieve the same result.
+To leave the REPL and return to the regular terminal, type `.exit` and press <kbd>Enter</kbd>. You can also press <kbd>Ctrl</kbd>+<kbd>D</kbd> to achieve the same result.
 
 Type `.exit` to close the REPL session.
 
@@ -722,7 +722,7 @@ const __history = await __helpers.getBashHistory();
 assert.match(
   __history,
   /^node\s*$/m,
-  "Type `.exit` (or press Ctrl+D) to leave the REPL - `node` should appear in your bash history once the session ends.",
+  "Type `.exit` (or press <kbd>Ctrl</kbd>+<kbd>D</kbd>) to leave the REPL - `node` should appear in your bash history once the session ends.",
 );
 ```
 
