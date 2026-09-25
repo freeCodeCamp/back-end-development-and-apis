@@ -760,13 +760,28 @@ assert.match(
 The `POST /transfer` route should throw a `404` error if the sender account is not found.
 
 ```js
-const __senderNotFoundIdx = __file.search(
-  /sender[\s\S]{0,30}404|404[\s\S]{0,60}sender/,
+const __senderIf = __allIfStatements
+  .find((statement) => {
+    const __condition = __helpers.generate(statement.test).code;
+    return /!\s*sender\b/.test(__condition);
+  });
+
+assert.exists(
+  __senderIf,
+  "The `POST /transfer` handler should check whether the sender exists",
 );
-assert.isAbove(
-  __senderNotFoundIdx,
-  -1,
-  "The `POST /transfer` handler should set `err.status = 404` when the sender is not found",
+
+const __senderBranch = __helpers.generate(__senderIf.consequent).code;
+
+assert.match(
+  __senderBranch,
+  /err\.status\s*=\s*404/,
+  "The sender-not-found branch should set `err.status = 404`",
+);
+assert.match(
+  __senderBranch,
+  /throw\s+err\b/,
+  "The sender-not-found branch should throw the error",
 );
 ```
 
@@ -774,6 +789,39 @@ assert.isAbove(
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
+const __i = new __helpers.Inspector(__file);
+const __route = __i.getCalls("app.post").find(
+  (call) => __i.argText(call.arguments?.at(0)) === "/transfer",
+);
+const __handler = __route
+  ? __i.getCallbacks(__route).at(-1)
+  : null;
+const __handlerSrc = __handler ? __i.generateCode(__handler) : null;
+const __handlerTower = __handlerSrc
+  ? new __helpers.Tower(__handlerSrc)
+  : null;
+const __handlerFunction = __handlerTower?.ast.body[0]?.expression;
+const __handlerBody = __handlerFunction?.body;
+
+const __handlerIfStatements = __handlerBody
+  ? new __helpers.Tower(__handlerBody).getIfStatements()
+  : [];
+
+const __tryStatement = __handlerBody?.body.find(
+  (statement) => statement.type === "TryStatement",
+);
+const __tryIfStatements = __tryStatement
+  ? new __helpers.Tower(__tryStatement.block).getIfStatements()
+  : [];
+const __allIfStatements = [
+  ...__handlerIfStatements,
+  ...__tryIfStatements,
+];
+
+assert.exists(
+  __handlerTower,
+  "The `POST /transfer` route should have a handler",
+);
 ```
 
 ## 14
@@ -807,13 +855,30 @@ assert.match(
 The `POST /transfer` route should throw a `404` error if the recipient account is not found.
 
 ```js
-const __recipientNotFoundIdx = __file.search(
-  /recipient[\s\S]{0,30}404|404[\s\S]{0,60}recipient/,
+const __recipientIf = __allIfStatements
+  .find((statement) => {
+    const __condition = __helpers.generate(statement.test).code;
+    return /!\s*recipient\b/.test(__condition);
+  });
+
+assert.exists(
+  __recipientIf,
+  "The `POST /transfer` handler should check whether the recipient exists",
 );
-assert.isAbove(
-  __recipientNotFoundIdx,
-  -1,
-  "The `POST /transfer` handler should set `err.status = 404` when the recipient is not found",
+
+const __recipientBranch = __helpers.generate(
+  __recipientIf.consequent,
+).code;
+
+assert.match(
+  __recipientBranch,
+  /err\.status\s*=\s*404/,
+  "The recipient-not-found branch should set `err.status = 404`",
+);
+assert.match(
+  __recipientBranch,
+  /throw\s+err\b/,
+  "The recipient-not-found branch should throw the error",
 );
 ```
 
@@ -821,6 +886,39 @@ assert.isAbove(
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
+const __i = new __helpers.Inspector(__file);
+const __route = __i.getCalls("app.post").find(
+  (call) => __i.argText(call.arguments?.at(0)) === "/transfer",
+);
+const __handler = __route
+  ? __i.getCallbacks(__route).at(-1)
+  : null;
+const __handlerSrc = __handler ? __i.generateCode(__handler) : null;
+const __handlerTower = __handlerSrc
+  ? new __helpers.Tower(__handlerSrc)
+  : null;
+const __handlerFunction = __handlerTower?.ast.body[0]?.expression;
+const __handlerBody = __handlerFunction?.body;
+
+const __handlerIfStatements = __handlerBody
+  ? new __helpers.Tower(__handlerBody).getIfStatements()
+  : [];
+
+const __tryStatement = __handlerBody?.body.find(
+  (statement) => statement.type === "TryStatement",
+);
+const __tryIfStatements = __tryStatement
+  ? new __helpers.Tower(__tryStatement.block).getIfStatements()
+  : [];
+const __allIfStatements = [
+  ...__handlerIfStatements,
+  ...__tryIfStatements,
+];
+
+assert.exists(
+  __handlerTower,
+  "The `POST /transfer` route should have a handler",
+);
 ```
 
 ## 15
