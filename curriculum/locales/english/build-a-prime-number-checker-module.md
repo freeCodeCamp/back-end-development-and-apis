@@ -73,7 +73,7 @@ const __fn = __t.getFunction("isPrime");
 assert.isDefined(__fn, "index.js should define a function named isPrime");
 ```
 
-Your `isPrime` function should a a named export using `module.exports`.
+Your `isPrime` function should be a named export using `module.exports`.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "index.js");
@@ -89,9 +89,10 @@ assert.exists(
   "index.js should use module.exports to export",
 );
 const __mod = await __helpers.importSansCache(`${project.dashedName}/index.js`);
+const __isPrime = __mod.isPrime ?? __mod.default?.isPrime;
 assert.isFunction(
-  __mod.isPrime ?? __mod.default?.isPrime ?? __mod,
-  "isPrime should be exported",
+  __isPrime,
+  "index.js should export `isPrime` via `module.exports` - try `module.exports = { isPrime }`",
 );
 ```
 
@@ -99,9 +100,13 @@ Calling `isPrime` with a prime number should return `true`.
 
 ```js
 const __mod = await __helpers.importSansCache(`${project.dashedName}/index.js`);
-const isPrime = __mod.isPrime ?? __mod.default?.isPrime ?? __mod;
+const __isPrime = __mod.isPrime ?? __mod.default?.isPrime;
+assert.isFunction(
+  __isPrime,
+  "isPrime should be exported via `module.exports`",
+);
 for (const n of [2, 3, 5, 11, 97]) {
-  assert.strictEqual(isPrime(n), true, `isPrime(${n}) should return true`);
+  assert.strictEqual(__isPrime(n), true, `isPrime(${n}) should return true`);
 }
 ```
 
@@ -109,9 +114,13 @@ Calling `isPrime` with a non-prime number should return `false`.
 
 ```js
 const __mod = await __helpers.importSansCache(`${project.dashedName}/index.js`);
-const isPrime = __mod.isPrime ?? __mod.default?.isPrime ?? __mod;
+const __isPrime = __mod.isPrime ?? __mod.default?.isPrime;
+assert.isFunction(
+  __isPrime,
+  "isPrime should be exported via `module.exports`",
+);
 for (const n of [1, 4, 9, 15, 100]) {
-  assert.strictEqual(isPrime(n), false, `isPrime(${n}) should return false`);
+  assert.strictEqual(__isPrime(n), false, `isPrime(${n}) should return false`);
 }
 ```
 
