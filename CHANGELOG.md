@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.17](https://github.com/freeCodeCamp/back-end-development-and-apis/compare/v1.1.16...v1.1.17) (2026-09-25)
+
+
+### Bug Fixes
+
+* **curriculum:** use native parseEnv for JWT admin-route .env parsing ([#54](https://github.com/freeCodeCamp/back-end-development-and-apis/issues/54)) ([5f2529a](https://github.com/freeCodeCamp/back-end-development-and-apis/commit/5f2529ab590b0b7e01e3e6ed555633124e0ff255))
+* use kbd markup in Node.js REPL workshop ([#63](https://github.com/freeCodeCamp/back-end-development-and-apis/issues/63)) ([5c9e5bb](https://github.com/freeCodeCamp/back-end-development-and-apis/commit/5c9e5bb8344cd00557775eb3ef7273131a479242))
+
 ## [1.1.16](https://github.com/freeCodeCamp/back-end-development-and-apis/compare/v1.1.15...v1.1.16) (2026-09-02)
 
 
