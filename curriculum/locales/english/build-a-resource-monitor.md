@@ -31,7 +31,7 @@ assert.include(
 
 ### --description--
 
-The boilerplate has a `package.json` and `server.js` file. Whilst Nodejs does come with a `WebSocket` implementation, it is just a browser-compatible implmentation of the protocol, and does not handle the initial HTTP handshake. To create a WebSocket server, you will use the popular `ws` npm package, which provides a simple API for handling WebSocket connections.
+The boilerplate has a `package.json` and `server.js` file. Whilst Nodejs does come with a `WebSocket` implementation, it is just a browser-compatible implementation of the protocol, and does not handle the initial HTTP handshake. To create a WebSocket server, you will use the popular `ws` npm package, which provides a simple API for handling WebSocket connections.
 
 Install `ws` as a dependency:
 
