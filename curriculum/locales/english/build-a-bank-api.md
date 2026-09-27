@@ -760,13 +760,17 @@ assert.match(
 The `POST /transfer` route should throw a `404` error if the sender account is not found.
 
 ```js
-const __senderNotFoundIdx = __file.search(
-  /sender[\s\S]{0,30}404|404[\s\S]{0,60}sender/,
-);
-assert.isAbove(
-  __senderNotFoundIdx,
-  -1,
+const __senderBranch =
+  __file.match(/if\s*\(\s*!\s*sender\s*\)\s*\{[^{}]*\}/)?.[0] ?? "";
+assert.match(
+  __senderBranch,
+  /err\.status\s*=\s*404/,
   "The `POST /transfer` handler should set `err.status = 404` when the sender is not found",
+);
+assert.match(
+  __senderBranch,
+  /throw\s+err/,
+  "The `POST /transfer` handler should `throw err` when the sender is not found",
 );
 ```
 
@@ -807,13 +811,17 @@ assert.match(
 The `POST /transfer` route should throw a `404` error if the recipient account is not found.
 
 ```js
-const __recipientNotFoundIdx = __file.search(
-  /recipient[\s\S]{0,30}404|404[\s\S]{0,60}recipient/,
-);
-assert.isAbove(
-  __recipientNotFoundIdx,
-  -1,
+const __recipientBranch =
+  __file.match(/if\s*\(\s*!\s*recipient\s*\)\s*\{[^{}]*\}/)?.[0] ?? "";
+assert.match(
+  __recipientBranch,
+  /err\.status\s*=\s*404/,
   "The `POST /transfer` handler should set `err.status = 404` when the recipient is not found",
+);
+assert.match(
+  __recipientBranch,
+  /throw\s+err/,
+  "The `POST /transfer` handler should `throw err` when the recipient is not found",
 );
 ```
 
