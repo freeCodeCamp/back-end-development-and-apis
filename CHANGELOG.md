@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.1.17](https://github.com/freeCodeCamp/back-end-development-and-apis/compare/v1.1.16...v1.1.17) (2026-09-28)
+
+
+### Bug Fixes
+
+* correct two typos in curriculum ([#67](https://github.com/freeCodeCamp/back-end-development-and-apis/issues/67)) ([1816409](https://github.com/freeCodeCamp/back-end-development-and-apis/commit/1816409805c11a4ea6cf99f27868b945e3d29bed))
+* correct typo in case converter lesson ([#68](https://github.com/freeCodeCamp/back-end-development-and-apis/issues/68)) ([501382b](https://github.com/freeCodeCamp/back-end-development-and-apis/commit/501382b8f760cb120831089ab4fb6ce0fda246d6))
+* **curriculum:** fix console.log regexp in node repl lesson ([#70](https://github.com/freeCodeCamp/back-end-development-and-apis/issues/70)) ([0852ec5](https://github.com/freeCodeCamp/back-end-development-and-apis/commit/0852ec5d7f501fa5ee822f8fcca1ce9fb11e022d))
+* **curriculum:** use native parseEnv for JWT admin-route .env parsing ([#54](https://github.com/freeCodeCamp/back-end-development-and-apis/issues/54)) ([5f2529a](https://github.com/freeCodeCamp/back-end-development-and-apis/commit/5f2529ab590b0b7e01e3e6ed555633124e0ff255))
+* use kbd markup in Node.js REPL workshop ([#63](https://github.com/freeCodeCamp/back-end-development-and-apis/issues/63)) ([5c9e5bb](https://github.com/freeCodeCamp/back-end-development-and-apis/commit/5c9e5bb8344cd00557775eb3ef7273131a479242))
+
 ## [1.1.16](https://github.com/freeCodeCamp/back-end-development-and-apis/compare/v1.1.15...v1.1.16) (2026-09-02)
 
 
