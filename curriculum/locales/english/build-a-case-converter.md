@@ -142,7 +142,7 @@ assert.include(temp, "description:");
 
 ### --description--
 
-You are being prompted for the package description. This is a brief description of your what your package is/does.
+You are being prompted for the package description. This is a brief description of what your package is/does.
 
 Write `This package is used to convert strings to a specific case.`, then press `Enter`.
 
