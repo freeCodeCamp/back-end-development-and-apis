@@ -1396,7 +1396,7 @@ Your server crashed! 😱 This is because you are trying to send the `error` to 
 TypeError [ERR_INVALID_ARG_TYPE]: The "chunk" argument must be of type string or an instance of Buffer or Uint8Array. Received an instance of Error
 ```
 
-Instead of trying ot send the whole `Error` object, send the `error.message` value.
+Instead of trying to send the whole `Error` object, send the `error.message` value.
 
 ### --tests--
 
