@@ -1,0 +1,13 @@
+{
+  "name": "build-a-prime-number-checker-module",
+  "version": "1.0.0",
+  "description": "Prime number checker module",
+  "keywords": ["Primes", "Prime Numbers", "Prime", "Primes Checker"],
+  "license": "ISC",
+  "author": "Erich Lersch",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  }
+}
