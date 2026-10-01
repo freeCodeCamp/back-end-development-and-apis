@@ -608,8 +608,12 @@ Restart your server, and make a request to `http://localhost:3001/hello`. You no
 You should restart the server, and make a request to it.
 
 ```js
-const temp = await __helpers.getTemp();
-assert.include(temp, "curl http://localhost:3001/hello");
+const lastCommand = __helpers.getLastCommand();
+const parsed = __helpers.parseCli(lastCommand);
+
+assert.equal(parsed.command, "curl");
+assert.include(parsed.args, "http://localhost:3001/hello");
+
 ```
 
 ### --seed--
