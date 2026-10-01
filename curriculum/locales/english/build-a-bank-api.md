@@ -815,7 +815,7 @@ const __allIfStatements = [
 ];
 
 assert.exists(
-  __handlerTower,
+  __handlerBody,
   "The `POST /transfer` route should have a handler",
 );
 ```
