@@ -796,12 +796,8 @@ const __route = __i.getCalls("app.post").find(
 const __handler = __route
   ? __i.getCallbacks(__route).at(-1)
   : null;
-const __handlerSrc = __handler ? __i.generateCode(__handler) : null;
-const __handlerTower = __handlerSrc
-  ? new __helpers.Tower(__handlerSrc)
-  : null;
-const __handlerFunction = __handlerTower?.ast.body[0]?.expression;
-const __handlerBody = __handlerFunction?.body;
+const __handlerBody =
+  __handler?.body?.type === "BlockStatement" ? __handler.body : null;
 
 const __handlerIfStatements = __handlerBody
   ? new __helpers.Tower(__handlerBody).getIfStatements()
