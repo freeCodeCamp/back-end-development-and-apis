@@ -888,8 +888,6 @@ const __route = __i.getCalls("app.post").find(
 );
 const __handlerBody =
   __handler?.body?.type === "BlockStatement" ? __handler.body : null;
-const __handlerFunction = __handlerTower?.ast.body[0]?.expression;
-const __handlerBody = __handlerFunction?.body;
 
 const __handlerIfStatements = __handlerBody
   ? new __helpers.Tower(__handlerBody).getIfStatements()
