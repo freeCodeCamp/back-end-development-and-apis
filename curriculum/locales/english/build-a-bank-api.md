@@ -760,28 +760,61 @@ assert.match(
 The `POST /transfer` route should throw a `404` error if the sender account is not found.
 
 ```js
-const __senderIf = __allIfStatements
-  .find((statement) => {
-    const __condition = __helpers.generate(statement.test).code;
-    return /!\s*sender\b/.test(__condition);
-  });
+const __senderIf = __allIfStatements.find(
+  (statement) =>
+    statement.test?.type === "UnaryExpression" &&
+    statement.test.operator === "!" &&
+    statement.test.argument?.type === "Identifier" &&
+    statement.test.argument.name === "sender",
+);
 
 assert.exists(
   __senderIf,
   "The `POST /transfer` handler should check whether the sender exists",
 );
 
-const __senderBranch = __helpers.generate(__senderIf.consequent).code;
+const __senderStatements =
+  __senderIf.consequent?.type === "BlockStatement"
+    ? __senderIf.consequent.body
+    : [__senderIf.consequent];
 
-assert.match(
-  __senderBranch,
-  /err\.status\s*=\s*404/,
+const __senderStatusIndex = __senderStatements.findIndex(
+  (statement) => {
+    const __expression = statement.expression;
+
+    return (
+      statement.type === "ExpressionStatement" &&
+      __expression?.type === "AssignmentExpression" &&
+      __expression.operator === "=" &&
+      __expression.left?.type === "MemberExpression" &&
+      !__expression.left.computed &&
+      __expression.left.object?.type === "Identifier" &&
+      __expression.left.object.name === "err" &&
+      __expression.left.property?.type === "Identifier" &&
+      __expression.left.property.name === "status" &&
+      __expression.right?.type === "NumericLiteral" &&
+      __expression.right.value === 404
+    );
+  },
+);
+
+assert.isAtLeast(
+  __senderStatusIndex,
+  0,
   "The sender-not-found branch should set `err.status = 404`",
 );
-assert.match(
-  __senderBranch,
-  /throw\s+err\b/,
-  "The sender-not-found branch should throw the error",
+
+const __senderThrowIndex = __senderStatements.findIndex(
+  (statement) =>
+    statement.type === "ThrowStatement" &&
+    statement.argument?.type === "Identifier" &&
+    statement.argument.name === "err",
+);
+
+assert.isAbove(
+  __senderThrowIndex,
+  __senderStatusIndex,
+  "The sender-not-found branch should throw the error after setting `err.status = 404`",
 );
 ```
 
@@ -851,30 +884,61 @@ assert.match(
 The `POST /transfer` route should throw a `404` error if the recipient account is not found.
 
 ```js
-const __recipientIf = __allIfStatements
-  .find((statement) => {
-    const __condition = __helpers.generate(statement.test).code;
-    return /!\s*recipient\b/.test(__condition);
-  });
+const __recipientIf = __allIfStatements.find(
+  (statement) =>
+    statement.test?.type === "UnaryExpression" &&
+    statement.test.operator === "!" &&
+    statement.test.argument?.type === "Identifier" &&
+    statement.test.argument.name === "recipient",
+);
 
 assert.exists(
   __recipientIf,
   "The `POST /transfer` handler should check whether the recipient exists",
 );
 
-const __recipientBranch = __helpers.generate(
-  __recipientIf.consequent,
-).code;
+const __recipientStatements =
+  __recipientIf.consequent?.type === "BlockStatement"
+    ? __recipientIf.consequent.body
+    : [__recipientIf.consequent];
 
-assert.match(
-  __recipientBranch,
-  /err\.status\s*=\s*404/,
+const __recipientStatusIndex = __recipientStatements.findIndex(
+  (statement) => {
+    const __expression = statement.expression;
+
+    return (
+      statement.type === "ExpressionStatement" &&
+      __expression?.type === "AssignmentExpression" &&
+      __expression.operator === "=" &&
+      __expression.left?.type === "MemberExpression" &&
+      !__expression.left.computed &&
+      __expression.left.object?.type === "Identifier" &&
+      __expression.left.object.name === "err" &&
+      __expression.left.property?.type === "Identifier" &&
+      __expression.left.property.name === "status" &&
+      __expression.right?.type === "NumericLiteral" &&
+      __expression.right.value === 404
+    );
+  },
+);
+
+assert.isAtLeast(
+  __recipientStatusIndex,
+  0,
   "The recipient-not-found branch should set `err.status = 404`",
 );
-assert.match(
-  __recipientBranch,
-  /throw\s+err\b/,
-  "The recipient-not-found branch should throw the error",
+
+const __recipientThrowIndex = __recipientStatements.findIndex(
+  (statement) =>
+    statement.type === "ThrowStatement" &&
+    statement.argument?.type === "Identifier" &&
+    statement.argument.name === "err",
+);
+
+assert.isAbove(
+  __recipientThrowIndex,
+  __recipientStatusIndex,
+  "The recipient-not-found branch should throw the error after setting `err.status = 404`",
 );
 ```
 
