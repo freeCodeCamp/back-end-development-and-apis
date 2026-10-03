@@ -211,7 +211,7 @@ app.get("/path", (req, res) => {
 
 `req` represents the incoming request, `res` represents the server response, and `res.send()` sends data back to the client.
 
-_Note: Stop the running server with <kbd>Ctrl</kbd>+<kbd>C</kbd> and restart it with `node server.js` for your changes to take effect._
+_Note: Stop the running server with <kbd>Ctrl</kbd> + <kbd>C</kbd> and restart it with `node server.js` for your changes to take effect._
 
 ### --tests--
 
@@ -326,7 +326,7 @@ assert.deepEqual(
 
 Now create a `/joke` `GET` route. Inside the route handler, pick a random joke from the `jokes` array, save it in a `randomJoke` variable, then send it back to the client using `res.send()`.
 
-_Stop the server with <kbd>Ctrl</kbd>+<kbd>C</kbd> and restart it with `node server.js` after making changes._
+_Stop the server with <kbd>Ctrl</kbd> + <kbd>C</kbd> and restart it with `node server.js` after making changes._
 
 ### --hints--
 

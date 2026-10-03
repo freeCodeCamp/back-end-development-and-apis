@@ -142,7 +142,7 @@ Your server is running but not handling any requests yet. In Express, a route ma
 
 In `index.js`, add a `GET /api/info` route. Inside the handler, use `res.json()` to respond with an object that has at least a `name` property describing your API.
 
-**NOTE:** Stop your server with <kbd>Ctrl</kbd>+<kbd>C</kbd>, restart it with `node index.js`, then click _Run Tests_.
+**NOTE:** Stop your server with <kbd>Ctrl</kbd> + <kbd>C</kbd>, restart it with `node index.js`, then click _Run Tests_.
 
 ### --tests--
 
