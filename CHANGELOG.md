@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.18](https://github.com/freeCodeCamp/back-end-development-and-apis/compare/v1.1.17...v1.1.18) (2026-10-03)
+
+
+### Bug Fixes
+
+* **curriculum:** tighten bank api error handling tests ([#62](https://github.com/freeCodeCamp/back-end-development-and-apis/issues/62)) ([d4d0274](https://github.com/freeCodeCamp/back-end-development-and-apis/commit/d4d0274a40f05b4d062955ffbee973e4a4696bd6))
+* **curriculum:** use kbd markup for keyboard shortcuts ([#72](https://github.com/freeCodeCamp/back-end-development-and-apis/issues/72)) ([0329833](https://github.com/freeCodeCamp/back-end-development-and-apis/commit/0329833c14c2fa94065f43ed66e262d4ba2ad363))
+
 ## [1.1.17](https://github.com/freeCodeCamp/back-end-development-and-apis/compare/v1.1.16...v1.1.17) (2026-09-28)
 
 
