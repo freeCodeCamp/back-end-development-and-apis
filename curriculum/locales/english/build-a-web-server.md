@@ -244,7 +244,7 @@ assert.include(temp, "curl http://localhost:3001");
 
 ### --description--
 
-Your `curl` command is hanging, because your server is not responding with anything. Stop it by pressing `Ctrl + C` in the terminal you called `curl`.
+Your `curl` command is hanging, because your server is not responding with anything. Stop it by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd> in the terminal you called `curl`.
 
 To make sure your server is working, use the `--verbose` flag with the `curl` command to see more about the operation, and use the `--max-time` flag with a value of `2` to set a maximum time for the request to complete:
 
@@ -275,7 +275,7 @@ assert.include(
 
 Included in the output should be `Connected to localhost (127.0.0.1) port 3001`. This means that the server is running and listening for connections.
 
-In order to use changes made to your server, you need to restart the server once the changes have been made to the script. Stop the server running in the other terminal by pressing `Ctrl + C`.
+In order to use changes made to your server, you need to restart the server once the changes have been made to the script. Stop the server running in the other terminal by pressing <kbd>Ctrl</kbd> + <kbd>C</kbd>.
 
 ### --tests--
 
@@ -436,7 +436,7 @@ await rm(join(ROOT, "__test"), { recursive: true, force: true });
 
 ### --description--
 
-Restart your server by stopping it with `Ctrl + C` and then running `node server.js` again.
+Restart your server by stopping it with <kbd>Ctrl</kbd> + <kbd>C</kbd> and then running `node server.js` again.
 
 ### --tests--
 
@@ -533,7 +533,7 @@ assert.isTrue(logs.some((l) => l.generate.includes("request.url")));
 
 ### --description--
 
-Restart your server by stopping it with `Ctrl + C` and then running `node server.js` again. Within a new terminal, use `curl` to make a request to `http://localhost:3001/test-url`.
+Restart your server by stopping it with <kbd>Ctrl</kbd> + <kbd>C</kbd> and then running `node server.js` again. Within a new terminal, use `curl` to make a request to `http://localhost:3001/test-url`.
 
 **NOTE:** Once you have made the request, click the _Run Tests_ button.
 
@@ -719,7 +719,7 @@ server.listen(3001);
 
 ### --description--
 
-Restart your server by stopping it with `Ctrl + C` and then running `node server.js` again. Within a new terminal, use `curl` to make a request to `http://localhost:3001/`.
+Restart your server by stopping it with <kbd>Ctrl</kbd> + <kbd>C</kbd> and then running `node server.js` again. Within a new terminal, use `curl` to make a request to `http://localhost:3001/`.
 
 ### --tests--
 

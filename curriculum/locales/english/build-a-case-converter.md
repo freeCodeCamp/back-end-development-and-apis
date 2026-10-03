@@ -92,7 +92,7 @@ assert.include(temp, "npm init");
 
 This utility walks you through creating a `package.json` file. It only covers the most common items, and tries to guess sensible defaults.
 
-You are being prompted for the package name. By default, `npm init` uses the directory name as the package name. Press `Enter` to accept the default.
+You are being prompted for the package name. By default, `npm init` uses the directory name as the package name. Press <kbd>Enter</kbd> to accept the default.
 
 ### --hints--
 
@@ -102,7 +102,7 @@ Run `npm help json` for definitive documentation on the available fields and wha
 
 ### --tests--
 
-You should press `Enter` to accept the default package name.
+You should press <kbd>Enter</kbd> to accept the default package name.
 
 ```js
 const temp = await __helpers.getTemp();
@@ -127,11 +127,11 @@ You are being prompted for the package version. Versions are usually in the form
 - `Y`: Minor revision number for when new features are added in a backwards-compatible manner
 - `Z`: Patch revision number for when backwards-compatible bug fixes are made
 
-Press `Enter` to accept the default version, `1.0.0`.
+Press <kbd>Enter</kbd> to accept the default version, `1.0.0`.
 
 ### --tests--
 
-You should press `Enter` to accept the default version.
+You should press <kbd>Enter</kbd> to accept the default version.
 
 ```js
 const temp = await __helpers.getTemp();
@@ -144,11 +144,11 @@ assert.include(temp, "description:");
 
 You are being prompted for the package description. This is a brief description of what your package is/does.
 
-Write `This package is used to convert strings to a specific case.`, then press `Enter`.
+Write `This package is used to convert strings to a specific case.`, then press <kbd>Enter</kbd>.
 
 ### --tests--
 
-You should write `This package is used to convert strings to a specific case.` and press `Enter`.
+You should write `This package is used to convert strings to a specific case.` and press <kbd>Enter</kbd>.
 
 ```js
 // Oddly, the typed values are not visible in the temp output
@@ -162,11 +162,11 @@ assert.include(temp, "entry point:");
 
 You are being prompted for your package entry point. This is the main module that will be loaded when your package is required/imported.
 
-Press `Enter` to accept the default entry point, `index.js`.
+Press <kbd>Enter</kbd> to accept the default entry point, `index.js`.
 
 ### --tests--
 
-You should press `Enter` to accept the default entry point.
+You should press <kbd>Enter</kbd> to accept the default entry point.
 
 ```js
 const temp = await __helpers.getTemp();
@@ -179,11 +179,11 @@ assert.include(temp, "test command:");
 
 You are being prompted for the test command. This is the command that is run with the `npm test` command.
 
-Write `node index.test.js`, then press `Enter`. `node` is the command-line interpreter for JavaScript.
+Write `node index.test.js`, then press <kbd>Enter</kbd>. `node` is the command-line interpreter for JavaScript.
 
 ### --tests--
 
-You should write `node index.test.js` and press `Enter`.
+You should write `node index.test.js` and press <kbd>Enter</kbd>.
 
 ```js
 const temp = await __helpers.getTemp();
@@ -196,11 +196,11 @@ assert.include(temp, "git repository:");
 
 You are being prompted for the Git repository. This is the URL of the repository where the source code for your package lives.
 
-Press `Enter` to accept the default Git repository.
+Press <kbd>Enter</kbd> to accept the default Git repository.
 
 ### --tests--
 
-You should press `Enter` to accept the default Git repository.
+You should press <kbd>Enter</kbd> to accept the default Git repository.
 
 ```js
 const temp = await __helpers.getTemp();
@@ -213,11 +213,11 @@ assert.include(temp, "keywords:");
 
 You are being prompted for the keywords. These are keywords that help people find your package when searching for it on the npm registry.
 
-Write `case,converter,uppercase,lowercase`, then press `Enter`.
+Write `case,converter,uppercase,lowercase`, then press <kbd>Enter</kbd>.
 
 ### --tests--
 
-You should write `case,converter,uppercase,lowercase` and press `Enter`.
+You should write `case,converter,uppercase,lowercase` and press <kbd>Enter</kbd>.
 
 ```js
 const temp = await __helpers.getTemp();
@@ -230,11 +230,11 @@ assert.include(temp, "author:");
 
 You are being prompted for the author. This is the name of the package author.
 
-Write your name, then press `Enter`.
+Write your name, then press <kbd>Enter</kbd>.
 
 ### --tests--
 
-You should write your name and press `Enter`.
+You should write your name and press <kbd>Enter</kbd>.
 
 ```js
 const temp = await __helpers.getTemp();
@@ -247,7 +247,7 @@ assert.include(temp, "license:");
 
 You are being prompted for the license. This is the license that your package is released under.
 
-Write `MIT`, then press `Enter`.
+Write `MIT`, then press <kbd>Enter</kbd>.
 
 ### --hints--
 
@@ -257,7 +257,7 @@ There are many different licenses that you can choose from. The MIT license is a
 
 ### --tests--
 
-You should write `MIT` and press `Enter`.
+You should write `MIT` and press <kbd>Enter</kbd>.
 
 ```js
 const temp = await __helpers.getTemp();
@@ -270,11 +270,11 @@ assert.include(temp, "type: (commonjs)");
 
 You are being prompted for the module system Nodejs should use to interpret the project. Typically, this is either `commonjs` or `module`
 
-Press `Enter` to accept the default, `commonjs`
+Press <kbd>Enter</kbd> to accept the default, `commonjs`
 
 ### --tests--
 
-You should press `Enter` to accept the default.
+You should press <kbd>Enter</kbd> to accept the default.
 
 ```js
 const temp = await __helpers.getTemp();
@@ -287,11 +287,11 @@ assert.include(temp, "About to write to");
 
 You are being prompted to confirm that the information you entered is correct.
 
-Press `Enter` to confirm.
+Press <kbd>Enter</kbd> to confirm.
 
 ### --tests--
 
-You should press `Enter` to confirm.
+You should press <kbd>Enter</kbd> to confirm.
 
 ```js
 const packageJsonExists = await __helpers.fileExists(

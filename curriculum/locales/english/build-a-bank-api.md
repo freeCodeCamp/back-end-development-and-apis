@@ -1351,7 +1351,7 @@ Express has a built-in <dfn title="detailed output that shows internal operation
 DEBUG=express:* node server.js
 ```
 
-Watch the output as Express starts up - you will see each route and middleware being registered in order. Send a request with `curl` and observe how Express matches it step by step. When you are done exploring, stop the server with `Ctrl+C`.
+Watch the output as Express starts up - you will see each route and middleware being registered in order. Send a request with `curl` and observe how Express matches it step by step. When you are done exploring, stop the server with <kbd>Ctrl</kbd> + <kbd>C</kbd>.
 
 ### --tests--
 
@@ -1555,7 +1555,7 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --description--
 
-Add the same graceful shutdown logic for `SIGINT` - the signal sent when you press `Ctrl+C` in the terminal. Use the same pattern as `SIGTERM`:
+Add the same graceful shutdown logic for `SIGINT` - the signal sent when you press <kbd>Ctrl</kbd> + <kbd>C</kbd> in the terminal. Use the same pattern as `SIGTERM`:
 
 ```js
 process.on("SIGINT", () => {

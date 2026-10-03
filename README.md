@@ -8,7 +8,7 @@ This curriculum teaches you how to build back end applications and APIs using No
 
 Whether you are using **GitHub Codespaces** or a **Local Dev Container**, follow these steps once your environment has finished loading:
 
-1. **Open the Command Palette**: Press `Ctrl+Shift+P` on Windows and Linux or `Cmd+Shift+P` on Mac.
+1. **Open the Command Palette**: Press <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> on Windows and Linux or <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> on Mac.
 2. **Start the Course**: Search for and run `freeCodeCamp: Run Course`.
 3. **Select a Project**: The **Simple Browser** tab will open. Select your desired lab or workshop from the menu to start.
 
