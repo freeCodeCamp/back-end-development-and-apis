@@ -1,0 +1,17 @@
+{
+  "name": "prime-checker",
+  "version": "1.0.0",
+  "description": "This is prime number project",
+  "keywords": [
+    "prime",
+    "number",
+    "checker"
+  ],
+  "license": "MIT",
+  "author": "maylem",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
