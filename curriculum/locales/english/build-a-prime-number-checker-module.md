@@ -14,7 +14,11 @@ In this project, you will apply what you learned about building npm modules to c
 
 A <dfn title="prime number">prime number</dfn> is a whole number greater than 1 that has no divisors other than 1 and itself (e.g. 2, 3, 5, 7, 11).
 
-Within an `index.js`, write a function named `isPrime` that takes a number as an argument and returns `true` if it is prime, or `false` otherwise. Then export `isPrime` using `module.exports`.
+Within an `index.js`, write a function named `isPrime` that takes a number as an argument and returns `true` if it is prime, or `false` otherwise. Then export `isPrime` as a named property of `module.exports`:
+
+```js
+module.exports = { isPrime };
+```
 
 **Objective:** Fulfill the user stories below and get all the tests to pass to complete the lab.
 
@@ -26,11 +30,17 @@ Within an `index.js`, write a function named `isPrime` that takes a number as an
 
 3. Your `index.js` file should define a function named `isPrime`.
 
-4. Your `isPrime` function should be a **named export** using `module.exports`.
+4. Your `index.js` should export `isPrime` as a named property of `module.exports` (for example `module.exports = { isPrime }`).
 
 5. Calling `isPrime` with a prime number should return `true`.
 
 6. Calling `isPrime` with a non-prime number should return `false`.
+
+### --hints--
+
+#### 0
+
+`isPrime` must be exported as a property of the `module.exports` object: `module.exports = { isPrime };`
 
 ### --tests--
 
@@ -73,20 +83,22 @@ const __fn = __t.getFunction("isPrime");
 assert.isDefined(__fn, "index.js should define a function named isPrime");
 ```
 
-Your `isPrime` function should be a named export using `module.exports`.
+Your `index.js` should export `isPrime` as a named property of `module.exports` (for example `module.exports = { isPrime }`).
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "index.js");
 const __babelised = new __helpers.Babeliser(__file);
 const __exportStatement = __babelised.getExpressionStatements().find((e) => {
+  const left = e.expression?.left;
   return (
-    e.expression?.left?.object?.name === "module" &&
-    e.expression?.left?.property?.name === "exports"
+    (left?.object?.name === "module" && left?.property?.name === "exports") ||
+    (left?.object?.object?.name === "module" &&
+      left?.object?.property?.name === "exports")
   );
 });
 assert.exists(
   __exportStatement,
-  "index.js should use module.exports to export",
+  "index.js should use module.exports to export isPrime - try `module.exports = { isPrime }`",
 );
 const __mod = await __helpers.importSansCache(`${project.dashedName}/index.js`);
 const __isPrime = __mod.isPrime ?? __mod.default?.isPrime;
@@ -103,7 +115,7 @@ const __mod = await __helpers.importSansCache(`${project.dashedName}/index.js`);
 const __isPrime = __mod.isPrime ?? __mod.default?.isPrime;
 assert.isFunction(
   __isPrime,
-  "isPrime should be exported via `module.exports`",
+  "isPrime should be exported via `module.exports` - try `module.exports = { isPrime }`",
 );
 for (const n of [2, 3, 5, 11, 97]) {
   assert.strictEqual(__isPrime(n), true, `isPrime(${n}) should return true`);
@@ -117,7 +129,7 @@ const __mod = await __helpers.importSansCache(`${project.dashedName}/index.js`);
 const __isPrime = __mod.isPrime ?? __mod.default?.isPrime;
 assert.isFunction(
   __isPrime,
-  "isPrime should be exported via `module.exports`",
+  "isPrime should be exported via `module.exports` - try `module.exports = { isPrime }`",
 );
 for (const n of [1, 4, 9, 15, 100]) {
   assert.strictEqual(__isPrime(n), false, `isPrime(${n}) should return false`);
