@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.19](https://github.com/freeCodeCamp/back-end-development-and-apis/compare/v1.1.18...v1.1.19) (2026-10-09)
+
+
+### Bug Fixes
+
+* **curriculum:** stop invalid isPrime export from crashing the test runner ([#64](https://github.com/freeCodeCamp/back-end-development-and-apis/issues/64)) ([fd5781f](https://github.com/freeCodeCamp/back-end-development-and-apis/commit/fd5781f4124967961e74ea0dd92560426ce1b086))
+
 ## [1.1.18](https://github.com/freeCodeCamp/back-end-development-and-apis/compare/v1.1.17...v1.1.18) (2026-10-05)
 
 
