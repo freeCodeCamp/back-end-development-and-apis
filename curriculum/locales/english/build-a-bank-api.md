@@ -33,14 +33,7 @@ assert.include(
 
 Create a new file called `server.js` in the project directory. This will be the entry point for your Tiny Bank API.
 
-Inside it, import `express` using <dfn title="ECMAScript Modules">ESM</dfn> syntax, create an Express application, and define the port the server will listen on:
-
-```js
-import express from "express";
-
-const app = express();
-const PORT = 9000;
-```
+Inside `server.js`, import `express` using <dfn title="ECMAScript Modules">ESM</dfn> syntax, call `express()` and store the result in a constant named `app`, and declare a `PORT` constant with the value `9000`.
 
 ### --tests--
 
@@ -96,15 +89,7 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --description--
 
-In `server.js`, add a route that handles `GET` requests to `/` and sends back a plain-text message. Express routes follow this pattern:
-
-```js
-app.get("/path", (req, res) => {
-  res.send("message");
-});
-```
-
-Add a `GET /` route that responds with the string `'Tiny Bank API running...'`.
+In `server.js`, add a route with `app.get()` that handles `GET` requests to `/` and uses `res.send()` to respond with the string `'Tiny Bank API running...'`.
 
 ### --tests--
 
@@ -140,13 +125,9 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --description--
 
-At the bottom of `server.js`, call `app.listen` to start the server. Pass `PORT` as the first argument and a callback that logs a message when the server is ready:
+At the bottom of `server.js`, call `app.listen` to start the server. `app.listen` takes a port and a callback that runs once the server is ready.
 
-```js
-app.listen(PORT, () => {
-  console.log(`Tiny Bank API running on http://localhost:${PORT}...`);
-});
-```
+In `server.js`, call `app.listen` with `PORT` as the first argument and a callback that logs a message such as `Tiny Bank API running on http://localhost:9000...`.
 
 Once you have added the call, start the server in the terminal with `node server.js`.
 
@@ -272,7 +253,7 @@ const __accounts = JSON.parse(__raw);
 
 Create a new file called `db.js`. This module will handle reading and writing `accounts.json` so the rest of your server doesn't have to worry about file I/O.
 
-Import `readFile` and `writeFile` from Node's built-in `fs/promises` module, then export two async functions - `getAccounts` reads and parses `accounts.json`, and `saveAccounts` writes updated data back to it:
+Import `readFile` and `writeFile` from Node's built-in `fs/promises` module, then export two async functions - `getAccounts` reads and parses `accounts.json`, and `saveAccounts` writes updated data back to it. Here is the same pattern for a file named `items.json`:
 
 ```js
 import { readFile, writeFile } from "fs/promises";
@@ -280,15 +261,15 @@ import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const DB_PATH = join(__dirname, "accounts.json");
+const ITEMS_PATH = join(__dirname, "items.json");
 
-export async function getAccounts() {
-  const data = await readFile(DB_PATH, "utf8");
+export async function getItems() {
+  const data = await readFile(ITEMS_PATH, "utf8");
   return JSON.parse(data);
 }
 
-export async function saveAccounts(accounts) {
-  await writeFile(DB_PATH, JSON.stringify(accounts, null, 2));
+export async function saveItems(items) {
+  await writeFile(ITEMS_PATH, JSON.stringify(items, null, 2));
 }
 ```
 
@@ -344,15 +325,9 @@ const __file = await __helpers.getFile(project.dashedName, "db.js");
 
 ### --description--
 
-Now wire up the database module in `server.js`. Import `getAccounts` and `saveAccounts` from `./db.js`, and add the `express.json()` <dfn title="a function that processes every incoming request before it reaches a route handler">middleware</dfn> so Express can parse JSON request bodies:
+Now wire up the database module in `server.js`. Named imports let you pull specific exports from a module, and Express ships with built-in <dfn title="a function that processes every incoming request before it reaches a route handler">middleware</dfn> you register with `app.use()`.
 
-```js
-import { getAccounts, saveAccounts } from "./db.js";
-
-app.use(express.json());
-```
-
-Add the import at the top of the file alongside the existing `express` import, and place `app.use(express.json())` before your routes.
+In `server.js`, import `getAccounts` and `saveAccounts` from `./db.js` at the top of the file, alongside the existing `express` import. Then add `app.use(express.json())` before your routes, so Express can parse JSON request bodies.
 
 ### --tests--
 
@@ -395,13 +370,13 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 By default, Express sends JSON responses as a single compact line. You can make them easier to read during development by telling Express to pretty-print them.
 
-In `server.js`, add the following line after `app.use(express.json())`:
+`app.set()` changes an application setting. It takes the name of the setting and the value to give it. For example, this makes Express treat `/Items` and `/items` as different routes:
 
 ```js
-app.set("json spaces", 2);
+app.set("case sensitive routing", true);
 ```
 
-This tells Express to indent JSON responses with 2 spaces whenever `res.json()` is called.
+In `server.js`, after `app.use(express.json())`, call `app.set()` to set the `"json spaces"` setting to `2`. This tells Express to indent JSON responses with 2 spaces whenever `res.json()` is called.
 
 ### --tests--
 
@@ -427,18 +402,7 @@ assert.isTrue(
 
 Time to add your first real route. In `server.js`, add a `GET /accounts` route that reads all accounts from the database and responds with them as JSON.
 
-Because `getAccounts()` is an async operation that reads from the file system, you should wrap it in a `try/catch` block to handle any unexpected errors:
-
-```js
-app.get("/accounts", async (req, res, next) => {
-  try {
-    const accounts = await getAccounts();
-    res.json(accounts);
-  } catch (err) {
-    next(err);
-  }
-});
-```
+Because `getAccounts()` is an async operation that reads from the file system, make the handler `async`, give it `req`, `res` and `next` parameters, and wrap the work in a `try/catch` block to handle any unexpected errors. Inside the `try`, store the result of `await getAccounts()` in a constant named `accounts` and respond with `res.json(accounts)`. In the `catch`, call `next(err)`.
 
 A successful response automatically sends an <dfn title="a three-digit code that tells the client whether the request succeeded or failed">HTTP status code</dfn> of `200 OK`. Notice the `next(err)` in the catch - this passes any error to Express's error-handling pipeline, which you will build in a later lesson.
 
@@ -495,26 +459,9 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 Add a `GET /accounts/:id` route to `server.js` that looks up a single account by its ID. The `:id` part is a <dfn title="a named segment in the URL path whose value is available on req.params">route parameter</dfn> - Express makes it available as `req.params.id`.
 
-If no account matches the ID, you need to signal a `404 Not Found` error. The pattern is to create a plain `Error`, attach a `status` property to it, and pass it to `next`:
+If no account matches the ID, you need to signal a `404 Not Found` error. To do that, create a plain `Error`, attach a `status` property to it, and throw it so the `catch` passes it to `next`.
 
-```js
-app.get("/accounts/:id", async (req, res, next) => {
-  try {
-    const accounts = await getAccounts();
-    const account = accounts.find((a) => a.id === parseInt(req.params.id));
-
-    if (!account) {
-      const err = new Error("Account not found");
-      err.status = 404;
-      throw err;
-    }
-
-    res.json(account);
-  } catch (err) {
-    next(err);
-  }
-});
-```
+In `server.js`, give the route an `async` handler with `req`, `res` and `next` parameters. Inside a `try/catch`, use `getAccounts()` to find the account whose `id` matches `parseInt(req.params.id)`. If there is none, create an error named `err` with the message `"Account not found"`, set `err.status = 404`, and `throw err`. Otherwise respond with `res.json(account)`. Call `next(err)` in the `catch` block.
 
 `404 Not Found` means the requested resource does not exist on the server.
 
@@ -574,17 +521,7 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --description--
 
-Add a `POST /transfer` route to `server.js`. This route will eventually move money between two accounts - but for now, just set up the structure: a `try/catch` block and destructure the three fields you expect from the request body:
-
-```js
-app.post("/transfer", async (req, res, next) => {
-  try {
-    const { fromId, toId, amount } = req.body;
-  } catch (err) {
-    next(err);
-  }
-});
-```
+Add a `POST /transfer` route to `server.js` with an `async` handler that takes `req`, `res` and `next`. This route will eventually move money between two accounts - but for now, just set up the structure: a `try/catch` block that destructures `fromId`, `toId`, and `amount` from `req.body`, and calls `next(err)` in the `catch`.
 
 The `express.json()` middleware you added earlier makes `req.body` available as a parsed JavaScript object.
 
@@ -634,15 +571,7 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --description--
 
-Inside the `POST /transfer` `try` block, add a validation check after the destructuring. If any of the three required fields are missing, create an error with `status` set to `400` and throw it:
-
-```js
-if (!fromId || !toId || !amount) {
-  const err = new Error("Missing required fields: fromId, toId, amount");
-  err.status = 400;
-  throw err;
-}
-```
+Inside the `POST /transfer` `try` block, add a validation check after the destructuring. Use an `if` statement that checks `!fromId || !toId || !amount`. If any of the three required fields are missing, create an error named `err` with the message `"Missing required fields: fromId, toId, amount"`, set `err.status` to `400`, and `throw err`.
 
 `400 Bad Request` tells the client that the problem is on their side - they sent an incomplete or malformed request. Because this `throw` is inside the `try` block, the `catch` will catch it and pass it to `next(err)`.
 
@@ -678,15 +607,9 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --description--
 
-After the required-fields check, add a second validation inside the `POST /transfer` `try` block. If `amount` is zero or negative, that is also a bad request:
+After the required-fields check, add a second validation inside the `POST /transfer` `try` block. If `amount` is zero or negative, that is also a bad request.
 
-```js
-if (amount <= 0) {
-  const err = new Error("Transfer amount must be positive");
-  err.status = 400;
-  throw err;
-}
-```
+Use an `if` statement that checks `amount <= 0`. Inside it, create an error named `err` with the message `"Transfer amount must be positive"`, set `err.status` to `400`, and `throw err`.
 
 ### --tests--
 
@@ -722,18 +645,11 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --description--
 
-After the validations in the `POST /transfer` `try` block, fetch all accounts and look up the sender. If no account matches `fromId`, throw a `404` error:
+After the validations in the `POST /transfer` `try` block, fetch all accounts and look up the sender.
 
-```js
-const accounts = await getAccounts();
-const sender = accounts.find((a) => a.id === fromId);
+Store the result of `await getAccounts()` in a constant named `accounts`. Then use `accounts.find()` to get the account whose `id` matches `fromId`, and store it in a constant named `sender`.
 
-if (!sender) {
-  const err = new Error("Sender account not found");
-  err.status = 404;
-  throw err;
-}
-```
+If `!sender` is true, create an error named `err` with the message `"Sender account not found"`, set `err.status` to `404`, and `throw err`.
 
 ### --tests--
 
@@ -857,17 +773,9 @@ assert.exists(
 
 ### --description--
 
-After finding the sender, look up the recipient in the same `accounts` array using `toId`. If no account matches, throw a `404` error:
+After finding the sender, look up the recipient in the same `accounts` array. Use `accounts.find()` to get the account whose `id` matches `toId`, and store it in a constant named `recipient`.
 
-```js
-const recipient = accounts.find((a) => a.id === toId);
-
-if (!recipient) {
-  const err = new Error("Recipient account not found");
-  err.status = 404;
-  throw err;
-}
-```
+If `!recipient` is true, create an error named `err` with the message `"Recipient account not found"`, set `err.status` to `404`, and `throw err`.
 
 ### --tests--
 
@@ -982,15 +890,9 @@ assert.exists(
 
 ### --description--
 
-After finding both accounts, check whether the sender can afford the transfer. If `sender.balance` is less than `amount`, throw a `409 Conflict` error - this status code signals that the request is valid but cannot be completed due to the current state of the resource:
+After finding both accounts, check whether the sender can afford the transfer. If `sender.balance` is less than `amount`, throw a `409 Conflict` error - this status code signals that the request is valid but cannot be completed due to the current state of the resource.
 
-```js
-if (sender.balance < amount) {
-  const err = new Error("Insufficient funds");
-  err.status = 409;
-  throw err;
-}
-```
+Use an `if` statement that checks `sender.balance < amount`. Inside it, create an error named `err` with the message `"Insufficient funds"`, set `err.status` to `409`, and `throw err`.
 
 ### --tests--
 
@@ -1024,23 +926,9 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --description--
 
-All validations have passed - time to perform the actual transfer. Mutate the balances in place, save the updated accounts, then respond with a summary:
+All validations have passed - time to perform the actual transfer. Mutate the balances in place, save the updated data, then respond with a summary.
 
-```js
-sender.balance -= amount;
-recipient.balance += amount;
-
-await saveAccounts(accounts);
-
-res.json({
-  message: "Transfer successful",
-  senderName: sender.owner,
-  recipientName: recipient.owner,
-  amountTransferred: amount,
-  senderNewBalance: sender.balance,
-  recipientNewBalance: recipient.balance,
-});
-```
+In `POST /transfer`, subtract `amount` from `sender.balance` with `-=` and add it to `recipient.balance` with `+=`. Then call `await saveAccounts(accounts)` and respond with `res.json(...)`. The object should have `message: "Transfer successful"`, `senderName` (the sender's `owner`), `recipientName` (the recipient's `owner`), `amountTransferred` (`amount`), `senderNewBalance` (`sender.balance`), and `recipientNewBalance` (`recipient.balance`).
 
 ### --tests--
 
@@ -1125,11 +1013,9 @@ assert.notMatch(
 
 ### --description--
 
-Express recognises an error-handling middleware by its signature: it must have exactly **4 arguments** - `err`, `req`, `res`, `next`. At the bottom of `server.js`, after all your routes but before `app.listen`, add this middleware stub:
+Express recognises an error-handling middleware by its signature: it must have exactly **4 parameters**. The first one receives the error.
 
-```js
-app.use((err, req, res, next) => {});
-```
+At the bottom of `server.js`, after all your routes but before `app.listen`, add an error-handling middleware stub with an empty body. Name its parameters `err`, `req`, `res` and `next`.
 
 The placement matters - Express only passes errors to this function if it is registered after all routes.
 
@@ -1173,18 +1059,9 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --description--
 
-Fill in the error-handler middleware body. Use `err.status` as the response status code, falling back to `500` if the error has no status attached. Respond with a structured JSON error object:
+Inside an error handler, `res.status()` sets the HTTP status code and can be chained with `.json()`.
 
-```js
-app.use((err, req, res, next) => {
-  res.status(err.status || 500).json({
-    error: {
-      message: err.message || "Internal Server Error",
-      status: err.status || 500,
-    },
-  });
-});
-```
+Fill in your error-handler body. Call `res.status(err.status || 500)` and chain `.json()` with an object that has an `error` property. That property is an object with `message` (`err.message || "Internal Server Error"`) and `status` (`err.status || 500`).
 
 Every error you throw in a route handler will now be caught here and returned to the client as clean JSON instead of an HTML page.
 
@@ -1220,19 +1097,7 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --description--
 
-Add a `console.error` call at the top of the error-handler body so every error is logged to the server's output:
-
-```js
-app.use((err, req, res, next) => {
-  console.error("Error:", err.message);
-  res.status(err.status || 500).json({
-    error: {
-      message: err.message || "Internal Server Error",
-      status: err.status || 500,
-    },
-  });
-});
-```
+Add a `console.error` call at the top of the error-handler body, before the `res.status(...)` call, so every error is logged to the server's output. Pass it the string `"Error:"` followed by `err.message`.
 
 Server-side logging is separate from the client response - the client gets clean JSON, while the server log gives you visibility into what went wrong.
 
@@ -1257,14 +1122,9 @@ assert.match(
 
 ### --description--
 
-Add a temporary `GET /broken` route to test that your error handler correctly catches unhandled server errors. This route deliberately creates an error and passes it straight to `next`:
+Add a temporary `GET /broken` route to test that your error handler correctly catches unhandled server errors. This route deliberately creates an error and passes it straight to `next`.
 
-```js
-app.get("/broken", (req, res, next) => {
-  const err = new Error("Whoops! Something went wrong on the server");
-  next(err);
-});
-```
+Give the route a handler with `req`, `res` and `next` parameters. Inside it, create a `new Error` with the message `"Whoops! Something went wrong on the server"`, store it in a constant named `err`, and call `next(err)`.
 
 Add it before your error-handler middleware. You will use it in the next lesson to confirm the handler works, then comment it out.
 
@@ -1370,18 +1230,15 @@ assert.match(
 
 ### --description--
 
-A <dfn title="an endpoint that reports whether the server is running and ready to accept requests">health check</dfn> route lets monitoring systems and load balancers quickly verify your server is alive. Add a `GET /health` route to `server.js` that responds with the server's status and how long it has been running:
+A <dfn title="an endpoint that reports whether the server is running and ready to accept requests">health check</dfn> route lets monitoring systems and load balancers quickly verify your server is alive.
+
+The `process` object exposes information about the running Node.js process. For example, `process.uptime()` returns the number of seconds the process has been running:
 
 ```js
-app.get("/health", (req, res) => {
-  res.json({
-    status: "ok",
-    uptime: process.uptime(),
-  });
-});
+console.log(`Up for ${process.uptime()} seconds`);
 ```
 
-`process.uptime()` returns the number of seconds the Node.js process has been running.
+Add a `GET /health` route to `server.js` that responds with a JSON object containing `status: "ok"` and `uptime: process.uptime()`.
 
 ### --tests--
 
@@ -1424,20 +1281,14 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --description--
 
-Enhance the `GET /health` route with two more fields - a `timestamp` so callers know exactly when the check ran, and `memoryUsage` so you can spot memory leaks over time:
+Enhance the `GET /health` route with two more fields: `timestamp`, set to `new Date().toISOString()` so callers know exactly when the check ran, and `memoryUsage`, set to `process.memoryUsage()` so you can spot memory leaks over time.
+
+`process.memoryUsage()` returns an object with fields like `heapUsed` and `heapTotal` in bytes. For example:
 
 ```js
-app.get("/health", (req, res) => {
-  res.json({
-    status: "ok",
-    uptime: process.uptime(),
-    timestamp: new Date().toISOString(),
-    memoryUsage: process.memoryUsage(),
-  });
-});
+const { heapUsed } = process.memoryUsage();
+console.log(`Heap used: ${heapUsed} bytes`);
 ```
-
-`process.memoryUsage()` returns an object with fields like `heapUsed` and `heapTotal` in bytes.
 
 ### --tests--
 
@@ -1473,13 +1324,15 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 To implement a <dfn title="shutting down a server by finishing in-flight requests before stopping, rather than abruptly killing the process">graceful shutdown</dfn>, you first need a reference to the running server. Right now `app.listen(...)` is called without saving its return value.
 
-Update that call to store the server instance in a `const` named `server`:
+`app.listen()` returns the underlying HTTP server, which you can store in a variable. For example:
 
 ```js
-const server = app.listen(PORT, () => {
-  console.log(`Tiny Bank API running on http://localhost:${PORT}...`);
+const httpServer = app.listen(4000, () => {
+  console.log("Listening on port 4000");
 });
 ```
+
+Update your `app.listen` call to store the server instance in a `const` named `server`. Keep `PORT` as the first argument and keep the callback that logs `Tiny Bank API running on http://localhost:9000...`.
 
 This gives you a handle you can use to stop the server programmatically in the next lessons.
 
@@ -1507,19 +1360,19 @@ assert.match(
 
 ### --description--
 
-Now use the `server` reference to handle the `SIGTERM` <dfn title="a signal sent by the operating system or a process manager to request that a process shuts down cleanly">signal</dfn>. When a process manager (like Docker or systemd) wants to stop your server, it sends `SIGTERM`. Listen for it and call `server.close()` so existing connections can finish before the process exits:
+Now use the `server` reference to handle the `SIGTERM` <dfn title="a signal sent by the operating system or a process manager to request that a process shuts down cleanly">signal</dfn>. When a process manager (like Docker or systemd) wants to stop your server, it sends `SIGTERM`. You listen for signals with `process.on`. For example, this handles `SIGHUP` for a server stored in `httpServer`:
 
 ```js
-process.on("SIGTERM", () => {
-  console.log("SIGTERM received. Closing server...");
-  server.close(() => {
-    console.log("Server closed.");
+process.on("SIGHUP", () => {
+  console.log("SIGHUP received. Shutting down...");
+  httpServer.close(() => {
+    console.log("Shutdown complete.");
     process.exit(0);
   });
 });
 ```
 
-Add this after the `server` declaration at the bottom of `server.js`.
+After the `server` declaration at the bottom of `server.js`, call `process.on("SIGTERM", ...)` with a handler that logs a message and calls `server.close()`. Pass `server.close()` a callback that logs `"Server closed."` and calls `process.exit(0)`, so existing connections can finish before the process exits.
 
 ### --tests--
 
@@ -1555,17 +1408,9 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --description--
 
-Add the same graceful shutdown logic for `SIGINT` - the signal sent when you press <kbd>Ctrl</kbd> + <kbd>C</kbd> in the terminal. Use the same pattern as `SIGTERM`:
+Add the same graceful shutdown logic for `SIGINT` - the signal sent when you press <kbd>Ctrl</kbd> + <kbd>C</kbd> in the terminal.
 
-```js
-process.on("SIGINT", () => {
-  console.log("SIGINT received. Closing server...");
-  server.close(() => {
-    console.log("Server closed.");
-    process.exit(0);
-  });
-});
-```
+After your `SIGTERM` handler, call `process.on("SIGINT", ...)` with a handler that logs a message and calls `server.close()`. Pass `server.close()` a callback that logs `"Server closed."` and calls `process.exit(0)`.
 
 With both signals handled, your server will shut down cleanly whether it is stopped by a process manager or manually from the terminal.
 
@@ -1605,27 +1450,27 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 Express 5 automatically catches errors thrown inside `async` route handlers and passes them to the error-handling middleware - no `try/catch` or `next(err)` required for unexpected errors.
 
-Simplify the `GET /accounts` route by removing the `try/catch` wrapper entirely:
+Here is a route before and after removing its `try/catch` wrapper:
 
 ```js
 // Before (Express 4 style)
-app.get("/accounts", async (req, res, next) => {
+app.get("/items", async (req, res, next) => {
   try {
-    const accounts = await getAccounts();
-    res.json(accounts);
+    const items = await getItems();
+    res.json(items);
   } catch (err) {
     next(err);
   }
 });
 
 // After (Express 5 style)
-app.get("/accounts", async (req, res) => {
-  const accounts = await getAccounts();
-  res.json(accounts);
+app.get("/items", async (req, res) => {
+  const items = await getItems();
+  res.json(items);
 });
 ```
 
-The `next` parameter is no longer needed in this handler because Express 5 handles the rejection automatically.
+Simplify your `GET /accounts` route the same way: remove the `try/catch`, drop the `next` parameter, and keep the `getAccounts()` and `res.json(accounts)` calls. Express 5 handles the rejection automatically.
 
 ### --tests--
 
@@ -1672,22 +1517,9 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --description--
 
-Apply the same Express 5 simplification to `GET /accounts/:id`. Remove the `try/catch` block and drop the `next` parameter - intentional errors like the `404` can be thrown directly, and Express 5 will route them to the error handler:
+Apply the same Express 5 simplification to `GET /accounts/:id`. Remove the `try/catch` block and drop the `next` parameter - intentional errors like the `404` can be thrown directly, and Express 5 will route them to the error handler.
 
-```js
-app.get("/accounts/:id", async (req, res) => {
-  const accounts = await getAccounts();
-  const account = accounts.find((a) => a.id === parseInt(req.params.id));
-
-  if (!account) {
-    const err = new Error("Account not found");
-    err.status = 404;
-    throw err;
-  }
-
-  res.json(account);
-});
-```
+Keep the `getAccounts()` lookup, the `throw err` for the `"Account not found"` error with `err.status = 404`, and the `res.json(account)` response.
 
 ### --tests--
 
@@ -1731,22 +1563,9 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --description--
 
-Apply the final Express 5 refactor to `POST /transfer`. Remove the outer `try/catch` block and the `next` parameter - every `throw err` inside the handler will be caught automatically by Express 5 and forwarded to the error-handler middleware:
+Apply the final Express 5 refactor to `POST /transfer`. Remove the outer `try/catch` block and the `next` parameter - every `throw err` inside the handler will be caught automatically by Express 5 and forwarded to the error-handler middleware.
 
-```js
-app.post("/transfer", async (req, res) => {
-  const { fromId, toId, amount } = req.body;
-
-  if (!fromId || !toId || !amount) {
-    const err = new Error("Missing required fields: fromId, toId, amount");
-    err.status = 400;
-    throw err;
-  }
-  // ... rest of validations and transfer logic using throw err
-});
-```
-
-Keep all the `throw err` statements for your validation errors - they still work exactly as before, just without a `catch` block wrapping them.
+Keep all the `throw err` statements for your validation errors (missing fields, non-positive amount, sender not found, recipient not found, and insufficient funds) - they still work exactly as before, just without a `catch` block wrapping them. Keep the balance updates, `saveAccounts(accounts)` call, and `res.json(...)` summary as they are.
 
 ### --tests--
 
@@ -1801,13 +1620,7 @@ const __file = await __helpers.getFile(project.dashedName, "server.js");
 
 ### --description--
 
-Update the root `GET /` route message to reflect that the server is now running with Express 5:
-
-```js
-app.get("/", (req, res) => {
-  res.send("Tiny Bank API (Express 5) running...");
-});
-```
+Update the root `GET /` route so that `res.send()` responds with the message `'Tiny Bank API (Express 5) running...'`, reflecting that the server is now running with Express 5.
 
 Then restart the server with `node server.js` to pick up all the changes from the refactor.
 

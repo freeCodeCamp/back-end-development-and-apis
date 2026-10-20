@@ -27,11 +27,7 @@ assert.include(
 
 ### --description--
 
-To load a module, `require` can be used:
-
-```js
-const http = require("http");
-```
+To load a module, `require` can be used.
 
 In `server.js`, use `require` to import the `fs` module and store it in a variable called `fs`. Then log `fs` to the console with `console.log`.
 
@@ -161,12 +157,7 @@ console.log(fs);
 
 ### --description--
 
-In the previous lesson, `fs.readFileSync` returned a raw `Buffer` because no encoding was specified. To get a string instead, pass an options object with `encoding: 'utf8'` as the second argument:
-
-```js
-const data = fs.readFileSync("path/to/file.txt", { encoding: "utf8" });
-console.log(data); // Hello, World!
-```
+In the previous lesson, `fs.readFileSync` returned a raw `Buffer` because no encoding was specified. To get a string instead, pass an options object with `encoding: 'utf8'` as the second argument.
 
 Update the `fs.readFileSync` call in `server.js` to pass `{ encoding: 'utf8' }` as the second argument.
 
@@ -402,10 +393,10 @@ assert.match(
 
 ### --description--
 
-`fs.writeFileSync` creates a file (or overwrites it) <dfn title="blocking the event loop until the write completes">synchronously</dfn>. Pass a path and the content to write:
+`fs.writeFileSync` creates a file (or overwrites it) <dfn title="blocking the event loop until the write completes">synchronously</dfn>. Pass a path and the content to write. For example:
 
 ```js
-fs.writeFileSync("assets/output.txt", "Hello, World!");
+fs.writeFileSync("path-to-file", "content-to-write");
 ```
 
 In `server.js`, use `fs.writeFileSync` to create the file `'assets/output.txt'` and write the string `'Hello, freeCodeCamp!'` to it.
@@ -479,10 +470,12 @@ assert.match(
 
 ### --description--
 
-`fs.appendFileSync` adds content to an existing file without overwriting it. If the file does not exist, it is created:
+`fs.appendFileSync` adds content to an existing file without overwriting it. If the file does not exist, it is created.
+
+Here's an example:
 
 ```js
-fs.appendFileSync("assets/output.txt", "\nSecond line");
+fs.appendFileSync("path/to/file.txt", "\nAnother line");
 ```
 
 In `server.js`, add a call to `fs.appendFileSync` below the existing `writeFileSync` call. Append a second line - any string of your choice - to `'assets/output.txt'`.
@@ -566,8 +559,8 @@ fs.writeFileSync("assets/output.txt", "Hello, freeCodeCamp!");
 `fs.existsSync` checks whether a file or directory exists and returns a boolean:
 
 ```js
-const exists = fs.existsSync("assets/output.txt");
-console.log(exists); // true or false
+const found = fs.existsSync("path/to/file.txt");
+console.log(found); // true or false
 ```
 
 In `server.js`, call `fs.existsSync` with the path `'assets/output.txt'` and log the result to the console.
@@ -649,8 +642,8 @@ fs.appendFileSync("assets/output.txt", "\nSecond line");
 `fs.readdirSync` reads the contents of a directory and returns an array of file and folder names:
 
 ```js
-const entries = fs.readdirSync("assets");
-console.log(entries); // [ 'output.txt', 'poem.txt' ]
+const files = fs.readdirSync("path/to/directory");
+console.log(files); // [ 'notes.txt', 'todo.txt' ]
 ```
 
 In `server.js`, call `fs.readdirSync` with the path `'assets'` and log the result.
@@ -817,9 +810,9 @@ console.log(entries);
 A `Buffer` can be encoded to a human-readable string using `.toString(encoding)`. The two most common encodings are `'hex'` (hexadecimal digits) and `'base64'`:
 
 ```js
-const buf = Buffer.from("Hello");
-console.log(buf.toString("hex")); // 48656c6c6f
-console.log(buf.toString("base64")); // SGVsbG8=
+const message = Buffer.from("Hi");
+console.log(message.toString("hex")); // 4869
+console.log(message.toString("base64")); // SGk=
 ```
 
 In `server.js`, add two more `console.log` calls below the existing one: one that logs `buf.toString('hex')` and one that logs `buf.toString('base64')`.
@@ -951,12 +944,7 @@ assert.match(
 
 ### --description--
 
-You can decode a base64 string back to readable text by creating a `Buffer` from the base64 string and then calling `.toString('utf8')`:
-
-```js
-const decoded = Buffer.from("SGVsbG8=", "base64").toString("utf8");
-console.log(decoded); // Hello
-```
+You can decode a base64 string back to readable text by passing the string to `Buffer.from` with `'base64'` as the second argument, and then calling `.toString('utf8')` on the resulting `Buffer`.
 
 In `server.js`, decode the following base64 string and log the result:
 
@@ -1012,7 +1000,9 @@ assert.match(
 
 ### --description--
 
-The `crypto` module provides cryptographic functionality. One common use is hashing - transforming data into a fixed-length string that cannot be reversed. Use `crypto.createHash` to create a hash, `.update` to feed it data, and `.digest` to get the result:
+The `crypto` module provides cryptographic functionality. One common use is hashing, in which data is transformed into a fixed-length string that cannot be reversed.
+
+You can use `crypto.createHash` to create a hash, `.update` to feed it data, and `.digest` to get the result:
 
 ```js
 const crypto = require("crypto");
@@ -1022,7 +1012,7 @@ console.log(hash); // 2cf24dba...
 
 In `server.js`, require the `crypto` module and use `crypto.createHash('sha256')` to hash the string `'freeCodeCamp!'`. Log the result as a hex digest.
 
-Run `node server.js` - you should see a 64-character hexadecimal string.
+After that, run `node server.js` and you should see a 64-character hexadecimal string.
 
 ### --tests--
 
@@ -1225,13 +1215,16 @@ assert.match(
 
 ### --description--
 
-The `os` module provides information about the operating system. Require it like any other module:
+The `os` module provides information about the operating system. You can require it like any other module.
+
+Among other things, it can tell you the CPU architecture and the hostname of the machine. For example:
 
 ```js
-const os = require("os");
+console.log(os.arch()); // arm64
+console.log(os.hostname()); // my-laptop.local
 ```
 
-In `server.js`, require the `os` module and log the following three values, each on its own line:
+In `server.js`, require the `os` module, store it in a variable called `os`, and log the following three values, each on its own line:
 
 - `os.platform()` - the operating system platform (e.g. `'linux'`, `'win32'`)
 - `os.arch()` - the CPU architecture (e.g. `'x64'`, `'arm'`)
@@ -1340,7 +1333,15 @@ The `os` module also exposes memory and uptime information:
 - `os.freemem()` - available memory in bytes
 - `os.uptime()` - system uptime in seconds
 
-In `server.js`, add `console.log` calls for each of the three values above.
+For example:
+
+```js
+console.log(`Total: ${os.totalmem()} bytes`); // Total: 17179869184 bytes
+console.log(`Free: ${os.freemem()} bytes`); // Free: 4294967296 bytes
+console.log(`Up: ${os.uptime()} seconds`); // Up: 86400 seconds
+```
+
+In `server.js`, add `console.log` calls for each of the three values above. Log each value on its own, without any extra text, so that each line of output is just a number.
 
 Run `node server.js` - you should now see six lines of output.
 
@@ -1448,17 +1449,13 @@ assert.match(
 
 ### --description--
 
-The `path` module provides utilities for working with file and directory paths in a cross-platform way. Use `path.join` to build paths from segments - it inserts the correct separator (`/` on Unix, `\` on Windows) automatically:
+The `path` module provides utilities for working with file and directory paths in a cross-platform way.
 
-```js
-const path = require("path");
-const fullPath = path.join(__dirname, "assets", "poem.txt");
-console.log(fullPath);
-```
+As you've learned in the lessons, it lets you use `path.join()` to build paths from segments among other things.
 
 In `server.js`, require the `path` module and use `path.join` to build a path from `__dirname`, `'assets'`, and `'poem.txt'`. Store the result in a variable called `filePath` and log it.
 
-Run `node server.js` - you should see an absolute path to `assets/poem.txt`.
+After that, run `node server.js` and you should see an absolute path to `assets/poem.txt`.
 
 ### --tests--
 
@@ -1574,7 +1571,7 @@ console.log(os.cpus().length);
 
 ### --description--
 
-The `path` module has three useful methods for inspecting path components:
+From the lessons, you learned that the `path` module has three useful methods for inspecting path components:
 
 - `path.basename(p)` - the last portion of a path (the filename)
 - `path.dirname(p)` - the directory portion of a path
@@ -1582,7 +1579,7 @@ The `path` module has three useful methods for inspecting path components:
 
 In `server.js`, add `console.log` calls that pass `filePath` to each of the three methods above.
 
-Run `node server.js` - you should see the filename, directory, and extension printed on separate lines.
+After that, run `node server.js` to see the filename, directory, and extension printed on separate lines.
 
 ### --tests--
 
@@ -1645,8 +1642,8 @@ assert.match(
 - `path.resolve` always returns an absolute path, processing `'..'` segments against the current working directory.
 
 ```js
-console.log(path.join("assets", "..", "server.js")); // assets/../server.js → assets/../server.js (relative)
-console.log(path.resolve("assets", "..", "server.js")); // /absolute/path/to/server.js
+console.log(path.join("src", "..", "index.js")); // index.js (relative)
+console.log(path.resolve("src", "..", "index.js")); // /absolute/path/to/index.js
 ```
 
 In `server.js`, add two `console.log` calls: one using `path.join('assets', '..', 'server.js')` and one using `path.resolve('assets', '..', 'server.js')`.
@@ -1807,11 +1804,18 @@ assert.match(
 
 ### --description--
 
-`process` is a global object in Node.js - you do not need to `require` it. It provides information about the current Node.js process:
+`process` is a global object in Node.js, meaning you don't need to `require` it. It provides information about the current Node.js process:
 
 - `process.version` - the Node.js version string (e.g. `'v20.0.0'`)
 - `process.platform` - the operating system platform (e.g. `'linux'`)
 - `process.env` - an object containing environment variables; `process.env.NODE_ENV` is commonly used to detect the environment
+
+For example:
+
+```js
+console.log(`Node ${process.version} on ${process.platform}`); // Node v22.11.0 on darwin
+console.log(process.env.HOME); // /Users/camper
+```
 
 In `server.js`, log `process.version`, `process.platform`, and `process.env.NODE_ENV`, each on its own line.
 
@@ -2046,15 +2050,14 @@ assert.match(
 A <dfn title="a sequence of data made available over time, processed piece by piece rather than all at once">stream</dfn> lets you handle data incrementally without loading it all into memory. `fs.createReadStream` creates a readable stream that emits chunks of a file:
 
 ```js
-const fs = require("fs");
-const readable = fs.createReadStream("assets/poem.txt", { encoding: "utf8" });
+const stream = fs.createReadStream("path/to/file.txt", { encoding: "utf8" });
 
-readable.on("data", (chunk) => {
+stream.on("data", (chunk) => {
   console.log(chunk);
 });
 
-readable.on("end", () => {
-  console.log("Done reading");
+stream.on("end", () => {
+  console.log("Finished");
 });
 ```
 
@@ -2197,10 +2200,10 @@ process.stderr.write("Hello from stderr\n");
 `fs.createWriteStream` creates a writable stream. You can push data into it using `.write(chunk)` and signal that writing is complete with `.end()`:
 
 ```js
-const writable = fs.createWriteStream("assets/stream-output.txt");
-writable.write("First chunk\n");
-writable.write("Second chunk\n");
-writable.end();
+const logStream = fs.createWriteStream("path/to/log.txt");
+logStream.write("Line one\n");
+logStream.write("Line two\n");
+logStream.end();
 ```
 
 In `server.js`, create a writable stream pointing to `'assets/stream-output.txt'` and write at least two chunks of text to it, then call `.end()`.
@@ -2260,9 +2263,9 @@ assert.match(
 `readable.pipe(writable)` connects a readable stream directly to a writable stream - data flows from the source to the destination automatically without you having to handle `data` events manually:
 
 ```js
-const readable = fs.createReadStream("assets/poem.txt");
-const writable = fs.createWriteStream("assets/stream-output.txt");
-readable.pipe(writable);
+const source = fs.createReadStream("path/to/source.txt");
+const destination = fs.createWriteStream("path/to/destination.txt");
+source.pipe(destination);
 ```
 
 In `server.js`, remove the manual `.write` calls. Instead, create a readable stream from `'assets/poem.txt'` and a writable stream to `'assets/stream-output.txt'`, then pipe the readable into the writable.

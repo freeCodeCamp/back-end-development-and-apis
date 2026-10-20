@@ -359,7 +359,14 @@ assert.isTrue(
 
 ### --description--
 
-In `routes/api.routes.js`, import the named export `Router` from `express` and use it to create a router instance stored in a variable named `router`.
+You learned about Express router in a previous lesson. As a reminder, calling `Router()` creates a new router instance. Here's an example:
+
+```js
+import { Router } from "express";
+const userRoutes = Router();
+```
+
+In `routes/api.routes.js`, import the named export `Router` from `express` and use it to create a router instance stored in a `const` variable named `router`.
 
 ### --tests--
 
@@ -492,6 +499,12 @@ const __route = (method, path) =>
 ## 11
 
 ### --description--
+
+You also learned from the lesson that a module can have one default export, which other files can import under any name they choose. Here's an example:
+
+```js
+export default userRoutes;
+```
 
 Export `router` as the default export from `routes/api.routes.js` so `server.js` can import it.
 
@@ -778,7 +791,18 @@ assert.isTrue(
 
 ### --description--
 
-Within `middleware/error.middleware.js`, declare a function `notFoundHandler` that is a <dfn title="middleware that runs when no prior route matched the request URL, used to generate a 404 response">catch-all 404 handler</dfn>. It should create a new `Error` whose message includes `req.originalUrl`, set `error.status` to `404`, and call `next(error)`.
+`req.originalUrl` holds the full URL of the incoming request, including any base path a router was mounted at.
+
+For example:
+
+```js
+app.use((req, res, next) => {
+  console.log(`Visited ${req.originalUrl}`);
+  next();
+});
+```
+
+Within `middleware/error.middleware.js`, declare a function `notFoundHandler` with three parameters - `req`, `res`, and `next` - that is a <dfn title="middleware that runs when no prior route matched the request URL, used to generate a 404 response">catch-all 404 handler</dfn>. It should create a new `Error` whose message includes `req.originalUrl`, set `error.status` to `404`, and call `next(error)`.
 
 ### --hints--
 
@@ -894,6 +918,14 @@ const __passTo = async (handler, originalUrl) => {
 ### --description--
 
 Express identifies an error handler by its **four parameters**: `err, req, res, next`. Any middleware with that signature is treated as an error handler and only called when an error is passed to `next`.
+
+For example:
+
+```js
+app.use((err, req, res, next) => {
+  res.status(503).send("Service unavailable");
+});
+```
 
 In `middleware/error.middleware.js`, declare `finalErrorHandler` with four parameters. It should derive the HTTP response status from `err.status || 500`, log the error, and respond with a JSON body containing `error: true`, the `status`, and a `message`. For `500` responses, use the generic message `'Internal Server Error (Check Server Logs)'`; otherwise use `err.message`.
 

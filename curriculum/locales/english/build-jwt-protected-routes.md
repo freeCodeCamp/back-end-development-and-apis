@@ -287,11 +287,7 @@ In `utils/db.js`, export two lookup helpers:
 - `findByEmail(email)` - returns the first user whose `email` matches, or `null`.
 - `findById(id)` - returns the first user whose `id` matches, or `null`.
 
-Each should call `readUsers()` and use `Array.prototype.find`:
-
-```js
-return readUsers().find((u) => u.email === email) || null;
-```
+Each should call `readUsers()` and use `Array.prototype.find`. Since `find` returns `undefined` when nothing matches, make sure each helper returns `null` in that case.
 
 ### --tests--
 
@@ -444,7 +440,12 @@ export function signToken(payload) {
 
 ### --description--
 
-`jwt.verify(token, secret)` returns the decoded payload if the token is valid, but **throws** if the token is invalid or expired.
+`jwt.verify(token, secret)` returns the decoded payload if the token is valid, but **throws** if the token is invalid or expired. For example:
+
+```js
+const decoded = jwt.verify(sessionToken, "my-signing-key");
+console.log(decoded.userId);
+```
 
 In `utils/jwt.js`, export a function `verifyToken(token)` that returns the decoded payload when the token is valid, and returns `null` when verification throws. Wrap the call to `jwt.verify` in a `try`/`catch` so the thrown error becomes a `null` return.
 
@@ -495,15 +496,9 @@ assert.isTrue(
 
 ### --description--
 
-An Express <dfn title="an isolated mini-application that handles its own routes and middleware, then is mounted onto the main app">Router</dfn> lets you group related routes in their own file. Import `express`, create a router instance, and export it as the default export:
+An Express <dfn title="an isolated mini-application that handles its own routes and middleware, then is mounted onto the main app">Router</dfn> lets you group related routes in their own file.
 
-```js
-import express from "express";
-const router = express.Router();
-export default router;
-```
-
-Set this up in `routes/auth.js`.
+In `routes/auth.js`, import `express`, create a router instance with `express.Router()`, and export the router as the default export.
 
 ### --tests--
 
@@ -690,18 +685,20 @@ if (findByEmail(email)) {
 
 ### --description--
 
-Now create the user. **Never store a plain-text password** - hash it first. `bcrypt.hash(password, saltRounds)` returns a promise of the hash:
+Now create the user. **Never store a plain-text password** - hash it first. `bcrypt.hash(plainText, saltRounds)` returns a promise of the hash. For example:
 
 ```js
-const passwordHash = await bcrypt.hash(password, 10);
+const hashed = await bcrypt.hash(secretPhrase, 12);
 ```
 
-In the `/register` handler, hash the password, then build a new user object with:
+In the `/register` handler, `await` a call to `bcrypt.hash` that hashes the submitted `password` with `10` salt rounds, then build a new user object with:
 
 - `id` - a unique id from `randomUUID()`
-- `email`
-- `passwordHash`
+- `email` - the submitted email
+- `passwordHash` - the bcrypt hash of the password
 - `role` - `"user"`
+
+Do not include a `password` property on the user object.
 
 Push the new user onto the array from `readUsers()` and persist it with `writeUsers()`.
 
@@ -992,15 +989,15 @@ const __mockRes = () => ({
 
 ### --description--
 
-Now verify the password. `bcrypt.compare(plainText, hash)` returns a promise that resolves to `true` when they match:
+Now verify the password. `bcrypt.compare(plainText, hash)` returns a promise that resolves to `true` when they match. For example:
 
 ```js
-const match = await bcrypt.compare(password, user.passwordHash);
+const isValid = await bcrypt.compare(attempt, account.hashedSecret);
 ```
 
-In the `/login` handler, compare the submitted `password` with the stored `user.passwordHash`. If they do not match, respond with status `401`.
+In the `/login` handler, `await` a call to `bcrypt.compare` that compares the submitted `password` with the stored `user.passwordHash`. If they do not match, respond with status `401`.
 
-When they match, sign a token containing the user's `id`, `email`, and `role`, then respond with a JSON body containing a `message` and the `token`.
+When they match, sign a token containing the user's `id`, `email`, and `role` with `signToken`, then respond with status `200` and a JSON body containing a `message` and the `token`.
 
 ### --tests--
 
@@ -1105,13 +1102,9 @@ res.json({ message: "Login successful", token });
 
 ### --description--
 
-The auth router is ready to mount. A router is mounted on the app just like middleware, with an optional base path:
+The auth router is ready to mount. A router is mounted on the app just like middleware, with an optional base path.
 
-```js
-app.use("/base/path", router);
-```
-
-In `index.js`, import the default export of `./routes/auth.js` as `authRoutes`, then mount it at the `/api/auth` path so the routes become `POST /api/auth/register` and `POST /api/auth/login`.
+In `index.js`, import the default export of `./routes/auth.js` as `authRoutes`, then mount it with `app.use` at the `/api/auth` path so the routes become `POST /api/auth/register` and `POST /api/auth/login`.
 
 ### --tests--
 
@@ -1854,11 +1847,7 @@ assert.isTrue(
 
 ### --description--
 
-You can stack middleware on a single route - Express runs them left to right:
-
-```js
-router.get("/path", first, second, handler);
-```
+You can stack middleware on a single route - Express runs them left to right, before the final route handler.
 
 In `routes/admin.js`:
 
@@ -2133,7 +2122,13 @@ app.use((err, req, res, next) => {
 
 ### --description--
 
-Your authentication API is complete. The `"start"` script loads `.env` with `node --env-file .env`, so `PORT` and `JWT_SECRET` are available. Start the server:
+Your authentication API is complete. Node's `--env-file` flag loads the variables from a file into `process.env` before your script runs. For example:
+
+```bash
+node --env-file=.env.local app.js
+```
+
+The `"start"` script loads `.env` with `node --env-file .env`, so `PORT` and `JWT_SECRET` are available. Start the server:
 
 ```bash
 npm start
