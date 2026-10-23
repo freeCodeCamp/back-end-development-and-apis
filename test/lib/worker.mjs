@@ -242,9 +242,31 @@ function fetchHelpers(beforeEach) {
   return helpers;
 }
 
-function isLiveServerTest(code, beforeEach) {
-  if (/\b__helpers\.isServerListening\s*\(/.test(code)) return true;
-  if (/\bnew\s+WebSocket\s*\(/.test(code)) return true;
+export function isLiveServerTest(code, beforeEach) {
+  let ast;
+  try {
+    ast = parseTestBlock(code);
+  } catch {
+    return true;
+  }
+
+  const nodes = [];
+  const visit = node => {
+    nodes.push(node);
+    for (const child of childNodes(node)) visit(child);
+  };
+  visit(ast.program);
+
+  const usesLiveServer = nodes.some(
+    node =>
+      (node.type === 'NewExpression' && node.callee?.name === 'WebSocket') ||
+      (node.type === 'CallExpression' &&
+        node.callee?.type === 'MemberExpression' &&
+        node.callee.object?.name === '__helpers' &&
+        (node.callee.property?.name ?? node.callee.property?.value) ===
+          'isServerListening')
+  );
+  if (usesLiveServer) return true;
   if (
     fetchHelpers(beforeEach).some(name =>
       new RegExp(`\\b${name}\\s*\\(`).test(code)
@@ -254,23 +276,16 @@ function isLiveServerTest(code, beforeEach) {
   }
   if (!/\bfetch\s*\(/.test(code)) return false;
 
-  let ast;
-  try {
-    ast = parseTestBlock(code);
-  } catch {
-    return true;
-  }
-
   const parents = new Map();
   const fetches = [];
-  const visit = (node, parent = null) => {
+  const visitFetch = (node, parent = null) => {
     if (parent) parents.set(node, parent);
     if (node.type === 'CallExpression' && node.callee?.name === 'fetch') {
       fetches.push(node);
     }
-    for (const child of childNodes(node)) visit(child, node);
+    for (const child of childNodes(node)) visitFetch(child, node);
   };
-  visit(ast.program);
+  visitFetch(ast.program);
 
   // Only bounded fetches are safe without a server. This preserves runtime
   // rejection coverage for tests that use AbortController around fetch.
