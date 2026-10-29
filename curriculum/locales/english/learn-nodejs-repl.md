@@ -66,20 +66,21 @@ You should run `node -v` or `node --version` to check the Node.js version.
 const __history = await __helpers.getBashHistory();
 assert.match(
   __history,
-  /node\s+(--version|-v)\b/,
+  /^\s*node\s+(--version|-v)\s*$/m,
   "Run `node -v` to check the installed Node.js version.",
 );
 ```
 
-The output should show a version number starting with `v`.
+The output should show the installed Node.js version.
 
 ```js
 await new Promise((res) => setTimeout(res, 500));
 const __out = await __helpers.getTerminalOutput();
-assert.match(
+const { stdout: __version } = await __helpers.getCommandOutput("node -v");
+assert.include(
   __out,
-  /v\d+\.\d+\.\d+/,
-  "The output should display a version string like v20.0.0.",
+  __version.trim(),
+  `The output should display the installed Node.js version, ${__version.trim()}.`,
 );
 ```
 
@@ -99,20 +100,21 @@ You should run `npm -v` or `npm --version` to check the npm version.
 const __history = await __helpers.getBashHistory();
 assert.match(
   __history,
-  /npm\s+(--version|-v)\b/,
+  /^\s*npm\s+(--version|-v)\s*$/m,
   "Run `npm -v` to check the installed npm version.",
 );
 ```
 
-The output should show a version number.
+The output should show the installed npm version.
 
 ```js
 await new Promise((res) => setTimeout(res, 500));
 const __out = await __helpers.getTerminalOutput();
-assert.match(
+const { stdout: __version } = await __helpers.getCommandOutput("npm -v");
+assert.include(
   __out,
-  /\d+\.\d+\.\d+/,
-  "The output should display a version string like 10.2.0.",
+  __version.trim(),
+  `The output should display the installed npm version, ${__version.trim()}.`,
 );
 ```
 
@@ -141,14 +143,25 @@ assert.match(
 );
 ```
 
-Running your command should produce output in the terminal.
+Running your command should print something to the terminal without an error.
 
 ```js
 await new Promise((res) => setTimeout(res, 500));
+const __last = await __helpers.getLastCommand();
+assert.match(
+  __last ?? "",
+  /^\s*node\s+(--eval|-e)\s+\S/,
+  'Your last command should be `node -e "<code>"`.',
+);
 const __out = await __helpers.getTerminalOutput();
 assert.isNotEmpty(
   __out.trim(),
   "Your `node -e` command should print something to the terminal.",
+);
+assert.notMatch(
+  __out,
+  /^\w*Error\b/m,
+  "Your `node -e` code threw an error - fix it so it runs and prints something.",
 );
 ```
 
@@ -171,11 +184,17 @@ Use `node -e` to evaluate an arithmetic expression of your choice and print the 
 You should use `node -e` to evaluate an arithmetic expression.
 
 ```js
-const __history = await __helpers.getBashHistory();
+const __last = await __helpers.getLastCommand();
 assert.match(
-  __history,
-  /node\s+(--eval|-e)\b/,
+  __last ?? "",
+  /^\s*node\s+(--eval|-e)\s+\S/,
   'Use `node -e "<expression>"` to evaluate arithmetic.',
+);
+const __code = __last.replace(/^\s*node\s+(--eval|-e)\s+/, "");
+assert.match(
+  __code,
+  /[\w)]\s*(\*\*|[-+*/%])\s*[\w(]/,
+  "Your `node -e` code should contain an arithmetic operator such as `+`, `-`, `*`, `/` or `%`.",
 );
 ```
 
@@ -216,14 +235,25 @@ assert.match(
 );
 ```
 
-Your command should produce output in the terminal.
+Your command should print a result without an error.
 
 ```js
 await new Promise((res) => setTimeout(res, 500));
+const __last = await __helpers.getLastCommand();
+assert.match(
+  __last ?? "",
+  /^\s*node\s+(--print|-p)\s+\S/,
+  'Your last command should be `node -p "<expression>"`.',
+);
 const __out = await __helpers.getTerminalOutput();
 assert.isNotEmpty(
   __out.trim(),
   "Your `node -p` expression should print a result.",
+);
+assert.notMatch(
+  __out,
+  /^\w*Error\b/m,
+  "Your `node -p` expression threw an error - fix it so it prints a result.",
 );
 ```
 
@@ -294,9 +324,9 @@ assert.isTrue(
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "hello.js");
-assert.match(
-  __file,
-  /console\.log\s*\(/,
+const __i = new __helpers.Inspector(__file);
+assert.isTrue(
+  __i.hasCall("console.log"),
   "`hello.js` should contain a `console.log(...)` call.",
 );
 ```
@@ -359,14 +389,29 @@ assert.match(
 );
 ```
 
-The file should produce output in the terminal.
+The terminal should show the output of running `hello.js`.
 
 ```js
 await new Promise((res) => setTimeout(res, 500));
-const __out = await __helpers.getTerminalOutput();
+const __last = await __helpers.getLastCommand();
+assert.match(
+  __last ?? "",
+  /^\s*node\s+hello\.js\s*$/,
+  "Your last command should be `node hello.js`.",
+);
+const { stdout: __expected } = await __helpers.getCommandOutput(
+  "node hello.js",
+  project.dashedName,
+);
 assert.isNotEmpty(
-  __out.trim(),
+  __expected.trim(),
   "`hello.js` should print something when run with `node hello.js`.",
+);
+const __out = await __helpers.getTerminalOutput();
+assert.include(
+  __out,
+  __expected.trim(),
+  "The terminal should show the output of `node hello.js`.",
 );
 ```
 
@@ -421,11 +466,30 @@ Type an arithmetic expression of your choice and press <kbd>Enter</kbd>.
 You should type an arithmetic expression in the REPL and receive a numeric result.
 
 ```js
-const __temp = await __helpers.getTemp();
-assert.match(
-  __temp,
-  /\d+/,
-  "Type an arithmetic expression in the REPL - it should print a number.",
+const __repl = await __helpers.getRepl();
+const __expressions = __repl
+  .split("\n")
+  .map((l) => l.trim())
+  .filter(
+    (l) =>
+      /^[\d\s.()+\-*/%]+$/.test(l) && /[\d)]\s*(\*\*|[-+*/%])\s*[\d(.]/.test(l),
+  );
+assert.isNotEmpty(
+  __expressions,
+  "Type an arithmetic expression in the REPL, such as `2 ** 8`.",
+);
+const { runInNewContext } = await import("node:vm");
+const __temp = (await __helpers.getTemp()).replace(/\x1b\[[0-9;]*m/g, "");
+const __printed = __expressions.some((e) => {
+  try {
+    return __temp.includes(String(runInNewContext(e)));
+  } catch {
+    return false;
+  }
+});
+assert.isTrue(
+  __printed,
+  "The REPL should print the numeric result of your expression.",
 );
 ```
 
@@ -487,6 +551,30 @@ Type your variable name in the REPL to print its value.
 
 ### --tests--
 
+You should type the name of a variable you declared earlier in the REPL.
+
+```js
+const __input = (await __helpers.getRepl())
+  .split("\n")
+  .map((l) => l.trim().replace(/;$/, ""))
+  .filter(Boolean)
+  .at(-1);
+assert.match(
+  __input ?? "",
+  /^[A-Za-z_$][\w$]*$/,
+  "Type only the name of the variable you declared (for example `city`) and press Enter.",
+);
+const __output = (await __helpers.getTemp())
+  .replace(/\x1b\[[0-9;]*[A-Za-z]/g, "")
+  .split("\n")
+  .map((l) => l.replace(/^(>\s*)+/, "").trim())
+  .filter(Boolean);
+assert.notMatch(
+  __output.at(-1) ?? "",
+  /Uncaught|Error\b/,
+  "The REPL printed an error - check the variable name matches the one you declared.",
+);
+```
 
 The REPL should print a value that is not `undefined`.
 
@@ -534,7 +622,7 @@ You should use `_` in an expression in the REPL.
 const __temp = await __helpers.getRepl();
 assert.match(
   __temp,
-  /_(\W|$)/m,
+  /(^|[^\w$.])_([^\w$]|$)/m,
   "Use `_` in the REPL - it holds the result of the last evaluated expression.",
 );
 ```
@@ -598,11 +686,25 @@ Call your function with an argument of your choice - the REPL will print the ret
 You should call your function with an argument in the REPL.
 
 ```js
-const __repl = await __helpers.getRepl();
+const __input = (await __helpers.getRepl())
+  .split("\n")
+  .map((l) => l.trim())
+  .filter(Boolean)
+  .at(-1);
 assert.match(
-  __repl,
-  /^\w+\s*\([^)]*\)/m,
+  __input ?? "",
+  /^[A-Za-z_$][\w$]*\s*\(\s*[^)\s]/,
   "Call your function in the REPL - type its name followed by parentheses and an argument.",
+);
+const __output = (await __helpers.getTemp())
+  .replace(/\x1b\[[0-9;]*[A-Za-z]/g, "")
+  .split("\n")
+  .map((l) => l.replace(/^(>\s*)+/, "").trim())
+  .filter(Boolean);
+assert.notMatch(
+  __output.at(-1) ?? "",
+  /Uncaught|Error\b/,
+  "The REPL printed an error - check you are calling the function you defined.",
 );
 ```
 
@@ -665,11 +767,46 @@ Call any method on the module you loaded and observe the return value printed by
 You should call a method on the module you loaded.
 
 ```js
-const __temp = await __helpers.getRepl();
-assert.match(
-  __temp,
-  /\w+\.\w+\s*\(/m,
+const __input = (await __helpers.getRepl())
+  .split("\n")
+  .map((l) => l.trim())
+  .filter(Boolean)
+  .at(-1);
+const __receiver = __input?.match(/^([A-Za-z_$][\w$]*)\.\w+\s*\(/)?.[1];
+assert.isDefined(
+  __receiver,
   "Call a method on the module you loaded - e.g. `os.platform()`.",
+);
+assert.notInclude(
+  [
+    "Math",
+    "JSON",
+    "Object",
+    "Array",
+    "Number",
+    "String",
+    "Date",
+    "console",
+    "Promise",
+    "Reflect",
+    "Intl",
+    "Symbol",
+    "BigInt",
+    "Boolean",
+    "globalThis",
+  ],
+  __receiver,
+  "Call a method on the module you loaded with `require()`, not on a built-in JavaScript object.",
+);
+const __output = (await __helpers.getTemp())
+  .replace(/\x1b\[[0-9;]*[A-Za-z]/g, "")
+  .split("\n")
+  .map((l) => l.replace(/^(>\s*)+/, "").trim())
+  .filter(Boolean);
+assert.notMatch(
+  __output.at(-1) ?? "",
+  /Uncaught|Error\b/,
+  "The REPL printed an error - check you are calling a method on the module variable you created.",
 );
 ```
 
@@ -682,6 +819,17 @@ The REPL has a set of special commands that start with a dot (`.`). Type `.help`
 **NOTE:** Keep the REPL open and click _Run Tests_ when done.
 
 ### --tests--
+
+You should type `.help` in the REPL.
+
+```js
+const __repl = await __helpers.getRepl();
+assert.match(
+  __repl,
+  /^\s*\.help\s*$/m,
+  "Type `.help` on its own and press Enter.",
+);
+```
 
 The `.help` output should list the available dot-commands.
 
@@ -751,14 +899,25 @@ assert.match(
 );
 ```
 
-The output should confirm the ESM code executed successfully.
+The piped code should use ESM syntax and run without an error.
 
 ```js
 await new Promise((res) => setTimeout(res, 500));
+const __last = await __helpers.getLastCommand();
+assert.match(
+  __last ?? "",
+  /\b(import|export)\b.*\|\s*node\s+--input-type=module/,
+  "Your last command should pipe code that uses `import` or `export` to `node --input-type=module`.",
+);
 const __out = await __helpers.getTerminalOutput();
 assert.isNotEmpty(
   __out.trim(),
   "Your piped ESM code should produce output in the terminal.",
+);
+assert.notMatch(
+  __out,
+  /^\w*Error\b/m,
+  "Your piped ESM code threw an error - fix it so it runs and prints something.",
 );
 ```
 
