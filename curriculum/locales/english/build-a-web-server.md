@@ -337,7 +337,7 @@ await rm(join(ROOT, "__test"), { recursive: true, force: true });
 
 Restart your server again.
 
-**Note**: Once running, click the "Rust Tests" button.
+**Note**: Once running, click the "Run Tests" button.
 
 ### --tests--
 
