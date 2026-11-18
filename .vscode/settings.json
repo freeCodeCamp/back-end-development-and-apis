@@ -55,5 +55,8 @@
       "icon": "terminal-bash",
       "path": "bash"
     }
-  }
+  },
+  "githubPullRequests.ignoredPullRequestBranches": [
+    "main"
+  ]
 }
