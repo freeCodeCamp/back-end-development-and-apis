@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.20](https://github.com/freeCodeCamp/back-end-development-and-apis/compare/v1.1.19...v1.1.20) (2026-11-19)
+
+
+### Bug Fixes
+
+* correct Run Tests button label in Step 12 ([#97](https://github.com/freeCodeCamp/back-end-development-and-apis/issues/97)) ([1be63a7](https://github.com/freeCodeCamp/back-end-development-and-apis/commit/1be63a70a2504c1289a416cf7a3eb061e6075ee7))
+
 ## [1.1.19](https://github.com/freeCodeCamp/back-end-development-and-apis/compare/v1.1.18...v1.1.19) (2026-10-09)
 
 
