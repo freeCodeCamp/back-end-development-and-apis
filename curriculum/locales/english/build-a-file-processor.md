@@ -58,6 +58,16 @@ assert.include(
 Running `server.js` with Nodejs should log the `fs` module to the console.
 
 ```js
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+const __i = new __helpers.Inspector(__file);
+assert.isTrue(
+  __i
+    .getCalls("console.log")
+    .some((c) =>
+      c.arguments.some((a) => a.type === "Identifier" && a.name === "fs"),
+    ),
+  "You should call `console.log(fs)` in `server.js`",
+);
 const { stdout } = await __helpers.getCommandOutput(
   "node server.js",
   project.dashedName,
@@ -126,14 +136,20 @@ assert.match(
 Running `server.js` should print a raw `Buffer` to the console.
 
 ```js
+const { join } = await import("path");
+const { readFileSync } = await import("fs");
+const { inspect } = await import("util");
 const { stdout } = await __helpers.getCommandOutput(
   "node server.js",
   project.dashedName,
 );
+const __expected = inspect(
+  readFileSync(join(ROOT, project.dashedName, "assets", "poem.txt")),
+);
 assert.include(
   stdout,
-  "<Buffer",
-  "Running `node server.js` should print a Buffer - make sure you are logging the result of `fs.readFileSync` without an encoding option",
+  __expected,
+  "Running `node server.js` should print the poem as a Buffer - make sure you are logging the result of `fs.readFileSync` without an encoding option",
 );
 ```
 
@@ -272,7 +288,7 @@ assert.match(
 );
 ```
 
-`fs.readFile` should be called with a callback function as its last argument.
+`fs.readFile` should be called with a callback function that logs the file data.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
@@ -286,6 +302,32 @@ assert.isAbove(
 assert.isTrue(
   __calls.some((c) => __i.hasCallback(c)),
   "You should pass a callback function as the last argument to `fs.readFile`",
+);
+const __callbacks = __calls
+  .filter((c) => __i.hasCallback(c))
+  .map((c) => {
+    const __last = c.arguments.at(-1);
+    return __last?.type === "Identifier"
+      ? __i.getFunction(__last?.name)
+      : __last;
+  });
+const __logsData = __callbacks.some((cb) => {
+  const __data = cb?.params.at(1)?.name;
+  return (
+    __data &&
+    __i
+      .getCalls("console.log")
+      .some(
+        (c) =>
+          c.start >= cb.body.start &&
+          c.end <= cb.body.end &&
+          c.arguments.some((a) => a.type === "Identifier" && a.name === __data),
+      )
+  );
+});
+assert.isTrue(
+  __logsData,
+  "Inside the callback, log the file data (the callback's second parameter) with `console.log`",
 );
 ```
 
@@ -361,15 +403,53 @@ assert.isTrue(
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __i = new __helpers.Inspector(__file);
+const __isPromisesApi = (node) =>
+  /^(fs\.promises|require\(["'](node:)?fs["']\)\.promises|require\(["'](node:)?fs\/promises["']\))$/.test(
+    __helpers.generate(node, { compact: true }).code,
+  );
+// Names bound to the promises API, e.g. `const fsPromises = require("fs/promises")`,
+// and names destructured from it, e.g. `const { readFile } = fs.promises`.
+const __apiNames = [];
+const __readFileNames = [];
+for (const d of __i.declarators) {
+  if (!d.init || !__isPromisesApi(d.init)) {
+    continue;
+  }
+  if (d.id.type === "Identifier") {
+    __apiNames.push(d.id.name);
+  }
+  for (const p of d.id.properties ?? []) {
+    if (p.key?.name === "readFile") {
+      __readFileNames.push(p.value?.name);
+    }
+  }
+}
+const __awaitedReads = __i
+  .getType("AwaitExpression")
+  .map((a) => a.argument)
+  .filter((c) => {
+    if (c?.type !== "CallExpression") {
+      return false;
+    }
+    if (c.callee.type === "Identifier") {
+      return __readFileNames.includes(c.callee.name);
+    }
+    return (
+      c.callee.property?.name === "readFile" &&
+      (__isPromisesApi(c.callee.object) ||
+        __apiNames.includes(c.callee.object?.name))
+    );
+  });
 assert.isAbove(
-  __i.getType("AwaitExpression").length,
+  __awaitedReads.length,
   0,
-  "You should use `await` to read the file asynchronously",
+  "You should `await` a call to `readFile` on the `fs` promises API",
 );
-assert.isAbove(
-  __i.getMethodCalls("readFile").length,
-  0,
-  "You should call `.readFile(...)` on the promises API",
+assert.isTrue(
+  __awaitedReads.some((c) =>
+    /assets[\s\S]*poem\.txt/.test(__i.argText(c.arguments.at(0))),
+  ),
+  "The awaited `readFile` call should read `assets/poem.txt`",
 );
 ```
 
@@ -597,6 +677,37 @@ assert.match(
 Running `server.js` should print `true` to the console.
 
 ```js
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+const __i = new __helpers.Inspector(__file);
+// The source of each `console.log` argument, with variables replaced by
+// the expressions they were assigned.
+const __source = (n, depth = 0) => {
+  if (!n || depth > 3) {
+    return "";
+  }
+  if (n.type === "Identifier") {
+    // Modules keep their name, so `fs.existsSync` stays `fs.existsSync`.
+    const __init = __i.getDeclarator(n.name)?.init;
+    return __init && __init.callee?.name !== "require"
+      ? __source(__init, depth + 1)
+      : n.name;
+  }
+  if (n.type === "CallExpression") {
+    return `${__source(n.callee, depth)}(${n.arguments.map((a) => __source(a, depth)).join(", ")})`;
+  }
+  if (n.type === "MemberExpression" && !n.computed) {
+    return `${__source(n.object, depth)}.${n.property.name}`;
+  }
+  return __helpers.generate(n).code;
+};
+const __logged = __i
+  .getCalls("console.log")
+  .flatMap((c) => c.arguments)
+  .map((a) => __source(a));
+assert.isTrue(
+  __logged.some((code) => code.includes("fs.existsSync(")),
+  "You should log the result of `fs.existsSync` with `console.log`",
+);
 const { stdout } = await __helpers.getCommandOutput(
   "node server.js",
   project.dashedName,
@@ -680,14 +791,20 @@ assert.include(
 Running `server.js` should print an array that includes `poem.txt`.
 
 ```js
+const { join } = await import("path");
+const { readdirSync } = await import("fs");
+const { inspect } = await import("util");
 const { stdout } = await __helpers.getCommandOutput(
   "node server.js",
   project.dashedName,
 );
+const __expected = inspect(
+  readdirSync(join(ROOT, project.dashedName, "assets")),
+);
 assert.include(
   stdout,
-  "poem.txt",
-  "Running `node server.js` should print the contents of the `assets/` directory, which includes `poem.txt`",
+  __expected,
+  "Running `node server.js` should print the array returned by `fs.readdirSync('assets')`",
 );
 ```
 
@@ -756,6 +873,21 @@ assert.isTrue(
   __hasGreeting,
   'You should call `Buffer.from("Hello, Node!")` in `server.js`',
 );
+const __init = __i.getDeclarator("buf")?.init;
+assert.isTrue(
+  __init?.type === "CallExpression" &&
+    __helpers.generate(__init.callee).code === "Buffer.from" &&
+    /^Hello,\s*Node!$/.test(__i.argText(__init.arguments.at(0))),
+  'You should store `Buffer.from("Hello, Node!")` in a variable called `buf`',
+);
+assert.isTrue(
+  __i
+    .getCalls("console.log")
+    .some((c) =>
+      c.arguments.some((a) => a.type === "Identifier" && a.name === "buf"),
+    ),
+  "You should log `buf` with `console.log`",
+);
 ```
 
 Running `server.js` should print a `Buffer` to the console.
@@ -767,8 +899,8 @@ const { stdout } = await __helpers.getCommandOutput(
 );
 assert.include(
   stdout,
-  "<Buffer",
-  "Running `node server.js` should print a Buffer",
+  "<Buffer 48 65 6c 6c 6f 2c 20 4e 6f 64 65 21>",
+  "Running `node server.js` should print the `buf` Buffer",
 );
 ```
 
@@ -834,13 +966,9 @@ Run `node server.js` to see both encoded forms.
 const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __i = new __helpers.Inspector(__file);
 const __encodings = __i
-  .getMethodCalls("toString")
+  .getCalls("buf.toString")
   .map((c) => __i.argText(c.arguments.at(0)));
-assert.include(
-  __encodings,
-  "hex",
-  'You should call `.toString("hex")` on the buffer',
-);
+assert.include(__encodings, "hex", 'You should call `buf.toString("hex")`');
 ```
 
 `server.js` should call `buf.toString('base64')`.
@@ -849,12 +977,12 @@ assert.include(
 const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __i = new __helpers.Inspector(__file);
 const __encodings = __i
-  .getMethodCalls("toString")
+  .getCalls("buf.toString")
   .map((c) => __i.argText(c.arguments.at(0)));
 assert.include(
   __encodings,
   "base64",
-  'You should call `.toString("base64")` on the buffer',
+  'You should call `buf.toString("base64")`',
 );
 ```
 
@@ -865,15 +993,20 @@ const { stdout } = await __helpers.getCommandOutput(
   "node server.js",
   project.dashedName,
 );
-assert.match(
-  stdout,
-  /[0-9a-f]{10,}/,
-  "Running `node server.js` should print a hex-encoded string",
+// A value counts when it appears as a whole word on any line, so labelled
+// logs such as `console.log("Hash:", hash)` still pass.
+const __printed = (value) =>
+  stdout.split("\n").some((l) => ` ${l.trim()} `.includes(` ${value} `));
+// The same, for a value that can only be described by a pattern.
+const __printedMatch = (pattern) =>
+  stdout.split(/\s+/).some((t) => pattern.test(t));
+assert.isTrue(
+  __printed("48656c6c6f2c204e6f646521"),
+  "Running `node server.js` should print `buf` as a hex string",
 );
-assert.match(
-  stdout,
-  /[A-Za-z0-9+/]+=*/,
-  "Running `node server.js` should print a base64-encoded string",
+assert.isTrue(
+  __printed("SGVsbG8sIE5vZGUh"),
+  "Running `node server.js` should print `buf` as a base64 string",
 );
 ```
 
@@ -919,6 +1052,20 @@ const __hasAlloc = __i
 assert.isTrue(
   __hasAlloc,
   "You should call `Buffer.alloc(8, 0xff)` in `server.js`",
+);
+const __init = __i.getDeclarator("buf2")?.init;
+assert.isTrue(
+  __init?.type === "CallExpression" &&
+    __helpers.generate(__init.callee).code === "Buffer.alloc",
+  "You should store the result of `Buffer.alloc` in a variable called `buf2`",
+);
+assert.isTrue(
+  __i
+    .getCalls("console.log")
+    .some((c) =>
+      c.arguments.some((a) => a.type === "Identifier" && a.name === "buf2"),
+    ),
+  "You should log `buf2` with `console.log`",
 );
 ```
 
@@ -986,13 +1133,52 @@ assert.isTrue(
 Running `server.js` should print the decoded UTF-8 string.
 
 ```js
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+const __i = new __helpers.Inspector(__file);
+// The source of each `console.log` argument, with variables replaced by
+// the expressions they were assigned.
+const __source = (n, depth = 0) => {
+  if (!n || depth > 3) {
+    return "";
+  }
+  if (n.type === "Identifier") {
+    // Modules keep their name, so `fs.existsSync` stays `fs.existsSync`.
+    const __init = __i.getDeclarator(n.name)?.init;
+    return __init && __init.callee?.name !== "require"
+      ? __source(__init, depth + 1)
+      : n.name;
+  }
+  if (n.type === "CallExpression") {
+    return `${__source(n.callee, depth)}(${n.arguments.map((a) => __source(a, depth)).join(", ")})`;
+  }
+  if (n.type === "MemberExpression" && !n.computed) {
+    return `${__source(n.object, depth)}.${n.property.name}`;
+  }
+  return __helpers.generate(n).code;
+};
+const __logged = __i
+  .getCalls("console.log")
+  .flatMap((c) => c.arguments)
+  .map((a) => __source(a));
+assert.isTrue(
+  __logged.some(
+    (code) => code.includes("ZnJlZUNvZGVDYW1w") && code.includes(".toString("),
+  ),
+  "You should log the decoded string, from `.toString`, with `console.log`",
+);
 const { stdout } = await __helpers.getCommandOutput(
   "node server.js",
   project.dashedName,
 );
-assert.include(
-  stdout,
-  "freeCodeCamp",
+// A value counts when it appears as a whole word on any line, so labelled
+// logs such as `console.log("Hash:", hash)` still pass.
+const __printed = (value) =>
+  stdout.split("\n").some((l) => ` ${l.trim()} `.includes(` ${value} `));
+// The same, for a value that can only be described by a pattern.
+const __printedMatch = (pattern) =>
+  stdout.split(/\s+/).some((t) => pattern.test(t));
+assert.isTrue(
+  __printed("freeCodeCamp"),
   "Running `node server.js` should print the decoded string `freeCodeCamp`",
 );
 ```
@@ -1046,20 +1232,25 @@ const __usesSha256 = __i
 assert.isTrue(__usesSha256, 'You should call `crypto.createHash("sha256")`');
 ```
 
-Running `server.js` should print a 64-character hex digest.
+Running `server.js` should print the SHA-256 hex digest of `'freeCodeCamp!'`.
 
 ```js
+const { createHash } = await import("crypto");
 const { stdout } = await __helpers.getCommandOutput(
   "node server.js",
   project.dashedName,
 );
-const __hashLine = stdout
-  .trim()
-  .split("\n")
-  .find((l) => /^[0-9a-f]{64}$/.test(l.trim()));
-assert.isDefined(
-  __hashLine,
-  "Running `node server.js` should print a 64-character SHA-256 hex digest",
+const __expected = createHash("sha256").update("freeCodeCamp!").digest("hex");
+// A value counts when it appears as a whole word on any line, so labelled
+// logs such as `console.log("Hash:", hash)` still pass.
+const __printed = (value) =>
+  stdout.split("\n").some((l) => ` ${l.trim()} `.includes(` ${value} `));
+// The same, for a value that can only be described by a pattern.
+const __printedMatch = (pattern) =>
+  stdout.split(/\s+/).some((t) => pattern.test(t));
+assert.isTrue(
+  __printed(__expected),
+  "Running `node server.js` should print the SHA-256 hex digest of `'freeCodeCamp!'`",
 );
 ```
 
@@ -1138,6 +1329,37 @@ assert.isTrue(
   __has16Bytes,
   "You should call `crypto.randomBytes(16)` in `server.js`",
 );
+// The source of each `console.log` argument, with variables replaced by
+// the expressions they were assigned.
+const __source = (n, depth = 0) => {
+  if (!n || depth > 3) {
+    return "";
+  }
+  if (n.type === "Identifier") {
+    // Modules keep their name, so `crypto.randomBytes` stays as written.
+    const __init = __i.getDeclarator(n.name)?.init;
+    return __init && __init.callee?.name !== "require"
+      ? __source(__init, depth + 1)
+      : n.name;
+  }
+  if (n.type === "CallExpression") {
+    return `${__source(n.callee, depth)}(${n.arguments.map((a) => __source(a, depth)).join(", ")})`;
+  }
+  if (n.type === "MemberExpression" && !n.computed) {
+    return `${__source(n.object, depth)}.${n.property.name}`;
+  }
+  return __helpers.generate(n).code;
+};
+assert.isTrue(
+  __i
+    .getCalls("console.log")
+    .flatMap((c) => c.arguments)
+    .map((a) => __source(a))
+    .some((code) =>
+      /crypto\.randomBytes\(16\)\.toString\(["']hex["']\)/.test(code),
+    ),
+  'You should log `crypto.randomBytes(16)` as a hex string, using `.toString("hex")`',
+);
 ```
 
 Running `server.js` should print a 32-character hex string.
@@ -1147,10 +1369,15 @@ const { stdout } = await __helpers.getCommandOutput(
   "node server.js",
   project.dashedName,
 );
-const __lines = stdout.trim().split("\n");
-const __hexLine = __lines.find((l) => /^[0-9a-f]{32}$/.test(l.trim()));
-assert.isDefined(
-  __hexLine,
+// A value counts when it appears as a whole word on any line, so labelled
+// logs such as `console.log("Hash:", hash)` still pass.
+const __printed = (value) =>
+  stdout.split("\n").some((l) => ` ${l.trim()} `.includes(` ${value} `));
+// The same, for a value that can only be described by a pattern.
+const __printedMatch = (pattern) =>
+  stdout.split(/\s+/).some((t) => pattern.test(t));
+assert.isTrue(
+  __printedMatch(/^[0-9a-f]{32}$/),
   "Running `node server.js` should print a 32-character hex string from `crypto.randomBytes(16)`",
 );
 ```
@@ -1191,6 +1418,35 @@ const __i = new __helpers.Inspector(__file);
 assert.isTrue(
   __i.hasCall("crypto.randomUUID"),
   "You should call `crypto.randomUUID()` in `server.js`",
+);
+// The source of each `console.log` argument, with variables replaced by
+// the expressions they were assigned.
+const __source = (n, depth = 0) => {
+  if (!n || depth > 3) {
+    return "";
+  }
+  if (n.type === "Identifier") {
+    // Modules keep their name, so `crypto.randomUUID` stays as written.
+    const __init = __i.getDeclarator(n.name)?.init;
+    return __init && __init.callee?.name !== "require"
+      ? __source(__init, depth + 1)
+      : n.name;
+  }
+  if (n.type === "CallExpression") {
+    return `${__source(n.callee, depth)}(${n.arguments.map((a) => __source(a, depth)).join(", ")})`;
+  }
+  if (n.type === "MemberExpression" && !n.computed) {
+    return `${__source(n.object, depth)}.${n.property.name}`;
+  }
+  return __helpers.generate(n).code;
+};
+assert.isTrue(
+  __i
+    .getCalls("console.log")
+    .flatMap((c) => c.arguments)
+    .map((a) => __source(a))
+    .includes("crypto.randomUUID()"),
+  "You should log the result of `crypto.randomUUID()` with `console.log`",
 );
 ```
 
@@ -1260,22 +1516,32 @@ assert.isTrue(__i.hasCall("os.arch"), "You should call `os.arch()`");
 assert.isTrue(__i.hasCall("os.hostname"), "You should call `os.hostname()`");
 ```
 
-Running `server.js` should print non-empty strings for platform, arch, and hostname.
+Running `server.js` should print the platform, arch, and hostname, each on its own line.
 
 ```js
+const os = await import("os");
 const { stdout } = await __helpers.getCommandOutput(
   "node server.js",
   project.dashedName,
 );
-const __lines = stdout.trim().split("\n").filter(Boolean);
-assert.isAtLeast(
-  __lines.length,
-  3,
-  "Running `node server.js` should print at least 3 lines (platform, arch, hostname)",
+// A value counts when it appears as a whole word on any line, so labelled
+// logs such as `console.log("Hash:", hash)` still pass.
+const __printed = (value) =>
+  stdout.split("\n").some((l) => ` ${l.trim()} `.includes(` ${value} `));
+// The same, for a value that can only be described by a pattern.
+const __printedMatch = (pattern) =>
+  stdout.split(/\s+/).some((t) => pattern.test(t));
+assert.isTrue(
+  __printed(os.platform()),
+  "Running `node server.js` should print the value of `os.platform()`",
 );
 assert.isTrue(
-  __lines.every((l) => l.trim().length > 0),
-  "Each logged value should be a non-empty string",
+  __printed(os.arch()),
+  "Running `node server.js` should print the value of `os.arch()`",
+);
+assert.isTrue(
+  __printed(os.hostname()),
+  "Running `node server.js` should print the value of `os.hostname()`",
 );
 ```
 
@@ -1363,18 +1629,37 @@ const { stdout } = await __helpers.getCommandOutput(
   "node server.js",
   project.dashedName,
 );
-const __lines = stdout.trim().split("\n").filter(Boolean);
-assert.isAtLeast(
-  __lines.length,
-  6,
-  "Running `node server.js` should print at least 6 lines",
+const { totalmem } = await import("os");
+// A value counts when it appears as a whole word on any line, so labelled
+// logs such as `console.log("Hash:", hash)` still pass.
+const __printed = (value) =>
+  stdout.split("\n").some((l) => ` ${l.trim()} `.includes(` ${value} `));
+// The same, for a value that can only be described by a pattern.
+const __printedMatch = (pattern) =>
+  stdout.split(/\s+/).some((t) => pattern.test(t));
+assert.isTrue(
+  __printed(String(totalmem())),
+  "Running `node server.js` should print the value of `os.totalmem()`",
 );
-const __nums = __lines.filter((l) => /^\d+(\.\d+)?$/.test(l.trim()));
+const __nums = stdout.split(/\s+/).filter((t) => /^\d+(\.\d+)?$/.test(t));
 assert.isAtLeast(
   __nums.length,
   3,
   "At least three of the logged values should be numbers (totalmem, freemem, uptime)",
 );
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+const __i = new __helpers.Inspector(__file);
+const __logged = __i
+  .getCalls("console.log")
+  .flatMap((c) => c.arguments)
+  .map((a) => __helpers.generate(a).code);
+for (const __call of ["os.totalmem()", "os.freemem()", "os.uptime()"]) {
+  assert.include(
+    __logged,
+    __call,
+    `You should log \`${__call}\` with \`console.log\``,
+  );
+}
 ```
 
 You should run `node server.js` to see the console output.
@@ -1424,10 +1709,15 @@ const { stdout } = await __helpers.getCommandOutput(
 );
 const { cpus } = await import("os");
 const __expectedCpus = cpus().length;
-const __lines = stdout.trim().split("\n").filter(Boolean);
-const __cpuLine = __lines.find((l) => l.trim() === String(__expectedCpus));
-assert.isDefined(
-  __cpuLine,
+// A value counts when it appears as a whole word on any line, so labelled
+// logs such as `console.log("Hash:", hash)` still pass.
+const __printed = (value) =>
+  stdout.split("\n").some((l) => ` ${l.trim()} `.includes(` ${value} `));
+// The same, for a value that can only be described by a pattern.
+const __printedMatch = (pattern) =>
+  stdout.split(/\s+/).some((t) => pattern.test(t));
+assert.isTrue(
+  __printed(String(__expectedCpus)),
   "Running `node server.js` should print the CPU count from `os.cpus().length`",
 );
 assert.isAbove(__expectedCpus, 0, "The CPU count should be greater than 0");
@@ -1495,19 +1785,40 @@ assert.include(
   "poem.txt",
   "The path segments should include `poem.txt`",
 );
+const __init = __i.getDeclarator("filePath")?.init;
+assert.equal(
+  __init ? __helpers.generate(__init.callee ?? __init).code : undefined,
+  "path.join",
+  "You should store the result of `path.join` in a variable called `filePath`",
+);
+assert.isTrue(
+  __i
+    .getCalls("console.log")
+    .some((c) =>
+      c.arguments.some((a) => a.type === "Identifier" && a.name === "filePath"),
+    ),
+  "You should log `filePath` with `console.log`",
+);
 ```
 
-Running `server.js` should print an absolute path ending in `assets/poem.txt`.
+Running `server.js` should print the absolute path to `assets/poem.txt`.
 
 ```js
+const { join } = await import("path");
 const { stdout } = await __helpers.getCommandOutput(
   "node server.js",
   project.dashedName,
 );
-assert.match(
-  stdout.trim(),
-  /assets.poem\.txt/,
-  "Running `node server.js` should print a path containing `assets/poem.txt`",
+// A value counts when it appears as a whole word on any line, so labelled
+// logs such as `console.log("Hash:", hash)` still pass.
+const __printed = (value) =>
+  stdout.split("\n").some((l) => ` ${l.trim()} `.includes(` ${value} `));
+// The same, for a value that can only be described by a pattern.
+const __printedMatch = (pattern) =>
+  stdout.split(/\s+/).some((t) => pattern.test(t));
+assert.isTrue(
+  __printed(join(ROOT, project.dashedName, "assets", "poem.txt")),
+  "Running `node server.js` should print the absolute path to `assets/poem.txt`",
 );
 ```
 
@@ -1591,35 +1902,44 @@ Run `node server.js` - you should see the filename, directory, and extension pri
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __i = new __helpers.Inspector(__file);
-assert.isTrue(
-  __i.hasCall("path.basename"),
-  "You should call `path.basename(filePath)` in `server.js`",
-);
-assert.isTrue(
-  __i.hasCall("path.dirname"),
-  "You should call `path.dirname(filePath)` in `server.js`",
-);
-assert.isTrue(
-  __i.hasCall("path.extname"),
-  "You should call `path.extname(filePath)` in `server.js`",
-);
+const __logged = __i
+  .getCalls("console.log")
+  .flatMap((c) => c.arguments)
+  .map((a) => __helpers.generate(a).code);
+for (const __method of ["basename", "dirname", "extname"]) {
+  assert.include(
+    __logged,
+    `path.${__method}(filePath)`,
+    `You should log \`path.${__method}(filePath)\` with \`console.log\``,
+  );
+}
 ```
 
-Running `server.js` should print `poem.txt`, a directory path, and `.txt` on separate lines.
+Running `server.js` should print `poem.txt`, the `assets` directory path, and `.txt` on separate lines.
 
 ```js
+const { join } = await import("path");
 const { stdout } = await __helpers.getCommandOutput(
   "node server.js",
   project.dashedName,
 );
-assert.include(
-  stdout,
-  "poem.txt",
+// A value counts when it appears as a whole word on any line, so labelled
+// logs such as `console.log("Hash:", hash)` still pass.
+const __printed = (value) =>
+  stdout.split("\n").some((l) => ` ${l.trim()} `.includes(` ${value} `));
+// The same, for a value that can only be described by a pattern.
+const __printedMatch = (pattern) =>
+  stdout.split(/\s+/).some((t) => pattern.test(t));
+assert.isTrue(
+  __printed("poem.txt"),
   "Running `node server.js` should print `poem.txt` (from `path.basename`)",
 );
-assert.include(
-  stdout,
-  ".txt",
+assert.isTrue(
+  __printed(join(ROOT, project.dashedName, "assets")),
+  "Running `node server.js` should print the `assets` directory path (from `path.dirname`)",
+);
+assert.isTrue(
+  __printed(".txt"),
   "Running `node server.js` should print `.txt` (from `path.extname`)",
 );
 ```
@@ -1641,11 +1961,11 @@ assert.match(
 
 `path.resolve` and `path.join` both build paths, but they behave differently when given `'..'` segments:
 
-- `path.join` simply concatenates the segments with the separator - it does not resolve the result to an absolute path on its own unless you start with an absolute segment like `__dirname`.
+- `path.join` joins the segments with the separator and normalizes the result, so `'..'` cancels out the segment before it. The result stays relative unless you start with an absolute segment like `__dirname`.
 - `path.resolve` always returns an absolute path, processing `'..'` segments against the current working directory.
 
 ```js
-console.log(path.join("assets", "..", "server.js")); // assets/../server.js → assets/../server.js (relative)
+console.log(path.join("assets", "..", "server.js")); // server.js (relative)
 console.log(path.resolve("assets", "..", "server.js")); // /absolute/path/to/server.js
 ```
 
@@ -1700,25 +2020,25 @@ assert.isTrue(
 Running `server.js` should print two paths - one relative, one absolute.
 
 ```js
+const { join } = await import("path");
 const { stdout } = await __helpers.getCommandOutput(
   "node server.js",
   project.dashedName,
 );
-const __lines = stdout
-  .trim()
-  .split("\n")
-  .filter((l) => l.includes("server.js"));
-assert.isAtLeast(
-  __lines.length,
-  2,
-  "Running `node server.js` should print two paths containing `server.js`",
-);
-const __hasAbsolute = __lines.some(
-  (l) => l.trim().startsWith("/") || /^[A-Z]:\\/.test(l.trim()),
+// A value counts when it appears as a whole word on any line, so labelled
+// logs such as `console.log("Hash:", hash)` still pass.
+const __printed = (value) =>
+  stdout.split("\n").some((l) => ` ${l.trim()} `.includes(` ${value} `));
+// The same, for a value that can only be described by a pattern.
+const __printedMatch = (pattern) =>
+  stdout.split(/\s+/).some((t) => pattern.test(t));
+assert.isTrue(
+  __printed("server.js"),
+  "Running `node server.js` should print `server.js` (from `path.join`)",
 );
 assert.isTrue(
-  __hasAbsolute,
-  "One of the paths should be absolute (from `path.resolve`)",
+  __printed(join(ROOT, project.dashedName, "server.js")),
+  "Running `node server.js` should print the absolute path to `server.js` (from `path.resolve`)",
 );
 ```
 
@@ -1763,32 +2083,28 @@ assert.isAbove(
   "You should call `path.parse(filePath)` in `server.js`",
 );
 assert.isTrue(
-  __calls.some((c) => c.arguments.length > 0),
-  "You should pass the path to `path.parse`",
+  __calls.some(
+    (c) =>
+      c.arguments.at(0)?.type === "Identifier" &&
+      c.arguments.at(0)?.name === "filePath",
+  ),
+  "You should pass `filePath` to `path.parse`",
 );
 ```
 
 Running `server.js` should print an object containing `ext` and `name` properties from the parsed path.
 
 ```js
+const { join, parse } = await import("path");
+const { inspect } = await import("util");
 const { stdout } = await __helpers.getCommandOutput(
   "node server.js",
   project.dashedName,
 );
 assert.include(
   stdout,
-  "ext",
-  "Running `node server.js` should print an object with an `ext` property",
-);
-assert.include(
-  stdout,
-  "name",
-  "Running `node server.js` should print an object with a `name` property",
-);
-assert.include(
-  stdout,
-  "poem",
-  "The parsed path should include `poem` as the file name",
+  inspect(parse(join(ROOT, project.dashedName, "assets", "poem.txt"))),
+  "Running `node server.js` should print the object returned by `path.parse(filePath)`",
 );
 ```
 
@@ -1836,19 +2152,48 @@ assert.isTrue(
   __i.hasMember("process.env.NODE_ENV"),
   "You should log `process.env.NODE_ENV` in `server.js`",
 );
+const __logged = __i
+  .getCalls("console.log")
+  .flatMap((c) => c.arguments)
+  .map((a) => __helpers.generate(a).code);
+for (const __member of [
+  "process.version",
+  "process.platform",
+  "process.env.NODE_ENV",
+]) {
+  assert.include(
+    __logged,
+    __member,
+    `You should log \`${__member}\` with \`console.log\``,
+  );
+}
 ```
 
-Running `server.js` should print the Node.js version string.
+Running `server.js` should print the Node.js version, the platform, and the value of `NODE_ENV`, each on its own line.
 
 ```js
 const { stdout } = await __helpers.getCommandOutput(
   "node server.js",
   project.dashedName,
 );
-assert.match(
-  stdout,
-  /v\d+\.\d+\.\d+/,
+// A value counts when it appears as a whole word on any line, so labelled
+// logs such as `console.log("Hash:", hash)` still pass.
+const __printed = (value) =>
+  stdout.split("\n").some((l) => ` ${l.trim()} `.includes(` ${value} `));
+// The same, for a value that can only be described by a pattern.
+const __printedMatch = (pattern) =>
+  stdout.split(/\s+/).some((t) => pattern.test(t));
+assert.isTrue(
+  __printedMatch(/^v\d+\.\d+\.\d+$/),
   "Running `node server.js` should print the Node.js version (e.g. `v20.0.0`)",
+);
+assert.isTrue(
+  __printed(process.platform),
+  "Running `node server.js` should print the value of `process.platform`",
+);
+assert.isTrue(
+  __printed(String(process.env.NODE_ENV)),
+  "Running `node server.js` should print the value of `process.env.NODE_ENV`",
 );
 ```
 
@@ -1944,22 +2289,32 @@ Run `node server.js` and also try passing an extra argument like `node server.js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __i = new __helpers.Inspector(__file);
 assert.isTrue(
-  __i.hasMember("process.argv"),
-  "You should log `process.argv` in `server.js`",
+  __i
+    .getCalls("console.log")
+    .some((c) =>
+      c.arguments.some((a) => __helpers.generate(a).code === "process.argv"),
+    ),
+  "You should log `process.argv` with `console.log`",
 );
 ```
 
 Running `server.js` should print an array that includes the path to the script file.
 
 ```js
+const { join } = await import("path");
 const { stdout } = await __helpers.getCommandOutput(
-  "node server.js",
+  "node server.js myArg",
   project.dashedName,
 );
 assert.include(
   stdout,
-  "server.js",
+  `'${join(ROOT, project.dashedName, "server.js")}',`,
   "Running `node server.js` should print the argv array, which includes the script path",
+);
+assert.include(
+  stdout,
+  "'myArg'",
+  "Running `node server.js myArg` should print the argv array, which includes `myArg`",
 );
 ```
 
@@ -1998,8 +2353,10 @@ Run `node server.js` - both messages should appear in the terminal.
 const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __i = new __helpers.Inspector(__file);
 assert.isTrue(
-  __i.hasCall("process.stdout.write"),
-  "You should call `process.stdout.write(...)` in `server.js`",
+  __i
+    .getCalls("process.stdout.write")
+    .some((c) => __i.argText(c.arguments.at(0)) === "Hello from stdout\n"),
+  "You should call `process.stdout.write` with `'Hello from stdout\\n'`",
 );
 ```
 
@@ -2009,22 +2366,29 @@ assert.isTrue(
 const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __i = new __helpers.Inspector(__file);
 assert.isTrue(
-  __i.hasCall("process.stderr.write"),
-  "You should call `process.stderr.write(...)` in `server.js`",
+  __i
+    .getCalls("process.stderr.write")
+    .some((c) => __i.argText(c.arguments.at(0)) === "Hello from stderr\n"),
+  "You should call `process.stderr.write` with `'Hello from stderr\\n'`",
 );
 ```
 
-Running `server.js` should output the stdout message to the terminal.
+Running `server.js` should write the stdout message to stdout and the stderr message to stderr.
 
 ```js
-const { stdout } = await __helpers.getCommandOutput(
+const { stdout, stderr } = await __helpers.getCommandOutput(
   "node server.js",
   project.dashedName,
 );
 assert.include(
-  stdout,
+  stdout.split("\n"),
   "Hello from stdout",
   "Running `node server.js` should write `Hello from stdout` to stdout",
+);
+assert.include(
+  stderr.split("\n"),
+  "Hello from stderr",
+  "Running `node server.js` should write `Hello from stderr` to stderr",
 );
 ```
 
@@ -2082,29 +2446,89 @@ assert.match(
 );
 ```
 
-`server.js` should listen to the `data` event and the `end` event on the readable stream.
+`fs.createReadStream` should be called with `encoding: 'utf8'` and stored in a variable.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __i = new __helpers.Inspector(__file);
-const __events = __i
-  .getMethodCalls("on")
-  .map((c) => __i.argText(c.arguments.at(0)));
-assert.include(
-  __events,
-  "data",
-  "You should listen to the `data` event on the readable stream",
+const __stream = __i.declarators.find(
+  (d) =>
+    d.id?.type === "Identifier" &&
+    d.init?.type === "CallExpression" &&
+    __helpers.generate(d.init.callee).code === "fs.createReadStream",
 );
-assert.include(
-  __events,
-  "end",
-  "You should listen to the `end` event on the readable stream",
+assert.isDefined(
+  __stream,
+  "You should store the result of `fs.createReadStream` in a variable",
+);
+const __options = __stream.init.arguments.at(1);
+const __encoding =
+  __options?.type === "ObjectExpression"
+    ? __options?.properties.find(
+        (p) => (p.key?.name ?? p.key?.value) === "encoding",
+      )?.value
+    : __options;
+assert.match(
+  __i.argText(__encoding),
+  /^utf-?8$/i,
+  'You should pass `{ encoding: "utf8" }` as the second argument to `fs.createReadStream`',
 );
 ```
 
-Running `server.js` should print the poem contents to the console.
+`server.js` should listen to the `data` event and the `end` event on the readable stream, logging each chunk and an end message.
 
 ```js
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+const __i = new __helpers.Inspector(__file);
+const __stream = __i.declarators.find(
+  (d) =>
+    d.id?.type === "Identifier" &&
+    d.init?.type === "CallExpression" &&
+    __helpers.generate(d.init.callee).code === "fs.createReadStream",
+);
+assert.isDefined(
+  __stream,
+  "You should store the result of `fs.createReadStream` in a variable",
+);
+const __handler = (event) =>
+  __i
+    .getCalls(`${__stream.id.name}.on`)
+    .filter((c) => __i.argText(c.arguments.at(0)) === event)
+    .flatMap((c) => __i.getCallbacks(c))
+    .at(0);
+const __logsIn = (fn) =>
+  __i
+    .getCalls("console.log")
+    .filter((c) => c.start >= fn.body.start && c.end <= fn.body.end);
+const __onData = __handler("data");
+assert.isDefined(
+  __onData,
+  `You should call \`${__stream.id.name}.on("data", ...)\` with a callback`,
+);
+const __chunk = __onData.params.at(0)?.name;
+assert.isTrue(
+  __logsIn(__onData).some((c) =>
+    c.arguments.some((a) => a.type === "Identifier" && a.name === __chunk),
+  ),
+  "Inside the `data` callback, log the chunk (the callback's first parameter)",
+);
+const __onEnd = __handler("end");
+assert.isDefined(
+  __onEnd,
+  `You should call \`${__stream.id.name}.on("end", ...)\` with a callback`,
+);
+assert.isAbove(
+  __logsIn(__onEnd).length,
+  0,
+  "Inside the `end` callback, log a message with `console.log`",
+);
+```
+
+Running `server.js` should print the poem contents, followed by your end message.
+
+```js
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+const __i = new __helpers.Inspector(__file);
 const { stdout } = await __helpers.getCommandOutput(
   "node server.js",
   project.dashedName,
@@ -2114,6 +2538,34 @@ assert.include(
   "one by one",
   "Running `node server.js` should print the poem from the readable stream",
 );
+const __stream = __i.declarators.find(
+  (d) =>
+    d.id?.type === "Identifier" &&
+    d.init?.type === "CallExpression" &&
+    __helpers.generate(d.init.callee).code === "fs.createReadStream",
+);
+const __onEnd = __i
+  .getCalls(`${__stream?.id.name}.on`)
+  .filter((c) => __i.argText(c.arguments.at(0)) === "end")
+  .flatMap((c) => __i.getCallbacks(c))
+  .at(0);
+const __message = __i
+  .getCalls("console.log")
+  .find(
+    (c) =>
+      __onEnd &&
+      c.start >= __onEnd?.body.start &&
+      c.end <= __onEnd?.body.end &&
+      c.arguments.at(0)?.type === "StringLiteral",
+  )
+  ?.arguments.at(0).value;
+if (__message) {
+  assert.include(
+    stdout,
+    __message,
+    "Running `node server.js` should print your end message once the stream finishes",
+  );
+}
 ```
 
 You should run `node server.js` to see the console output.
@@ -2227,18 +2679,47 @@ assert.match(
 );
 ```
 
-Running `server.js` should create an `assets/stream-output.txt` file.
+`server.js` should call `.write` at least twice on the writable stream, then call `.end()`.
+
+```js
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+const __i = new __helpers.Inspector(__file);
+const __stream = __i.declarators.find(
+  (d) =>
+    d.id?.type === "Identifier" &&
+    d.init?.type === "CallExpression" &&
+    __helpers.generate(d.init.callee).code === "fs.createWriteStream",
+);
+assert.isDefined(
+  __stream,
+  "You should store the result of `fs.createWriteStream` in a variable",
+);
+const __name = __stream.id.name;
+assert.isAtLeast(
+  __i.getCalls(`${__name}.write`).filter((c) => c.arguments.length > 0).length,
+  2,
+  `You should call \`${__name}.write(...)\` at least twice`,
+);
+assert.isTrue(
+  __i.hasCall(`${__name}.end`),
+  `You should call \`${__name}.end()\` after writing`,
+);
+```
+
+Running `server.js` should create an `assets/stream-output.txt` file with your written content.
 
 ```js
 const { join } = await import("path");
-const { existsSync } = await import("fs");
+const { existsSync, readFileSync } = await import("fs");
 await __helpers.getCommandOutput("node server.js", project.dashedName);
-const __exists = existsSync(
-  join(ROOT, project.dashedName, "assets", "stream-output.txt"),
-);
+const __path = join(ROOT, project.dashedName, "assets", "stream-output.txt");
 assert.isTrue(
-  __exists,
+  existsSync(__path),
   "`assets/stream-output.txt` should exist after running `node server.js`",
+);
+assert.isNotEmpty(
+  readFileSync(__path, "utf8"),
+  "`assets/stream-output.txt` should contain the chunks you wrote",
 );
 ```
 
@@ -2271,15 +2752,50 @@ Run `node server.js` - `assets/stream-output.txt` should be overwritten with the
 
 ### --tests--
 
-`server.js` should call `.pipe()` to connect the readable to the writable stream.
+`server.js` should call `.pipe()` on the readable stream, passing the writable stream.
 
 ```js
 const __file = await __helpers.getFile(project.dashedName, "server.js");
 const __i = new __helpers.Inspector(__file);
-assert.isAbove(
-  __i.getMethodCalls("pipe").length,
-  0,
-  "You should call `.pipe(writable)` on the readable stream",
+const __streamNames = (callee) =>
+  __i.declarators
+    .filter(
+      (d) =>
+        d.id?.type === "Identifier" &&
+        d.init?.type === "CallExpression" &&
+        __helpers.generate(d.init.callee).code === callee,
+    )
+    .map((d) => d.id.name);
+const __readables = __streamNames("fs.createReadStream");
+const __writables = __streamNames("fs.createWriteStream");
+assert.isTrue(
+  __i
+    .getMethodCalls("pipe")
+    .some(
+      (c) =>
+        __readables.includes(c.callee.object?.name) &&
+        __writables.includes(c.arguments.at(0)?.name),
+    ),
+  "You should call `.pipe(writable)` on the readable stream, passing the writable stream",
+);
+```
+
+`server.js` should no longer write to the writable stream manually.
+
+```js
+const __file = await __helpers.getFile(project.dashedName, "server.js");
+const __i = new __helpers.Inspector(__file);
+const __writables = __i.declarators
+  .filter(
+    (d) =>
+      d.id?.type === "Identifier" &&
+      d.init?.type === "CallExpression" &&
+      __helpers.generate(d.init.callee).code === "fs.createWriteStream",
+  )
+  .map((d) => d.id.name);
+assert.isFalse(
+  __writables.some((w) => __i.hasCall(`${w}.write`)),
+  "You should remove the manual `.write` calls on the writable stream",
 );
 ```
 
