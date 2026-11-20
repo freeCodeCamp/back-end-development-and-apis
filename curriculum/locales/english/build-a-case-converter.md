@@ -32,8 +32,13 @@ Within the `build-a-case-converter/` directory, run `mkdir case_converter` in th
 You should have a directory named `case_converter` in the `build-a-case-converter/` directory.
 
 ```js
+const { statSync } = await import("fs");
 const dir = await __helpers.getDir(project.dashedName);
 assert.include(dir, "case_converter");
+assert.isTrue(
+  statSync(join(ROOT, project.dashedName, "case_converter")).isDirectory(),
+  "`case_converter` should be a directory, created with `mkdir`",
+);
 ```
 
 ### --seed--
@@ -300,6 +305,41 @@ const packageJsonExists = await __helpers.fileExists(
 assert.isTrue(packageJsonExists, "The package.json file does not exist");
 ```
 
+The `package.json` file should contain the values you entered during `npm init`.
+
+```js
+const pkg = JSON.parse(
+  await __helpers.getFile(project.dashedName, "case_converter/package.json"),
+);
+assert.equal(
+  pkg.name,
+  "case_converter",
+  "The package name should be `case_converter`",
+);
+assert.equal(pkg.version, "1.0.0", "The version should be `1.0.0`");
+assert.equal(
+  pkg.description,
+  "This package is used to convert strings to a specific case.",
+  "The description should be `This package is used to convert strings to a specific case.`",
+);
+assert.equal(pkg.main, "index.js", "The entry point should be `index.js`");
+assert.equal(
+  pkg.scripts?.test,
+  "node index.test.js",
+  "The test command should be `node index.test.js`",
+);
+assert.deepEqual(
+  pkg.keywords,
+  ["case", "converter", "uppercase", "lowercase"],
+  "The keywords should be `case,converter,uppercase,lowercase`",
+);
+assert.isNotEmpty(
+  String(pkg.author ?? "").trim(),
+  "The author should be your name",
+);
+assert.equal(pkg.license, "MIT", "The license should be `MIT`");
+```
+
 ## 15
 
 ### --description--
@@ -374,11 +414,22 @@ const file = await __helpers.getFile(
 );
 let result;
 try {
-  result = eval(`${file}\ngetUpperCase("hello");`);
+  result = eval(
+    `${file}\n[getUpperCase("hello"), getUpperCase("freeCodeCamp Rocks!")];`,
+  );
 } catch (_error) {
   assert.fail("getUpperCase should be defined and run without errors.");
 }
-assert.strictEqual(result, "HELLO");
+assert.strictEqual(
+  result[0],
+  "HELLO",
+  '`getUpperCase("hello")` should return `"HELLO"`',
+);
+assert.strictEqual(
+  result[1],
+  "FREECODECAMP ROCKS!",
+  '`getUpperCase("freeCodeCamp Rocks!")` should return `"FREECODECAMP ROCKS!"`',
+);
 ```
 
 ### --seed--
@@ -420,11 +471,22 @@ const file = await __helpers.getFile(
 );
 let result;
 try {
-  result = eval(`${file}\ngetLowerCase("HELLO");`);
+  result = eval(
+    `${file}\n[getLowerCase("HELLO"), getLowerCase("freeCodeCamp Rocks!")];`,
+  );
 } catch (_error) {
   assert.fail("getLowerCase should be defined and run without errors.");
 }
-assert.strictEqual(result, "hello");
+assert.strictEqual(
+  result[0],
+  "hello",
+  '`getLowerCase("HELLO")` should return `"hello"`',
+);
+assert.strictEqual(
+  result[1],
+  "freecodecamp rocks!",
+  '`getLowerCase("freeCodeCamp Rocks!")` should return `"freecodecamp rocks!"`',
+);
 ```
 
 ### --seed--
@@ -516,6 +578,19 @@ const file = await __helpers.getFile(
 );
 const evalCode = `${file}
 assert.strictEqual(getSentenceCase("hELLO wORLD"), "Hello world");
+`;
+const _ = eval(evalCode);
+```
+
+`getSentenceCase("fOO bar BAZ")` should return `"Foo bar baz"`.
+
+```js
+const file = await __helpers.getFile(
+  project.dashedName,
+  "case_converter/index.js",
+);
+const evalCode = `${file}
+assert.strictEqual(getSentenceCase("fOO bar BAZ"), "Foo bar baz");
 `;
 const _ = eval(evalCode);
 ```
@@ -624,6 +699,19 @@ assert.strictEqual(getProperCase("hELLO wORLD"), "Hello World");
 const _ = eval(evalCode);
 ```
 
+`getProperCase("fOO bar BAZ")` should return `"Foo Bar Baz"`.
+
+```js
+const file = await __helpers.getFile(
+  project.dashedName,
+  "case_converter/index.js",
+);
+const evalCode = `${file}
+assert.strictEqual(getProperCase("fOO bar BAZ"), "Foo Bar Baz");
+`;
+const _ = eval(evalCode);
+```
+
 ### --seed--
 
 #### --"build-a-case-converter/case_converter/index.js"--
@@ -696,6 +784,19 @@ assert.include(
   properties.map((p) => p.key.name),
   "getProperCase",
 );
+for (const name of [
+  "getUpperCase",
+  "getLowerCase",
+  "getSentenceCase",
+  "getProperCase",
+]) {
+  const property = properties.find((p) => p.key?.name === name);
+  assert.equal(
+    property?.value?.name,
+    name,
+    `The \`${name}\` export should be the \`${name}\` function`,
+  );
+}
 ```
 
 ### --seed--
@@ -780,7 +881,7 @@ In Markdown, the `#` symbol is used to create a level-1 heading:
 # My H1 Heading
 ```
 
-Give your `README.md` file a title. This should be the name of your package.
+Give your `README.md` file the level-1 heading `Case Converter`.
 
 ### --tests--
 
@@ -791,7 +892,11 @@ const file = await __helpers.getFile(
   project.dashedName,
   "case_converter/README.md",
 );
-assert.match(file, /# Case Converter/);
+assert.match(
+  file,
+  /^#\s+Case Converter\s*$/m,
+  "The `README.md` file should have the level-1 heading `# Case Converter`",
+);
 ```
 
 ### --seed--
@@ -1174,9 +1279,15 @@ const file = await __helpers.getFile(
   project.dashedName,
   "case_converter/index.test.js",
 );
-assert.match(
-  file,
-  /const\s+assert\s*=\s*require\(\s*('|")node:assert\/strict\1\s*\)/,
+const inspector = new __helpers.Inspector(file);
+assert.isDefined(
+  inspector.getDeclarator("assert"),
+  "You should declare a variable called `assert`",
+);
+assert.equal(
+  inspector.getRequiredModule("assert"),
+  "node:assert/strict",
+  'You should assign `require("node:assert/strict")` to `assert`',
 );
 ```
 
@@ -1243,14 +1354,30 @@ const file = await __helpers.getFile(
   project.dashedName,
   "case_converter/index.test.js",
 );
-const t = new __helpers.Tower(file, { sourceType: "commonjs" });
-const expressionStatement = t.getCalls("assert.strictEqual")?.at(0);
-assert.exists(expressionStatement);
-const [callExpression, stringLiteral] =
-  expressionStatement.ast.expression.arguments;
-assert.equal(callExpression.callee.object.name, "caseConverter");
-assert.equal(callExpression.callee.property.name, "getUpperCase");
-assert.equal(stringLiteral.value, "HELLO FREE CODE CAMP!");
+const inspector = new __helpers.Inspector(file);
+const assertion = inspector
+  .getCalls("assert.strictEqual")
+  .find((c) => c.arguments.at(0)?.callee?.property?.name === "getUpperCase");
+assert.exists(
+  assertion,
+  "You should call `assert.strictEqual` with `caseConverter.getUpperCase(...)` as the first argument",
+);
+const [actual, expected] = assertion?.arguments ?? [];
+assert.equal(
+  actual?.callee ? __helpers.generate(actual.callee).code : "",
+  "caseConverter.getUpperCase",
+  "The first argument should call `caseConverter.getUpperCase`",
+);
+assert.equal(
+  inspector.argText(actual?.arguments?.at(0)),
+  "hello free Code Camp!",
+  'You should pass `"hello free Code Camp!"` to `caseConverter.getUpperCase`',
+);
+assert.equal(
+  inspector.argText(expected),
+  "HELLO FREE CODE CAMP!",
+  'The expected value should be `"HELLO FREE CODE CAMP!"`',
+);
 ```
 
 The test should be below the import of `caseConverter`.
@@ -1296,14 +1423,30 @@ const file = await __helpers.getFile(
   project.dashedName,
   "case_converter/index.test.js",
 );
-const t = new __helpers.Tower(file);
-const expressionStatement = t.getCalls("assert.strictEqual").at(1);
-assert.exists(expressionStatement);
-const [callExpression, stringLiteral] =
-  expressionStatement.ast.expression.arguments;
-assert.equal(callExpression.callee.object.name, "caseConverter");
-assert.equal(callExpression.callee.property.name, "getLowerCase");
-assert.equal(stringLiteral.value, "hello free code camp!");
+const inspector = new __helpers.Inspector(file);
+const assertion = inspector
+  .getCalls("assert.strictEqual")
+  .find((c) => c.arguments.at(0)?.callee?.property?.name === "getLowerCase");
+assert.exists(
+  assertion,
+  "You should call `assert.strictEqual` with `caseConverter.getLowerCase(...)` as the first argument",
+);
+const [actual, expected] = assertion?.arguments ?? [];
+assert.equal(
+  actual?.callee ? __helpers.generate(actual.callee).code : "",
+  "caseConverter.getLowerCase",
+  "The first argument should call `caseConverter.getLowerCase`",
+);
+assert.equal(
+  inspector.argText(actual?.arguments?.at(0)),
+  "hello free Code Camp!",
+  'You should pass `"hello free Code Camp!"` to `caseConverter.getLowerCase`',
+);
+assert.equal(
+  inspector.argText(expected),
+  "hello free code camp!",
+  'The expected value should be `"hello free code camp!"`',
+);
 ```
 
 The `index.test.js` file should contain `assert.strictEqual(caseConverter.getProperCase("hello free Code Camp!"), "Hello Free Code Camp!");`.
@@ -1313,20 +1456,30 @@ const file = await __helpers.getFile(
   project.dashedName,
   "case_converter/index.test.js",
 );
-const t = new __helpers.Tower(file);
-const expressionStatement = t.getCalls("assert.strictEqual").find((t) => {
-  return (
-    t.ast.expression?.arguments?.[0]?.callee?.property?.name === "getProperCase"
-  );
-});
-assert.exists(expressionStatement);
-const [callExpression, stringLiteral] =
-  expressionStatement.ast.expression.arguments;
-assert.equal(
-  __helpers.generate(callExpression, { compact: true }).code,
-  'caseConverter.getProperCase("hello free Code Camp!")',
+const inspector = new __helpers.Inspector(file);
+const assertion = inspector
+  .getCalls("assert.strictEqual")
+  .find((c) => c.arguments.at(0)?.callee?.property?.name === "getProperCase");
+assert.exists(
+  assertion,
+  "You should call `assert.strictEqual` with `caseConverter.getProperCase(...)` as the first argument",
 );
-assert.equal(stringLiteral.value, "Hello Free Code Camp!");
+const [actual, expected] = assertion?.arguments ?? [];
+assert.equal(
+  actual?.callee ? __helpers.generate(actual.callee).code : "",
+  "caseConverter.getProperCase",
+  "The first argument should call `caseConverter.getProperCase`",
+);
+assert.equal(
+  inspector.argText(actual?.arguments?.at(0)),
+  "hello free Code Camp!",
+  'You should pass `"hello free Code Camp!"` to `caseConverter.getProperCase`',
+);
+assert.equal(
+  inspector.argText(expected),
+  "Hello Free Code Camp!",
+  'The expected value should be `"Hello Free Code Camp!"`',
+);
 ```
 
 The `index.test.js` file should contain `assert.strictEqual(caseConverter.getSentenceCase("hello free Code Camp!"), "Hello free code camp!");`.
@@ -1336,22 +1489,30 @@ const file = await __helpers.getFile(
   project.dashedName,
   "case_converter/index.test.js",
 );
-const t = new __helpers.Tower(file);
-const expressionStatement = t
+const inspector = new __helpers.Inspector(file);
+const assertion = inspector
   .getCalls("assert.strictEqual")
-  .find(
-    (t) =>
-      t.ast.expression?.arguments?.[0]?.callee?.property?.name ===
-      "getSentenceCase",
-  );
-assert.exists(expressionStatement);
-const [callExpression, stringLiteral] =
-  expressionStatement.ast.expression.arguments;
-assert.equal(
-  __helpers.generate(callExpression, { compact: true }).code,
-  'caseConverter.getSentenceCase("hello free Code Camp!")',
+  .find((c) => c.arguments.at(0)?.callee?.property?.name === "getSentenceCase");
+assert.exists(
+  assertion,
+  "You should call `assert.strictEqual` with `caseConverter.getSentenceCase(...)` as the first argument",
 );
-assert.equal(stringLiteral.value, "Hello free code camp!");
+const [actual, expected] = assertion?.arguments ?? [];
+assert.equal(
+  actual?.callee ? __helpers.generate(actual.callee).code : "",
+  "caseConverter.getSentenceCase",
+  "The first argument should call `caseConverter.getSentenceCase`",
+);
+assert.equal(
+  inspector.argText(actual?.arguments?.at(0)),
+  "hello free Code Camp!",
+  'You should pass `"hello free Code Camp!"` to `caseConverter.getSentenceCase`',
+);
+assert.equal(
+  inspector.argText(expected),
+  "Hello free code camp!",
+  'The expected value should be `"Hello free code camp!"`',
+);
 ```
 
 ### --seed--
@@ -1379,6 +1540,12 @@ Run `npm test` to test your package. This will run the `test` command that you d
 You should run `npm test` in the terminal.
 
 ```js
+const lastCommand = await __helpers.getLastCommand();
+assert.match(
+  lastCommand ?? "",
+  /^\s*npm\s+(run\s+)?t(est)?\s*$/,
+  "Your last command should be `npm test`",
+);
 const terminalOutput = await __helpers.getTerminalOutput();
 assert.include(terminalOutput, "node index.test.js");
 ```
@@ -1442,6 +1609,12 @@ Run `npm test` to test your package, and see the failing assertion.
 You should run `npm test` in the terminal, and see the failing assertion.
 
 ```js
+const lastCommand = await __helpers.getLastCommand();
+assert.match(
+  lastCommand ?? "",
+  /^\s*npm\s+(run\s+)?t(est)?\s*$/,
+  "Your last command should be `npm test`",
+);
 const terminalOutput = await __helpers.getTerminalOutput();
 assert.include(terminalOutput, "node index.test.js");
 assert.include(terminalOutput, "AssertionError");
@@ -1491,6 +1664,33 @@ try {
   );
 } catch (e) {
   assert.fail("`npm test` should not throw");
+}
+```
+
+The `index.test.js` file should still test all four functions.
+
+```js
+const file = await __helpers.getFile(
+  project.dashedName,
+  "case_converter/index.test.js",
+);
+const inspector = new __helpers.Inspector(file);
+const tested = inspector
+  .getCalls("assert.strictEqual")
+  .map((c) => c.arguments.at(0))
+  .filter((a) => a?.callee?.object?.name === "caseConverter")
+  .map((a) => a?.callee?.property?.name);
+for (const name of [
+  "getUpperCase",
+  "getLowerCase",
+  "getProperCase",
+  "getSentenceCase",
+]) {
+  assert.include(
+    tested,
+    name,
+    `Keep the \`assert.strictEqual\` test for \`caseConverter.${name}\` - fix it instead of deleting it`,
+  );
 }
 ```
 
