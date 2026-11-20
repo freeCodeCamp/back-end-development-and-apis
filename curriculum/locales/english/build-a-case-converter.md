@@ -869,13 +869,15 @@ This package is used to convert strings to a specific case.
 
 ### --description--
 
-Add the installation instructions to the `README.md` file. This should be a code block that shows how to install your package using npm:
+In Markdown, a code block is created by wrapping the code in three backticks. The language name can be written after the opening backticks:
 
 ````markdown
 ```bash
-npm install case_converter
+npm install my-package
 ```
 ````
+
+Under the `Installation` heading, add a `bash` code block that shows how to install your package using npm: `npm install case_converter`.
 
 ### --tests--
 
@@ -1157,13 +1159,13 @@ The MIT License
 
 ### --description--
 
-Nodejs comes with a built-in assertion testing module. You can use it to test your package.
-
-Within `index.test.js`, import `assert` from `node:assert/strict`:
+Nodejs comes with a built-in assertion testing module. You can use it to test your package. Built-in modules can be imported with the `node:` prefix. For example:
 
 ```js
-const assert = require("node:assert/strict");
+const fs = require("node:fs");
 ```
+
+Within `index.test.js`, use `require` to import `node:assert/strict` into a `const` variable named `assert`.
 
 ### --tests--
 
@@ -1192,11 +1194,9 @@ touch build-a-case-converter/case_converter/index.test.js
 
 ### --description--
 
-In order to use the `caseConverter` module in the `index.test.js` file, you need to import it:
+In order to use the `caseConverter` module in the `index.test.js` file, you need to import it.
 
-```js
-const caseConverter = require("./index");
-```
+Use `require` to import the `./index` module, and store the result in a `const` variable named `caseConverter`.
 
 ### --tests--
 
@@ -1225,14 +1225,13 @@ const assert = require("node:assert/strict");
 
 ### --description--
 
-Create a test for the `getUpperCase` function:
+The `assert.strictEqual` function takes the actual value as its first argument and the expected value as its second argument. It throws an error if the two are not strictly equal:
 
 ```js
-assert.strictEqual(
-  caseConverter.getUpperCase("hello free Code Camp!"),
-  "HELLO FREE CODE CAMP!",
-);
+assert.strictEqual(myModule.myFunction("some input"), "expected output");
 ```
+
+Below the import of `caseConverter`, create a test for the `getUpperCase` function. Use `assert.strictEqual` to check that `caseConverter.getUpperCase("hello free Code Camp!")` returns `"HELLO FREE CODE CAMP!"`.
 
 ### --tests--
 

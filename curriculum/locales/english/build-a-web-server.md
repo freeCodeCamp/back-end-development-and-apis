@@ -70,7 +70,13 @@ touch build-a-web-server/server.js
 
 ### --description--
 
-To create a server, use the `createServer` method of the `http` module. Store the returned `http.Server` instance in a variable called `server`.
+To create a server, use the `createServer` method of the `http` module. For example:
+
+```js
+const app = http.createServer();
+```
+
+Store the returned `http.Server` instance in a variable called `server`.
 
 ### --tests--
 
@@ -96,7 +102,11 @@ const http = require("http");
 
 ### --description--
 
-The `createServer` method takes a callback function as an argument. This callback function will be called whenever a request is made to the server.
+The `createServer` method takes a callback function as an argument. This callback function will be called whenever a request is made to the server. For example:
+
+```js
+const app = http.createServer((req, res) => {});
+```
 
 Pass a callback function to the `createServer` method. The callback function should take two arguments: `request` and `response`.
 
@@ -134,7 +144,13 @@ const server = http.createServer();
 
 ### --description--
 
-To get the server to listen for <dfn title="Transmission Control Protocol">TCP</dfn> connections, at the bottom of your file, call the `listen` method on the `server` instance.
+To get a server to listen for <dfn title="Transmission Control Protocol">TCP</dfn> connections, call its `listen` method. For example:
+
+```js
+app.listen(8080);
+```
+
+At the bottom of your file, call the `listen` method on the `server` instance.
 
 ### --tests--
 
@@ -391,7 +407,11 @@ server.listen(3001);
 
 Yikes! 😅 The server terminal is showing a lot of information. You are probably not interested in all of that. So, log just the `headers` property of the request.
 
-Request headers are a set of key-value pairs that contain information about the request, such as the `User-Agent` (the client application making the request), `Accept` (the media types the client can understand), and `Accept-Language` (the language the client prefers for the response).
+Request headers are a set of key-value pairs that contain information about the request, such as the `User-Agent` (the client application making the request), `Accept` (the media types the client can understand), and `Accept-Language` (the language the client prefers for the response). For example:
+
+```js
+const userAgent = request.headers["user-agent"];
+```
 
 ### --tests--
 
@@ -508,7 +528,11 @@ server.listen(3001);
 
 A URL (Uniform Resource Locator) is a reference to a web resource that specifies its location on a computer network and a mechanism for retrieving it. The URL contains the name of the protocol to be used to access the resource and a resource name.
 
-Along with the `headers`, you will be using the `url` property of the `request` object to determine which resource the client is requesting.
+Along with the `headers`, you will be using the `url` property of the `request` object to determine which resource the client is requesting. For example:
+
+```js
+const requestedPath = request.url; // "/about"
+```
 
 Log the `url` property of the `request` object to the console.
 
@@ -800,12 +824,7 @@ server.js
 
 </details>
 
-You can see `public/` needs to be prepended to the `url` variable to get the correct file path. Whilst you could use string concatenation, it is better to use the `path` module's `join` function to join the directory with the `url` variable:
-
-```js
-const fullPath = path.join("first", "second", "third");
-console.log(fullPath); // first/second/third
-```
+You can see `public/` needs to be prepended to the `url` variable to get the correct file path. Whilst you could use string concatenation, it is better to use the `path` module's `join` function to join the directory with the `url` variable.
 
 Create a `filePath` variable, and assign it the value of joining `"public"` with `url`. Declare it before the `response.end` call.
 
@@ -1018,11 +1037,7 @@ server.listen(3001);
 
 ### --description--
 
-Now, read the file from the file system. Call the `readFile` function, and pass the `filePath` variable as the first argument:
-
-```js
-readFile("relative/path/to/file");
-```
+Now, read the file from the file system. Call the `readFile` function, and pass the `filePath` variable as the first argument.
 
 ### --tests--
 
@@ -1072,17 +1087,7 @@ server.listen(3001);
 
 ### --description--
 
-The `readFile` function takes a callback function as its second argument. This callback function will be called once the file has been read:
-
-```js
-readFile("relative/path/to/file", (error, data) => {
-  if (error) {
-    console.error(error);
-    return;
-  }
-  console.log(data);
-});
-```
+The `readFile` function takes a callback function as its second argument. This callback function will be called once the file has been read.
 
 Pass a callback function to the `readFile` function. The callback function should take two arguments: `error` and `file`.
 
@@ -1722,7 +1727,11 @@ There is some more information you should be sending to the client with your res
 1. The `Content-Type` header should be set to the correct media type for the file being sent. For example, `text/html` for `.html` files, `image/png` for `.png` files, and `text/css` for `.css` files.
 2. The HTTP status code should be set to `200` for successful responses, and `404` for not found responses.
 
-This information is sent in the `response.writeHead` function, which commonly takes two arguments: the status code, and an object containing the headers.
+This information is sent in the `response.writeHead` function, which commonly takes two arguments: the status code, and an object containing the headers. For example:
+
+```js
+response.writeHead(201, { "Content-Type": "application/json" });
+```
 
 For now, just send a `200` status code when the request file exists, and a `404` status code when it does not.
 
@@ -1968,11 +1977,7 @@ assert.equal(js.compact, '".js":"text/javascript"');
 
 ### --description--
 
-To get the file extension, you can use the `path` module's `extname` function:
-
-```js
-console.log(extname("path/to/file.html")); // .html
-```
+To get the file extension, you can use the `path` module's `extname` function, which returns the extension of a path, including the leading dot.
 
 Import the `extname` function from the `path` module, and use it to get the file extension from the `filePath` variable. Store the result in a variable called `ext`.
 
@@ -2575,7 +2580,14 @@ server.listen(3001, () => console.log("Server is listening on port 3001"));
 (node:164499) Warning: To load an ES module, set "type": "module" in the package.json or use the .mjs extension.
 ```
 
-This is because Node.js defaults to CommonJS modules, and you are using ESM. You can fix this by renaming your file to `server.mjs`, or by adding `"type": "module"` to the `package.json` file.
+This is because Node.js defaults to CommonJS modules, and you are using ESM. You can fix this by renaming your file to `server.mjs`, or by adding `"type": "module"` to the `package.json` file. For example:
+
+```json
+{
+  "name": "my-app",
+  "type": "module"
+}
+```
 
 To avoid having to change many file names, most projects use the `package.json` approach. Do the same.
 

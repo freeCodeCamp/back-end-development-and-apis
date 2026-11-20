@@ -356,11 +356,7 @@ const server = http.createServer((req, res) => {
 
 <dfn title="WebSocket">WebSocket</dfn> connections begin as ordinary HTTP requests. The browser sends a special HTTP `Upgrade` request - including an `Upgrade: websocket` header - asking the server to switch protocols. If the server agrees, it responds with a `101 Switching Protocols` status and the connection is promoted from HTTP to the WebSocket protocol. This process is called the <dfn title="the initial HTTP request/response that establishes a WebSocket connection">handshake</dfn>.
 
-The `ws` npm package handles the handshake for you. Import `WebSocketServer` from `'ws'` using named ESM syntax:
-
-```js
-import { WebSocketServer } from "ws";
-```
+The `ws` npm package handles the handshake for you. Import `WebSocketServer` from `'ws'` using a named ESM import.
 
 ### --tests--
 
@@ -420,13 +416,7 @@ server.listen(PORT, () => {
 
 ### --description--
 
-Create a `WebSocketServer` instance and store it in a constant named `wss`. Pass the existing `server` as the `server` option so the WebSocket server shares the same port and can intercept the HTTP `Upgrade` requests:
-
-```js
-const wss = new WebSocketServer({ server });
-```
-
-Place this declaration after `http.createServer` and before `server.listen`.
+In `server.js`, create a `WebSocketServer` instance and store it in a constant named `wss`. Pass your existing `server` as the `server` option. Place this declaration after `http.createServer` and before `server.listen`.
 
 ### --tests--
 
@@ -505,13 +495,7 @@ server.listen(PORT, () => {
 
 When a browser completes the WebSocket handshake with the server, `wss` emits a `'connection'` event. The event listener receives the individual `socket` object representing that client's connection.
 
-Register a `'connection'` listener on `wss` that logs `'Client connected'` and accepts a `socket` parameter:
-
-```js
-wss.on("connection", (socket) => {
-  console.log("Client connected");
-});
-```
+Register a `'connection'` listener on `wss` that logs `'Client connected'` and accepts a `socket` parameter.
 
 Place this after the `wss` declaration and before `server.listen`.
 
@@ -622,13 +606,8 @@ server.listen(PORT, () => {
 
 Each `socket` object also emits lifecycle events. The `'message'` event fires whenever the client sends data to the server. The callback receives a `Buffer` containing the message, so call `.toString()` to read it as a string.
 
-Inside the `'connection'` callback, add a `'message'` listener on `socket`:
+Inside the `'connection'` callback, add a `'message'` listener on `socket`. In the listener callback, convert the received data to a string using `.toString()` and log it to the console.
 
-```js
-socket.on("message", (data) => {
-  console.log("Received:", data.toString());
-});
-```
 
 ### --tests--
 
@@ -735,13 +714,7 @@ server.listen(PORT, () => {
 
 ### --description--
 
-The `'close'` event fires when the client disconnects - for example, when the user closes the browser tab. Add a `'close'` listener on `socket` inside the `'connection'` callback:
-
-```js
-socket.on("close", () => {
-  console.log("Client disconnected");
-});
-```
+The `'close'` event fires when the client disconnects - for example, when the user closes the browser tab. Add a `'close'` listener on `socket` inside the `'connection'` callback. In its callback, log `'Client disconnected'` to the console.
 
 ### --tests--
 
@@ -851,13 +824,7 @@ server.listen(PORT, () => {
 
 ### --description--
 
-The `'error'` event fires when an unexpected problem occurs on the socket - such as a broken connection. Add an `'error'` listener on `socket` inside the `'connection'` callback:
-
-```js
-socket.on("error", (err) => {
-  console.error("Socket error:", err);
-});
-```
+The `'error'` event fires when an unexpected problem occurs on the socket - such as a broken connection. Add an `'error'` listener on `socket` inside the `'connection'` callback. Its callback should receive the error and log it with `console.error`.
 
 ### --tests--
 
@@ -953,32 +920,23 @@ server.listen(PORT, () => {
 
 ### --description--
 
-Node.js includes a built-in `os` module with methods for reading system metrics. Import it at the top of `server.js`:
+Node.js includes a built-in `os` module with methods for reading system metrics. Import it at the top of `server.js` as a default ESM import named `os`.
+
+As a reminder, the methods on `os` return raw values. For example, `os.freemem()` returns bytes, so you will often convert them to friendlier units and format them with `toFixed`.
+
+The `os.loadavg()` method returns an array of three numbers: the system load averages over the last 1, 5, and 15 minutes. For example:
 
 ```js
-import os from "os";
+const [oneMin, fiveMin, fifteenMin] = os.loadavg();
+console.log(`Load over the last 15 minutes: ${fifteenMin}`);
 ```
 
-Then write a function named `getMetrics` that returns an object with the following properties:
+After the import, write a function named `getMetrics` that returns an object with the following properties:
 
 - `loadAvg` - the 1, 5, and 15-minute load averages from `os.loadavg()`
-- `freeMemMB` - free memory in megabytes, rounded to `0` decimal places
-- `totalMemMB` - total memory in megabytes, rounded to `0` decimal places
-- `memUsagePct` - used memory as a percentage of total, fixed to `1` decimal place
-
-```js
-function getMetrics() {
-  return {
-    loadAvg: os.loadavg(),
-    freeMemMB: (os.freemem() / 1024 / 1024).toFixed(0),
-    totalMemMB: (os.totalmem() / 1024 / 1024).toFixed(0),
-    memUsagePct: (
-      ((os.totalmem() - os.freemem()) / os.totalmem()) *
-      100
-    ).toFixed(1),
-  };
-}
-```
+- `freeMemMB` - free memory from `os.freemem()`, converted from bytes to megabytes (divide by `1024` twice) and formatted with `toFixed(0)`
+- `totalMemMB` - total memory from `os.totalmem()`, converted from bytes to megabytes and formatted with `toFixed(0)`
+- `memUsagePct` - used memory (total minus free) as a percentage of total memory, formatted with `toFixed(1)`
 
 ### --tests--
 
@@ -1118,7 +1076,11 @@ server.listen(PORT, () => {
 
 ### --description--
 
-WebSocket messages are always strings (or binary buffers). To send a JavaScript object, you must first <dfn title="converting a data structure into a string for transmission">serialize</dfn> it. Use `JSON.stringify` to convert the object to a JSON string before calling `socket.send`.
+WebSocket messages are always strings (or binary buffers). To send a JavaScript object, you must first <dfn title="converting a data structure into a string for transmission">serialize</dfn> it. Use `JSON.stringify` to convert the object to a JSON string before calling `socket.send`. For example:
+
+```js
+client.send(JSON.stringify({ type: "greeting", text: "Hello!" }));
+```
 
 Inside the `'connection'` callback, use `setInterval` to call `socket.send` with the serialized result of `getMetrics()` every `1000` milliseconds. Store the interval ID in a `const` named `interval`. Place this at the top of the callback, before the event listeners.
 
@@ -1377,11 +1339,13 @@ Now open `public/script.js` to add the browser-side WebSocket client. The helper
 
 WebSocket URIs use `ws://` for plain connections and `wss://` for <dfn title="Transport Layer Security - encrypts data in transit">TLS</dfn>-encrypted connections (analogous to `http://` and `https://`). Because the server is running locally without TLS, use `ws://`.
 
-Create a `WebSocket` and store it in a constant named `socket`:
+The browser's built-in `WebSocket` constructor takes the URI of the server to connect to:
 
 ```js
-const socket = new WebSocket("ws://localhost:3000");
+const feed = new WebSocket("wss://scores.example.com/live");
 ```
+
+Create a `WebSocket` that connects to `ws://localhost:3000` and store it in a constant named `socket`.
 
 ### --tests--
 
@@ -1617,13 +1581,15 @@ function setStatus(text) {
 
 ### --description--
 
-The browser's `WebSocket` object fires `onopen` when the connection is successfully established. Assign a handler to `socket.onopen` that calls `setStatus('Connected')`:
+The browser's `WebSocket` object fires `onopen` when the connection is successfully established. Unlike the `ws` package on the server, you handle browser `WebSocket` events by assigning a function to the matching property:
 
 ```js
-socket.onopen = () => {
-  setStatus("Connected");
+feed.onopen = () => {
+  console.log("Live scores feed ready");
 };
 ```
+
+Assign a handler to `socket.onopen` that calls `setStatus('Connected')`.
 
 ### --tests--
 
@@ -1708,14 +1674,9 @@ const socket = new WebSocket("ws://localhost:3000");
 
 ### --description--
 
-The `onmessage` event fires each time the server sends data. The event object has a `data` property containing the raw message string. Use `JSON.parse` to <dfn title="converting a string back into a JavaScript data structure">deserialize</dfn> the JSON and pass the result to `updateMetrics`:
+The `onmessage` event fires each time the server sends data. The event object has a `data` property containing the raw message string, which you can <dfn title="converting a string back into a JavaScript data structure">deserialize</dfn> with `JSON.parse`.
 
-```js
-socket.onmessage = (event) => {
-  const data = JSON.parse(event.data);
-  updateMetrics(data);
-};
-```
+Assign a handler to `socket.onmessage` that parses `event.data` with `JSON.parse` and passes the result to `updateMetrics`.
 
 ### --tests--
 
@@ -1842,13 +1803,7 @@ socket.onopen = () => {
 
 ### --description--
 
-The `onclose` event fires when the WebSocket connection is closed - either by the server shutting down or the network dropping. Assign a handler to `socket.onclose` that calls `setStatus('Disconnected')`:
-
-```js
-socket.onclose = () => {
-  setStatus("Disconnected");
-};
-```
+The `onclose` event fires when the WebSocket connection is closed - either by the server shutting down or the network dropping. Assign a handler to `socket.onclose` that calls `setStatus('Disconnected')`.
 
 ### --tests--
 
@@ -1942,13 +1897,7 @@ socket.onmessage = (event) => {
 
 ### --description--
 
-The `onerror` event fires when the connection encounters an error before it can close normally. Assign a handler to `socket.onerror` that logs the error to the console:
-
-```js
-socket.onerror = (err) => {
-  console.error("WebSocket error:", err);
-};
-```
+The `onerror` event fires when the connection encounters an error before it can close normally. Assign a handler to `socket.onerror` that receives the error and logs it with `console.error`.
 
 The resource monitor is now complete. Run `npm start` to start the server, then open `http://localhost:3000` in a browser. You should see live CPU load averages and memory usage updating every second.
 

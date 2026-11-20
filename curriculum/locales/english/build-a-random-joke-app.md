@@ -65,7 +65,16 @@ assert.property(
 
 A `server.js` file has been provided for you to write the project code in.
 
-Import Express by using `require()`, with the import assigned to an `express` variable. After that, create an Express app by calling the Express function and saving it in an `app` variable.
+In Node, you load a package with `require()`, passing the package name as a string. Some packages, like Express, export a function, so you call what `require()` returns to get something you can use. For example:
+
+```js
+const cors = require("cors");
+const corsMiddleware = cors();
+```
+
+Express works the same way, calling the function it exports, with no arguments, creates an Express app.
+
+Import Express by passing the string `"express"` to `require()`, with the import assigned to an `express` variable. After that, create an Express app by calling `express()` with no arguments and saving the result in an `app` variable.
 
 Also, create a `port` variable and set it to `3000`. This is the port the app will run on.
 

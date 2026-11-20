@@ -138,7 +138,13 @@ const PORT = 3000;
 
 ### --description--
 
-Your server is running but not handling any requests yet. In Express, a route matches an HTTP method and URL path to a handler function. The handler receives `req` and `res`; use `res.json()` to send JSON from a route.
+Your server is running but not handling any requests yet. In Express, a route matches an HTTP method and URL path to a handler function. The handler receives `req` and `res`; use `res.json()` to send JSON from a route. For example:
+
+```js
+app.get("/api/version", (req, res) => {
+  res.json({ version: "2.1.0" });
+});
+```
 
 In `index.js`, add a `GET /api/info` route. Inside the handler, use `res.json()` to respond with an object that has at least a `name` property describing your API.
 
@@ -250,7 +256,13 @@ app.listen(PORT, () => {
 
 ### --description--
 
-So far you have used `res.json()` and `res.send()` to respond to requests. Express also lets you explicitly set the HTTP status code by chaining `res.status()` before a response method.
+So far you have used `res.json()` and `res.send()` to respond to requests. Express also lets you explicitly set the HTTP status code by chaining `res.status()` before a response method. Here's an example:
+
+```js
+app.get("/api/health", (req, res) => {
+  res.status(503).json({ healthy: false });
+});
+```
 
 In `index.js`, add a `GET /api/status` route that uses `res.status(200).json()` to respond with a JSON object containing a `status` property.
 
@@ -308,7 +320,13 @@ app.listen(PORT, () => {
 
 ### --description--
 
-Another useful response method is `res.redirect()`, which sends the client to a different URL. This is handy for renaming routes without breaking old links.
+Another useful response method is `res.redirect()`, which sends the client to a different URL. This is handy for renaming routes without breaking old links. For example:
+
+```js
+app.get("/old-home", (req, res) => {
+  res.redirect("/home");
+});
+```
 
 In `index.js`, add a `GET /docs` route that redirects to `/api/info`.
 
@@ -380,7 +398,14 @@ app.listen(PORT, () => {
 
 ### --description--
 
-So far all your route paths have been static strings. Express also supports route parameters - placeholders prefixed with `:` that are captured and made available on `req.params`.
+So far, all your route paths have been static strings. Express also supports route parameters - placeholders prefixed with `:` that are captured and made available on `req.params`. For example:
+
+```js
+app.get("/users/:username", (req, res) => {
+  const { username } = req.params;
+  res.json({ username, followers: 0 });
+});
+```
 
 In `index.js`, add a `GET /api/greet/:name` route that reads the `:name` parameter from `req.params` and includes it somewhere in a JSON response.
 
@@ -454,7 +479,13 @@ app.listen(PORT, () => {
 
 ### --description--
 
-When multiple HTTP methods share the same path, use `app.route()` to attach handlers in one place. This keeps related routes together.
+When multiple HTTP methods share the same path, use `app.route()` to attach handlers in one place. This keeps related routes together. For example:
+
+```js
+app.route("/api/books").get((req, res) => {
+  res.json({ books: [] });
+});
+```
 
 In `index.js`, use `app.route('/api/data')` and chain a `.get()` handler onto it that responds with a JSON body.
 
@@ -869,14 +900,7 @@ app.listen(PORT, () => {
 
 ### --description--
 
-The weather router is mounted and working. Now add a second route to it for fetching weather by city name. Route parameters work the same on a router as they do on `app` - prefix the segment with `:`:
-
-```js
-router.get("/:city", (req, res) => {
-  const { city } = req.params;
-  res.json({ city, temperature: 20, description: "placeholder" });
-});
-```
+The weather router is mounted and working. Now add a second route to it for fetching weather by city name. Route parameters work the same on a router as they do on `app` - prefix the segment with `:`.
 
 In `weather.js`, add a `GET /:city` route on the router. For now, respond with a placeholder JSON object that includes the `city` value from `req.params`.
 
@@ -977,21 +1001,15 @@ app.listen(PORT, () => {
 Now replace the placeholder response in the `/:city` handler with a real <dfn title="A server-to-server HTTP request made from within your application">machine-to-machine fetch call</dfn>. Node.js has a built-in `fetch()` - mark the handler `async` and `await` the response:
 
 ```js
-router.get("/:city", async (req, res) => {
-  const { city } = req.params;
-  const response = await fetch(
-    `https://weather-proxy.freecodecamp.rocks/api/city/${city}`,
-  );
+router.get("/:username", async (req, res) => {
+  const { username } = req.params;
+  const response = await fetch(`https://api.example.com/users/${username}`);
   const data = await response.json();
-  res.json({
-    city: data.name,
-    temperature: data.main.temp,
-    description: data.weather[0].description,
-  });
+  res.json({ name: data.profile.fullName, repos: data.stats.repoCount });
 });
 ```
 
-In `weather.js`, update the `/:city` handler to `async`, call `fetch()` against the proxy URL with the city name, and respond with a JSON object containing at least `city`, `temperature`, and `description` extracted from the API response.
+In `weather.js`, make the `/:city` handler `async` and `fetch()` the URL `https://weather-proxy.freecodecamp.rocks/api/city/` followed by the city name. Respond with a JSON object containing `city` (from `data.name`), `temperature` (from `data.main.temp`), and `description` (from `data.weather[0].description`).
 
 **NOTE:** Restart your server with `node index.js`, then click _Run Tests_.
 
@@ -1068,31 +1086,23 @@ export default router;
 
 ### --description--
 
-Right now, if the external API fails or an unsupported city is requested, the unhandled error will crash the request. Wrap the fetch logic in a `try/catch` and use `res.status(404).json()` to send a helpful error response:
+Right now, if the external API fails or an unsupported city is requested, the unhandled error will crash the request. Wrap the fetch logic in a `try/catch`, throw an error when `response.ok` is `false`, and send an error response from the `catch` block:
 
 ```js
-router.get("/:city", async (req, res) => {
-  const { city } = req.params;
+router.get("/:username", async (req, res) => {
+  const { username } = req.params;
   try {
-    const response = await fetch(
-      `https://weather-proxy.freecodecamp.rocks/api/city/${city}`,
-    );
+    const response = await fetch(`https://api.example.com/users/${username}`);
     if (!response.ok) throw new Error(`Status ${response.status}`);
     const data = await response.json();
-    res.json({
-      city: data.name,
-      temperature: data.main.temp,
-      description: data.weather[0].description,
-    });
+    res.json({ name: data.profile.fullName });
   } catch (error) {
-    res
-      .status(404)
-      .json({ error: `Could not fetch weather data for "${city}".` });
+    res.status(502).json({ message: "Could not reach the users service." });
   }
 });
 ```
 
-In `weather.js`, wrap the entire `fetch()` logic in a `try/catch`. In the `catch` block, respond with a `404` status and a JSON object that has an `error` property.
+In `weather.js`, wrap the entire `fetch()` logic of the `/:city` handler in a `try/catch`. Inside the `try` block, throw an error if `response.ok` is `false`. In the `catch` block, respond with a `404` status and a JSON object that has an `error` property describing the problem.
 
 **NOTE:** Restart your server with `node index.js`, then click _Run Tests_.
 
@@ -1180,10 +1190,10 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "assets")));
 ```
 
-`path.join(__dirname, 'public')` builds an absolute path to your `public/` folder regardless of where the process is started from. Place this `app.use()` call **before** your route definitions.
+`path.join(__dirname, "assets")` builds an absolute path to an `assets/` folder regardless of where the process is started from. Place this `app.use()` call **before** your route definitions.
 
 In `index.js`, import `path` from `path` and use `fileURLToPath(import.meta.url)` to recreate `__dirname`. Then add the `express.static` middleware pointing at the `public` directory. Restart the server and click _Run Tests_.
 
@@ -1276,11 +1286,15 @@ app.listen(PORT, () => {
 
 Previously, `GET /` responded with a plain-text string via `res.send()`. Now that you have `express.static` in place and an HTML file ready in `public/`, update the route to send the file directly using `res.sendFile()`.
 
-In ESM, use `fileURLToPath(import.meta.url)` along with `path.dirname()` to recreate `__dirname`. Then call `res.sendFile(path.join(__dirname, "public", "index.html"));`.
+`res.sendFile()` sends a file as the HTTP response and automatically sets the correct `Content-Type` header. It expects an absolute path, so build one with `path.join()` and `__dirname` (which you already recreated in ESM using `fileURLToPath(import.meta.url)` and `path.dirname()`). For example:
 
-`res.sendFile()` sends a file as the HTTP response and automatically sets the correct `Content-Type` header.
+```js
+app.get("/about", (req, res) => {
+  res.sendFile(path.join(__dirname, "pages", "about.html"));
+});
+```
 
-In `index.js`, update the `GET /` handler to use `res.sendFile()` to serve `public/index.html`. Restart your server and click _Run Tests_.
+In `index.js`, update the `GET /` handler to use `res.sendFile()` to serve the `index.html` file inside the `public` folder. Build the file path with `path.join()`, starting from `__dirname`. Restart your server and click _Run Tests_.
 
 ### --tests--
 
@@ -1370,17 +1384,7 @@ app.listen(PORT, () => {
 
 ### --description--
 
-Your weather service API is almost complete! As a finishing touch, update the `GET /api/info` route to include an `endpoints` array in its response - a self-documenting list of the routes your API exposes:
-
-```js
-app.get("/api/info", (req, res) => {
-  res.json({
-    name: "Weather Service API",
-    version: "1.0.0",
-    endpoints: ["/api/weather/:city", "/api/greet/:name", "/api/data"],
-  });
-});
-```
+Your weather service API is almost complete! As a finishing touch, update the `GET /api/info` route to include an `endpoints` array in its response - a self-documenting list of the routes your API exposes.
 
 In `index.js`, update the `GET /api/info` handler to include an `endpoints` array with at least one entry. Then restart your server and click _Run Tests_ to verify the complete API is working end-to-end. Congratulations - you have built a weather service API with Express!
 
