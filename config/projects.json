@@ -4,7 +4,7 @@
     "dashedName": "learn-nodejs-repl",
     "isIntegrated": false,
     "isPublic": true,
-    "currentLesson": 0,
+    "currentLesson": 13,
     "runTestsOnWatch": true,
     "seedEveryLesson": false,
     "isResetEnabled": false,
